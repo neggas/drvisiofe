@@ -1,0 +1,24 @@
+@mixin custom-btn-one {
+  border: 0.15rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(360deg, #00afc7, #a1bde4), linear-gradient(360deg, #a1bde4 0%, #00afc7 135%);
+}
+
+@mixin custom-btn-two {
+  @include custom-btn-one;
+  background-image: linear-gradient(360deg, #3460a7, #47a7de 67%), linear-gradient(360deg, #47a7de, #3460a7 82%);
+}
+
+@mixin gradient-base-btn {
+  border: 0.15rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+
+@mixin custom-btn-doc {
+  border: 0.06rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(360deg, #00afc7, #a1bde4), linear-gradient(360deg, #a1bde4 0%, #00afc7 135%);
+}

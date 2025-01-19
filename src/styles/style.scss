@@ -1,0 +1,2771 @@
+// Fonts
+@import "fonts";
+// Variables
+@import "variables";
+//  Buttons
+@import "button";
+
+@import "slick-carousel/slick/slick";
+@import "slick-carousel/slick/slick-theme";
+//  Patient-Dashboard Style
+@import "patient-dashboard";
+
+// Tailwind TypoGraphy
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Global Scrollbar Style Start
+:root {
+  font-family: "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  height: 100vh;
+}
+.font-family-Gagalin {
+  font-family: "Gagalin", sans-serif;
+}
+
+:root:has(:is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])) {
+  scrollbar-gutter: auto;
+}
+
+*::-webkit-scrollbar,
+*::-webkit-scrollbar-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50px;
+  background-clip: padding-box;
+  border: 3px solid transparent;
+
+  &:hover {
+    border-color: #377fc0;
+  }
+}
+
+*::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 0 10px #42abe1;
+}
+
+.grey-scroll::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 0 10px #d6d8d863;
+}
+
+@layer base {
+  :root {
+    --color-primary: 255 255 255;
+    --color-secondary: 111 114 185;
+    /* ... */
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+  transition: background-color 500s ease-in-out 0s;
+}
+
+// Global Scrollbar Style End
+.root-home {
+  @apply w-full h-full max-w-[100%] px-[1%] mx-auto lg:bg-no-repeat bg-center bg-[url('/images/bg-home.png')] bg-fixed relative;
+  background-size: 110%;
+  background-repeat: no-repeat;
+
+  @media (max-width: 1028px) {
+    background-size: 165%;
+  }
+  @media (min-width: 1029px) and (max-width: 1440px) {
+    background-size: 150%;
+  }
+
+  @media screen and (max-width: 1024px) {
+    @apply bg-cover max-w-full bg-[75%] px-4 flex flex-col justify-between items-center overflow-hidden;
+    height: 100dvh;
+  }
+}
+
+.empty-image-main {
+  @media (max-width: 1024px) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    top: 100%;
+    padding-inline: 0.5rem;
+    transform: translateY(35%);
+    img {
+      max-width: 50%;
+      display: block;
+    }
+  }
+  @media (max-width: 767px) and (min-height: 691px) {
+    transform: translateY(100%);
+  }
+}
+
+.dashboard-root {
+  @extend .root-home;
+  @apply bg-[url('/images/bg-home-dashboard.png')];
+}
+
+.home-quizz {
+  @extend .root-home;
+  @apply bg-[url('/images/bg-home-quiz.png')] bg-cover bg-center;
+}
+// Main Layout Screen Style End
+// Header Style Start
+.TopHeader {
+  @apply w-full flex items-center justify-between md:relative bg-transparent;
+
+  .app-logo {
+    @apply w-[35%] md:w-auto;
+  }
+}
+
+// Header Style End
+// Footer Style Start
+.footer-app {
+  @apply md:px-0 py-2 md:py-4 w-full flex justify-between items-center md:items-end;
+  @media (max-width: 767px) {
+    .logo-chat {
+      img {
+        position: relative;
+        max-width: 50%;
+        height: auto;
+      }
+    }
+  }
+  .footer-boat-main {
+    @apply w-full flex justify-between items-end;
+    @media (min-width: 1661px) {
+      min-height: 58px;
+    }
+  }
+}
+.logo-chat {
+  @apply relative before:absolute before:bottom-3 lg:before:bottom-0 before:w-14 lg:before:w-24 before:-left-2 lg:before:-left-0 before:rounded-[100%] before:h-0 before:shadow-botShadow before:shadow-gray-700;
+}
+// Footer Style End
+.header-timer {
+  @media screen and (max-width: 1024px) {
+    @apply hidden;
+  }
+}
+.header-timer-mob {
+  @apply mb-2;
+  @media (min-width: 1025px) {
+    display: none;
+  }
+}
+.main-home {
+  @apply w-screen mx-auto max-w-[75vw] flex justify-center items-center max-h-full xl:min-h-[79vh] 2xl:min-h-[75vh];
+  @media screen and (max-width: 767px) {
+    @apply max-w-full min-h-full;
+  }
+  &.logged-home {
+    .home-carousel {
+      @media screen and (max-width: 767px) {
+        height: calc(100dvh - 235px);
+      }
+    }
+  }
+  // Home Carousal Css Start
+  .home-carousel {
+    @apply h-[75vh] md:w-[80vw] w-[90%] flex justify-center items-center hover:md:w-[85vw] hover:w-[94%];
+    @media (min-height: 800px) {
+      @apply h-[80vh];
+    }
+    @media (max-width: 1024px) {
+      @apply h-[72vh];
+    }
+    // cursor: url("/public/images/cursors/cursor.svg"), auto;
+    @media screen and (max-width: 767px) {
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      height: calc(100dvh - 157px);
+    }
+    .carousel-item {
+      @apply grid md:w-[13vw] w-[20vw] h-[90%] relative before:absolute before:bottom-0 before:w-full before:rounded-[100%] before:h-[6px] before:shadow-cardShadow before:shadow-gray-700;
+      @apply after:absolute hover:w-1/2 hover:items-end hover:text-5xl after:hover:content-none after:top-0 after:left-0 after:w-[100%] after:h-[100%] after:bg-gradient-to-r from-[#315ea7ab] to-[#40abe1ad] bg-cover bg-no-repeat bg-center after:z-0 after:mix-blend-multiply;
+      // @apply grid md:w-[13vw] w-[20vw] h-[90%] bg-slate-400 relative before:absolute before:-bottom-3 before:w-full before:rounded-[50%] before:bg-[#666] before:h-1 before:shadow before:opacity-50;
+      // @apply after:absolute hover:w-1/2 hover:items-end hover:text-5xl after:hover:content-none after:top-0 after:left-0 after:w-[100%] after:h-[100%] after:bg-[#3360a8] after:z-0 after:opacity-50 bg-cover bg-no-repeat bg-center;
+      transition: width 0.4s ease-in-out 0.1s;
+      &:hover {
+        h1 {
+          @apply text-[42px];
+          @media (max-width: 767px) {
+            @apply text-base;
+          }
+        }
+      }
+      @media screen and (max-width: 1000px) {
+        width: 19vw;
+      }
+      @media screen and (max-width: 767px) {
+        @apply hover:text-base;
+        width: 80vw;
+        &:first-child {
+          order: 2;
+        }
+        &:last-child {
+          order: 3;
+        }
+      }
+      &.carousel-item-main {
+        @apply mx-8 md:w-[31vw] w-[31vw];
+        @media screen and (max-width: 767px) {
+          @apply w-[80vw] mx-auto;
+        }
+      }
+      &.actived {
+        @apply w-1/2 hover:w-[60%] items-end after:content-none;
+        h1 {
+          @apply sm:text-3xl text-base text-center items-end;
+          @media screen and (max-width: 767px) {
+            @apply text-base;
+          }
+        }
+        @media screen and (max-width: 767px) {
+          width: 90vw;
+        }
+      }
+      h1 {
+        @apply grid w-full absolute z-[2] items-center sm:text-[16px] text-sm font-[900] text-center text-white;
+        @apply hover:text-[42px] hover:items-end;
+        overflow-wrap: anywhere;
+
+        @media screen and (max-width: 767px) {
+          @apply hover:text-base;
+        }
+        @media screen and (max-height: 800px) {
+          @apply text-[16px];
+        }
+        @media (min-width: 1760px) and (min-height: 801px) {
+          @apply text-[25px];
+        }
+      }
+      .carousel-headline {
+        text-transform: inherit;
+      }
+      .card-box:has(.card-select:hover) {
+        @apply w-full md:w-7/12;
+        transition: width 0.1s ease-in-out 0.1s;
+      }
+      .card-box-img {
+        @apply object-cover absolute h-full w-full;
+        transition: width 0.1s ease-in-out 0.1s;
+      }
+    }
+  }
+  .Cursor-module_cursor__zE2ee {
+    background-color: transparent !important;
+    border: 3px solid var(--primary-color);
+    width: 100px !important;
+  }
+  // Home Carousal Css End
+}
+// Practitioner Card Style Start
+.doctor-card-detail {
+  .radio-card {
+    .custom-select-btn {
+      @apply font-medium relative z-auto;
+      @include custom-btn-one;
+      &:hover {
+        @include custom-btn-two;
+      }
+      &.active {
+        @include custom-btn-two;
+      }
+    }
+  }
+  .radio-label {
+    .custom-select-btn {
+      @include custom-btn-one;
+    }
+  }
+  input[type="radio"]:checked + .radio-label .custom-select-btn {
+    @include custom-btn-two;
+  }
+  input.custom-select:checked + .radio-label .custom-select-btn,
+  .radio-label:hover .custom-select-btn {
+    @include custom-btn-two;
+  }
+}
+// Practitioner Card Style End
+.main-screen {
+  border-radius: 30px;
+  @media (max-width: 1024px) {
+    border-radius: 15px;
+    width: 100%;
+    height: 100%;
+  }
+  .main-shadow {
+    box-shadow: inset 0 0 0 220px rgba(255, 255, 255, 0.3);
+    border: 5px solid #dcdadb;
+    border-radius: 30px;
+    padding: 16px;
+    @media (max-width: 767px) {
+      padding: 8px;
+      border-radius: 15px;
+      height: 100%;
+    }
+    @media (min-width: 768px) and (max-width: 1024px) {
+      height: 100%;
+    }
+  }
+  .main-bg-screen {
+    height: calc(100vh - 218px);
+    overflow: auto;
+    @media (min-width: 1025px) and (max-width: 1660px) {
+      height: calc(100vh - 206px);
+    }
+    @media (max-width: 1024px) {
+      height: 100%;
+    }
+    // @media (min-width: 768px) and (max-width: 1024px) and (min-height: 691px) {
+    //   // height: 62vh;
+    //   height: 100%;
+    // }
+    &.article {
+      @media (max-width: 767px) {
+        height: 100% !important;
+      }
+    }
+    // @media (max-width: 767px) and (min-height: 691px) {
+    //   height: 58vh;
+    // }
+    .main-inner-screen {
+      @media (min-width: 768px) {
+        height: calc(100vh - 235px);
+      }
+    }
+  }
+
+  .dashboard-main-bg-screen {
+    @extend .main-bg-screen;
+    height: calc(100vh - 215px);
+    @media (max-width: 1024px) {
+      height: 100%;
+    }
+    @media (max-width: 767px) {
+      height: 100%;
+    }
+    @media (min-width: 1025px) {
+      height: calc(100dvh - 185px);
+    }
+    @media (min-width: 1399px) {
+      height: calc(100dvh - 192px);
+    }
+    @media (min-width: 1750px) {
+      height: calc(100dvh - 200px);
+    }
+  }
+
+  .gradient-main {
+    @media (max-width: 1024px) {
+      @apply h-full;
+    }
+    .gradient-image {
+      @apply lg:bg-no-repeat bg-center bg-[url('/images/gradient-bg.svg')] h-full bg-cover;
+      @media (max-width: 767px) {
+        @apply pt-4;
+      }
+      .main-banner-image {
+        @media (min-width: 640px) and (max-width: 767px) {
+          @apply w-[60%];
+        }
+        @media (min-width: 640px) and (max-width: 767px) and (max-height: 799px) {
+          @apply w-[40%];
+        }
+      }
+      @media (max-width: 380px) {
+        @apply pt-4 h-full;
+      }
+      .banner-img {
+        @media (max-width: 767px) {
+          @apply max-w-[190px] mx-auto;
+        }
+      }
+      .teleconsult-main-box {
+        @media (max-width: 767px) {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+      }
+    }
+  }
+}
+
+.dashboard-main {
+  .gradient-main {
+    height: calc(100% - 30px);
+    @media (max-width: 1024px) {
+      height: 100%;
+    }
+    &.patient-gradient {
+      @media (max-width: 1024px) {
+        height: auto;
+      }
+    }
+    &.identity-main {
+      // @media (max-width: 767px) {
+      //   height: calc(100dvh - 290px);
+      // }
+      &.small-height {
+        @media (max-width: 1024px) {
+          height: calc(100dvh - 335px) !important;
+        }
+      }
+      &.identity-height {
+        @media (max-width: 1024px) {
+          height: calc(100dvh - 290px) !important;
+        }
+        @media (max-width: 767px) {
+          height: calc(100dvh - 255px) !important;
+        }
+      }
+    }
+  }
+}
+
+.sidebar-main {
+  @media (min-width: 1025px) {
+    overflow: auto;
+  }
+}
+.doctor-list-main {
+  @media (max-width: 1024px) {
+    height: 100%;
+    max-height: calc(100dvh - 422px);
+    overflow: auto;
+    &.doctor-profile {
+      max-height: calc(100dvh - 390px);
+    }
+  }
+  @media (max-width: 767px) {
+    height: 100%;
+    max-height: calc(100dvh - 322px);
+    overflow: auto;
+    &.doctor-profile {
+      max-height: calc(100dvh - 390px);
+    }
+  }
+  &.doctor-profile {
+    .react-datepicker__time-list {
+      height: calc(152px + 1.7rem / 2) !important;
+    }
+  }
+  @media (min-width: 768px) {
+    height: 100%;
+    overflow: auto;
+  }
+}
+.waiting-room-main {
+  @media (max-width: 767px) {
+    max-height: calc(100vh - 210px);
+  }
+}
+.waiting-room-main-login {
+  @media (max-width: 767px) {
+    max-height: calc(100vh - 290px);
+  }
+}
+.doctor-list-main-login {
+  @extend .doctor-list-main;
+  @media (max-width: 1024px) {
+    max-height: calc(100dvh - 490px);
+  }
+  @media (max-width: 767px) {
+    max-height: calc(100dvh - 400px);
+  }
+} // Login Screen Style Start
+.login-screen-main {
+  @extend .doctor-list-main;
+  @media (min-width: 768px) and (max-width: 1024px) {
+    max-height: calc(100dvh - 320px);
+    &.login-page-main {
+      height: 100%;
+      max-height: calc(100dvh - 440px);
+    }
+  }
+  @media (max-width: 767px) {
+    max-height: calc(100dvh - 246px);
+    &.login-page-main {
+      max-height: calc(100dvh - 346px);
+    }
+  }
+}
+// Login Screen Style End
+.beneficiary-section {
+  @extend .doctor-list-main;
+  @media (max-width: 1024px) {
+    height: auto;
+    max-height: calc(100dvh - 420px);
+    height: calc(100dvh - 420px);
+    &.motif-section {
+      height: auto;
+      max-height: calc(100dvh - 620px);
+    }
+  }
+  @media (max-width: 767px) {
+    max-height: calc(100dvh - 342px);
+    height: calc(100dvh - 342px);
+    &.motif-section {
+      height: 100%;
+      max-height: calc(100dvh - 390px);
+    }
+  }
+  .beneficiary-image {
+    @media (max-width: 1024px) {
+      max-width: 350px;
+    }
+    @media (max-width: 767px) {
+      max-width: 230px;
+      margin: auto;
+    }
+    @media (max-width: 480px) {
+      max-width: 202px;
+      margin: auto;
+    }
+  }
+}
+.process-main {
+  .beneficiary-section {
+    @extend .doctor-list-main;
+    @media (min-width: 768px) and (max-width: 1024px) {
+      height: 100%;
+      max-height: calc(100dvh - 350px);
+      &.motif-section {
+        height: auto;
+        max-height: calc(100dvh - 420px);
+      }
+    }
+    @media (max-width: 767px) {
+      height: 100%;
+      max-height: calc(100dvh - 255px);
+      &.motif-section {
+        height: 100%;
+        max-height: calc(100dvh - 310px);
+      }
+    }
+    .beneficiary-image {
+      @media (max-width: 1024px) {
+        max-width: 270px;
+      }
+      @media (max-width: 767px) {
+        max-width: 215px;
+        margin: auto;
+      }
+      @media (max-width: 480px) {
+        max-width: 202px;
+        margin: auto;
+      }
+    }
+  }
+  // Situation Tab Style Start
+  .situation-screen-main {
+    @extend .beneficiary-section;
+    @media (max-width: 1024px) {
+      &.situation-section {
+        height: 100%;
+        max-height: calc(100dvh - 380px);
+      }
+    }
+    @media (max-width: 767px) {
+      &.situation-section {
+        height: 100%;
+        max-height: calc(100dvh - 310px);
+      }
+    }
+    // .success-main {
+    //   @media (max-width: 767px) {
+    //     height: 100%;
+    //     display: flex;
+    //     flex-direction: column;
+    //     justify-content: space-around;
+    //   }
+    // }
+  }
+}
+// Situation Tab Style Start
+.situation-screen-main {
+  @extend .beneficiary-section;
+  @media (max-width: 1024px) {
+    &.situation-section {
+      height: 100%;
+      max-height: calc(100dvh - 580px);
+    }
+  }
+  @media (max-width: 767px) {
+    &.situation-section {
+      height: 100%;
+      max-height: calc(100dvh - 390px);
+    }
+  }
+  .success-main {
+    @media (max-width: 767px) {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+  }
+}
+
+#teleconsult-tooltip {
+  max-width: 55%;
+  background-color: #fff;
+  color: #1b75bc;
+  border-radius: 7px;
+  font-size: 9px;
+  padding: 8px;
+  text-align: center;
+  box-shadow:
+    2px 0px 4px #ffffff,
+    0px 4px 5px #f1f1f1;
+  .react-tooltip-arrow {
+    display: none !important;
+  }
+  @media (max-width: 767px) {
+    max-width: 100%;
+  }
+}
+
+.doctor-card-detail.consult-radio {
+  input.custom-select:checked + .radio-label .custom-select-btn {
+    background-image: linear-gradient(360deg, #e7376f, #d493c0 67%), linear-gradient(360deg, #d493c0, #e7376f 167%);
+  }
+}
+
+.card-btn {
+  @include custom-btn-two;
+  &:hover {
+    background-image: linear-gradient(360deg, #00afc7, #a1bde4), linear-gradient(360deg, #a1bde4 0%, #00afc7 135%);
+  }
+}
+
+.accordionitem {
+  &.active {
+    .accordion-arrow {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+dialog {
+  &::backdrop {
+    background: linear-gradient(90deg, #3460a7 0%, #47a7de 100%);
+    opacity: 0.8;
+  }
+}
+
+.login-button {
+  padding: 10px 30px;
+  @media (max-width: 767px) {
+    padding: 8px 15px;
+  }
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mutual-fund-main {
+  border: #e7e6e6 1px solid;
+}
+
+.emergency-section {
+  @apply bg-red-500/25 rounded-lg sm:shadow-transparent md:shadow-lg mt-3 xl:mt-1 2xl:mt-3 flex sm:flex-col xl:flex-row sm:py-3 md:py-2 px-4 items-center sm:gap-1 md:gap-2 xl:gap-3 2xl:gap-4 justify-between;
+}
+
+// Tab Section Start
+.tab-section {
+  .active {
+    @apply bg-customBlue text-white rounded-md;
+
+    .revert-light-gradient {
+      background: #ffffff;
+    }
+
+    .nav-span {
+      @apply text-customBlue shadow-none;
+    }
+  }
+}
+
+.steps-links {
+  @apply py-1 md:py-0 lg:py-2 lg:px-1 xl:px-2 2xl:px-3 font-semibold text-2xs lg:text-[0.5rem] xl:text-[0.563rem] 2xl:text-[0.688rem] text-black text-center flex items-center sm:gap-2 lg:gap-1 xl:gap-2 justify-center;
+  box-shadow: rgba(0, 0, 0, 0.15) 0.122rem 0rem 0.163rem;
+
+  .nav-span {
+    box-shadow:
+      rgba(148, 148, 148, 1) 0rem -0.125rem 0.063rem,
+      rgba(255, 255, 255, 1) 0rem 0.125rem 0.063rem;
+  }
+  &.steps-mob-links {
+    @media (max-width: 1024px) {
+      display: none;
+    }
+  }
+}
+
+// .document-menu {
+//   .steps-links {
+//     @media (max-width: 768px) {
+//       height: 5rem !important;
+//     }
+//   }
+// }
+
+// @media (max-width: 1399px) and (min-width: 768px) {
+//   @media (max-height: 999px) and (min-height: 599px) {
+//     .document-menu {
+//       .steps-links {
+//         @apply h-[5rem];
+//       }
+//     }
+//   }
+// }
+
+.light-gradient {
+  background: linear-gradient(180deg, #fafafa -1.72%, #d9d9d9 99.34%);
+}
+
+.revert-light-gradient {
+  background: linear-gradient(0deg, #f4f4f4 0%, #cecece 100%);
+}
+
+// Tab Section End
+.situation-radio[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  outline: none;
+  position: relative;
+  border: 2px solid transparent !important;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(#fff, #fff), linear-gradient(81deg, #00afc7 0%, #a1bde4 100%);
+  cursor: pointer;
+}
+
+/* Gradient outline */
+.situation-radio[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border-radius: 50%;
+  background: linear-gradient(270deg, #00afc7, #a1bde4);
+  z-index: 0;
+}
+
+.custom-checkbox,
+.custom-radio-parent {
+  display: inline-block;
+  position: relative;
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    display: none;
+  }
+
+  label {
+    border: 2px solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(#fff, #fff), linear-gradient(90deg, #00afc7 0%, #a1bde4 100%);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .checkmark {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 2px;
+  }
+
+  input[type="checkbox"]:checked + label,
+  input[type="radio"]:checked + label {
+    border: unset !important;
+  }
+
+  input[type="checkbox"]:checked + label .checkmark,
+  input[type="radio"]:checked + label .checkmark {
+    opacity: 1;
+  }
+
+  input[type="checkbox"]:checked + label + span,
+  input[type="radio"]:checked + label + span {
+    opacity: 1;
+  }
+}
+
+.cstm-file-upload {
+  background: linear-gradient(0deg, #00afc7 31%, #a1bde4 100%);
+}
+
+.select-box .custom-select__control {
+  border: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.all-select-box {
+  .custom-select__control {
+    border: none;
+    border-color: transparent;
+    box-shadow: none;
+    @media (max-width: 767px) {
+      @apply text-2xs 2xl:text-xs leading-none 2xl:leading-tight min-h-1 font-normal;
+      border-radius: 50%;
+      border: 0;
+      outline: none;
+      box-shadow: none;
+    }
+  }
+  @media (max-width: 767px) {
+    .custom-select__input-container {
+      @apply p-0 2xl:p-0.5 m-0;
+    }
+    .custom-select__indicator {
+      padding: 0 0.3rem;
+      svg {
+        @apply w-3 h-[1.5rem] lg:h-[1.144rem] 2xl:h-auto;
+      }
+    }
+    .custom-select__control {
+      @apply rounded-md;
+      font-size: 0.7rem;
+      line-height: 140%;
+      min-height: 1.5rem;
+      border: 0;
+      outline: none;
+      box-shadow: none;
+      margin: 0 1px;
+    }
+  }
+}
+
+.select-box .custom-select__menu {
+  top: -10.438rem !important;
+  height: 9.375rem;
+  overflow: hidden;
+
+  .custom-select__menu-list {
+    height: 9.375rem;
+    overflow: scroll;
+  }
+}
+
+.good-morning-main {
+  @apply lg:bg-no-repeat bg-[url('/images/morning-bg.svg')] bg-cover bg-bottom;
+  &.mobile-morning-bg {
+    @apply bg-right-bottom;
+  }
+}
+
+.point-bar {
+  background: linear-gradient(90deg, #3560a8 0%, #48a8df 100%);
+}
+
+.question-answered-main {
+  background: linear-gradient(90deg, #ed6b55 0%, #f5d93e 100%);
+}
+
+.Discovery-main {
+  background: linear-gradient(90deg, #3a7dc0 0%, #7bcbdf 100%);
+}
+
+.good-answer-main {
+  background: linear-gradient(90deg, #e8386f 0%, #d594c1 100%);
+}
+
+.shared-quiz-main {
+  background: linear-gradient(90deg, #9dcb8c 0%, #49bbbc 100%);
+}
+
+.cardiologie-main {
+  background: linear-gradient(90deg, #e7205e 0%, #e94e3d 100%);
+}
+
+.pneumologie-main {
+  background: linear-gradient(90deg, #00afc7 0%, #a1bde4 100%);
+}
+
+.neurologie-main {
+  background: linear-gradient(90deg, #004994 0%, #4c509e 100%);
+}
+
+.pediatrie-main {
+  background: linear-gradient(90deg, #46519e 0%, #804493 100%);
+}
+
+.courses-row {
+  .course-cards {
+    @include custom-btn-one;
+
+    &.cardiology {
+      background-image: linear-gradient(360deg, #e7205e, #e94e3d), linear-gradient(360deg, #e94e3d 0%, #e7205e 135%);
+    }
+
+    &.endocrinology {
+      background-image: linear-gradient(360deg, #3b9b94, #8ac057), linear-gradient(360deg, #8ac057 0%, #3b9b94 135%);
+    }
+
+    &.neurology {
+      background-image: linear-gradient(360deg, #004994, #4c509e), linear-gradient(360deg, #4c509e 0%, #004994 135%);
+    }
+
+    &.gynaecology {
+      background-image: linear-gradient(360deg, #824493, #e8337d), linear-gradient(360deg, #e8337d 0%, #824493 135%);
+    }
+
+    &.pneumology {
+      background-image: linear-gradient(360deg, #a1bde4, #00afc7), linear-gradient(360deg, #00afc7 0%, #a1bde4 135%);
+    }
+
+    &.paediatrics {
+      background-image: linear-gradient(360deg, #46519e, #804493), linear-gradient(360deg, #804493 0%, #46519e 135%);
+    }
+
+    &.nephrology {
+      background-image: linear-gradient(360deg, #ee713c, #fdc424), linear-gradient(360deg, #fdc424 0%, #ee713c 135%);
+    }
+
+    &.gastro {
+      background-image: linear-gradient(360deg, #4c519f, #a1bde4), linear-gradient(360deg, #a1bde4 0%, #4c519f 135%);
+    }
+
+    &.grey-btn {
+      background-image: linear-gradient(360deg, #f5f5f5, #cfcfcf), linear-gradient(360deg, #cfcfcf 0%, #f5f5f5 135%);
+      color: grey;
+    }
+    /* Default class */
+    &.default {
+      background-image: linear-gradient(360deg, #f5f5f5, #cfcfcf);
+    }
+  }
+}
+
+.custom-grey-btn {
+  @extend .grey-btn;
+}
+
+// Quiz-sidebar-style
+.main-quiz-side-menu {
+  .menu-active {
+    @include custom-btn-two;
+
+    .quiz-side-text {
+      @apply text-white;
+    }
+  }
+}
+
+.custom-search {
+  .css-13cymwt-control {
+    border: none;
+    background: none;
+
+    &:focus {
+      border: none;
+      outline: none;
+      background: none;
+    }
+  }
+
+  .custom-select__indicators .custom-select__indicator-separator,
+  .custom-select__dropdown-indicator {
+    display: none;
+  }
+
+  .custom-select__control {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+  }
+
+  .custom-select__menu {
+    right: 0;
+  }
+
+  .custom-select__value-container {
+    padding: 2px 4px;
+  }
+}
+
+.loader-main {
+  @media (max-width: 767px) {
+    min-height: 35vh;
+
+    .loader-logo {
+      max-width: 100px;
+    }
+  }
+}
+
+.select {
+  .custom-select__control {
+    border: none;
+    background-color: #42abe16e;
+    border-radius: 15px;
+
+    @media (max-width: 767px) {
+      min-height: auto;
+    }
+  }
+
+  .custom-select__indicator,
+  .custom-select__indicator-separator {
+    display: none;
+  }
+
+  .custom-select__single-value {
+    color: #48a7de;
+  }
+}
+
+.countries-select {
+  .custom-select__control {
+    border-radius: 10px;
+    // height: 40px;
+    min-height: auto;
+    border: 0;
+  }
+  .custom-select__menu {
+    left: 0;
+  }
+  .custom-select__input-container {
+    margin: 0;
+    padding: 0;
+  }
+  .custom-select__indicators {
+    .custom-select__indicator-separator {
+      height: 100%;
+      margin: 0;
+    }
+    .custom-select__indicator {
+      padding-block: 0;
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+  .custom-select__control--is-focused {
+    box-shadow: none;
+  }
+  .custom-select__value-container {
+    padding: 0;
+  }
+  .custom-select__multi-value__label {
+    padding-block: 0;
+  }
+  .custom-select__menu-list {
+    max-height: 200px;
+  }
+}
+.ville-select {
+  .custom-select__control {
+    @apply p-2;
+  }
+}
+.card-num-select {
+  .custom-select__menu-list {
+    max-height: 100px;
+  }
+}
+.custom-select__control--is-disabled {
+  border: none;
+}
+
+.react-datepicker {
+  font-family:
+    Helvetica Neue,
+    helvetica,
+    arial,
+    sans-serif;
+  font-size: 0.8rem;
+  background-color: #aeaeae;
+  color: #000;
+  border: 0 solid #aeaeae !important;
+  border-radius: 0.3rem !important;
+  display: inline-block;
+  position: relative;
+  line-height: normal;
+}
+
+.date-picker {
+  .react-datepicker {
+    background: #ffffff;
+    border-radius: 10px;
+  }
+
+  .react-datepicker-ignore-onclickoutside {
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .react-datepicker__header {
+    background: linear-gradient(180deg, #47a7de, #3460a7);
+    padding: 4px;
+    min-height: 45px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-top-right-radius: 0.3rem;
+  }
+
+  .react-datepicker__current-month {
+    color: #ffffff;
+    font-size: 0.7rem;
+  }
+
+  .react-datepicker__navigation {
+    @apply hover:opacity-80 rounded-full border-2 border-white text-[#777777];
+    background: linear-gradient(
+      96.54deg,
+      #dadada -1.57%,
+      #dfdfdf 2.55%,
+      #e9e9e9 14.53%,
+      #ededed 24.84%,
+      #f7f7f7 64.42%,
+      #f8f8f8 67.57%,
+      #fbfbfb 98.29%
+    );
+    box-shadow: 1px 6px 11px 2px #00000025;
+    font-size: 14px;
+    width: 13px;
+    height: 13px;
+    right: 20px;
+    top: 7px;
+  }
+
+  .react-datepicker__year-read-view--down-arrow,
+  .react-datepicker__month-read-view--down-arrow,
+  .react-datepicker__month-year-read-view--down-arrow,
+  .react-datepicker__navigation-icon::before {
+    border-color: #1f1f1f;
+    height: 5px;
+    width: 5px;
+    top: 10px;
+  }
+
+  .react-datepicker__navigation-icon--next {
+    left: -1px !important;
+  }
+
+  .react-datepicker__navigation-icon--next::before {
+    left: -1px;
+  }
+  .react-datepicker__navigation-icon--previous::before {
+    right: -1px;
+  }
+
+  .react-datepicker__navigation--previous {
+    left: 10px;
+  }
+  .react-datepicker__navigation--next {
+    right: 10px;
+  }
+
+  .react-datepicker__month-container {
+    background: #ffffff;
+    border-radius: 5px;
+  }
+
+  .react-datepicker__month {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .react-datepicker__day--selected {
+    @apply bg-red-500 text-white rounded-full;
+  }
+
+  .react-datepicker__day--today {
+    background: linear-gradient(45deg, #47a7de, #3460a7);
+    border-radius: 15px;
+    color: white;
+  }
+
+  .react-datepicker-time__input {
+    background: #e7e6e6;
+    position: relative;
+  }
+
+  .react-datepicker-time__caption {
+    background: #e7e6e6;
+    text-align: center;
+    position: relative;
+    left: 10px;
+  }
+
+  .react-datepicker__day-name,
+  .react-datepicker__day,
+  .react-datepicker__time-name {
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 220%;
+    font-size: 0.625rem;
+  }
+
+  .react-datepicker__day-name {
+    color: #ffffff;
+    font-weight: bold;
+  }
+
+  .react-datepicker-time__header {
+    color: #ffffff;
+  }
+
+  .react-datepicker__time-list {
+    background: #e7e6e6;
+    font-weight: 600;
+  }
+
+  .react-datepicker__time-list-item {
+    padding: 7px 10px !important;
+    background: #ffffff;
+  }
+
+  .react-datepicker__time-list-item--selected {
+    background: linear-gradient(180deg, #47a7de, #3460a7);
+    border-radius: 5px;
+    // padding-top: 9px !important;
+  }
+
+  .react-datepicker__input-container {
+    input {
+      outline: none;
+    }
+  }
+
+  .datepicker__navigation-icon::before {
+    content: "";
+    border-color: #000;
+    border-style: solid;
+    border-width: 3px 3px 0 0;
+    display: block;
+    height: 7px;
+    position: absolute;
+    top: 6px;
+    width: 7px;
+  }
+
+  .react-datepicker-popper {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    transform: translate(-26.3333px, 9px);
+    will-change: transform;
+
+    @media (max-width: 480px) {
+      position: absolute;
+      top: 0px;
+      transform: translate(-26.3333px, 9px);
+      will-change: transform;
+    }
+  }
+
+  .react-datepicker__time-container--with-today-button {
+    display: inline;
+    border: none !important;
+    border-radius: 0.3rem;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  .react-datepicker__today-button {
+    border-top: 1px solid #aeaeae !important;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 700;
+    padding: 5px 0;
+    clear: left;
+  }
+  .month-year-selector__control {
+    min-height: auto;
+    min-width: 65px;
+    .month-year-selector__indicators {
+      display: none;
+    }
+  }
+  .month-year-selector__menu-list {
+    max-height: 150px;
+  }
+  .month-year-selector__menu {
+    min-width: 130px;
+  }
+  .month-year-selector__input-container {
+    margin: 0;
+    padding: 0;
+  }
+  .month-year-selector__single-value {
+    font-size: 10px;
+  }
+  .year-select {
+    .month-year-selector__menu {
+      min-width: 130px;
+      right: 0;
+    }
+  }
+}
+
+.open-date-picker {
+  .date-picker {
+    .react-datepicker__today-button {
+      position: relative;
+      z-index: 9999;
+      background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
+    }
+
+    .react-datepicker {
+      width: 100%;
+      border-style: none;
+
+      .react-datepicker__month-container {
+        width: 70%;
+        border-style: none;
+        --tw-bg-opacity: 1;
+        background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
+      }
+
+      .react-datepicker__time-list-item {
+        background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
+      }
+    }
+  }
+}
+
+.date-picker .react-datepicker__day--selected:not([aria-disabled="true"]):hover {
+  @apply bg-red-500 text-white rounded-full;
+  border-radius: 5px;
+}
+.custom-select__input-container {
+  text-align: center;
+
+  .custom-select__input {
+    text-align: center;
+  }
+}
+
+.form-date-picker {
+  // @extend .date-picker;
+  .react-datepicker-popper {
+    margin-left: 30px;
+    @media (max-width: 767px) {
+      margin-left: 0px;
+    }
+  }
+  .react-datepicker-wrapper {
+    width: 100%;
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.react-datepicker__time-container {
+  width: 80px !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  width: 100% !important;
+}
+.specility-list {
+  .custom-select__menu-list {
+    text-align: left;
+
+    .custom-select__option {
+      font-weight: normal;
+      font-size: 12px;
+    }
+
+    .custom-select__option--is-focused {
+      font-weight: 600;
+      background: #addbf2;
+      color: #48a7de;
+    }
+  }
+}
+
+.custom-select__option--is-selected {
+  background: #addbf2 !important;
+  color: #48a7de !important;
+}
+
+.btn.btn-secondary {
+  .custom-select__control {
+    min-height: auto;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+
+    &.custom-select__control--is-focused {
+      border: 0 !important;
+    }
+
+    .custom-select__value-container {
+      padding: 0;
+
+      .custom-select__input-container {
+        padding: 0;
+        margin: 0;
+      }
+
+      .custom-select__single-value {
+        color: #777777;
+      }
+    }
+
+    .custom-select__indicators {
+      .custom-select__indicator-separator {
+        display: none;
+      }
+
+      .custom-select__indicator {
+        padding: 0;
+        transform: translateX(5px);
+      }
+    }
+  }
+
+  .custom-select__menu {
+    right: 0;
+  }
+}
+
+.news-gradient-bg {
+  @apply bg-no-repeat bg-top bg-[url('/images/whats-new-gredient-bg.webp')] relative h-11 md:h-16 2xl:h-20 rounded-t-xl bg-[length:100%_45px] md:bg-[length:100%_55px] xl:bg-[length:100%_60px] 2xl:bg-[length:100%_75px];
+}
+
+.document-main {
+  @apply lg:bg-no-repeat bg-[url('/images/document-bg-small.svg')] h-full relative bg-cover;
+  background-position: 0px 18%;
+  &:before {
+    content: "";
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    background: url("/images/news-icon.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    top: 3%;
+  }
+  @media (max-width: 767px) {
+    background-image: url("/images/practitioner-welcome-bg-mobile.png");
+    background-position: top left;
+    &::before {
+      content: none;
+    }
+  }
+  .slick-dots {
+    @apply bottom-2 xl:bottom-0 2xl:bottom-5;
+    li {
+      Button {
+        &::before {
+          @apply text-2xs 2xl:text-xs text-base-400;
+        }
+      }
+    }
+  }
+  .banner-img-main {
+    .banner-img {
+      @media (min-width: 1025px) and (max-width: 1398px) {
+        min-height: 350px;
+      }
+      @media (max-width: 1024px) {
+        max-width: 170px;
+      }
+      @media (max-width: 767px) {
+        max-width: 320px;
+        max-height: 100%;
+      }
+    }
+    @media (max-width: 767px) {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      max-height: 16vh;
+    }
+    @media (max-width: 767px) and (min-height: 750px) {
+      max-height: 16vh;
+    }
+  }
+  .banner-text {
+    @media (max-width: 1024px) {
+      height: calc(100vh - 650px);
+      max-height: 100%;
+    }
+    @media (max-width: 767px) {
+      height: calc(100vh - 560px);
+      max-height: 100%;
+    }
+    @media (max-width: 767px) and (min-height: 750px) {
+      height: calc(100vh - 600px);
+      max-height: 100%;
+    }
+  }
+  .slick-prev,
+  .slick-next {
+    @apply bg-transparent w-7 xl:w-11 h-7 xl:h-11 z-10 mt-4 lg:mt-0;
+    @media (max-width: 767px) {
+      top: 70%;
+    }
+    &:before {
+      font-size: 30px;
+      color: #48a7de;
+    }
+  }
+  .slick-prev {
+    @apply -left-2 md:-left-8 lg:-left-7;
+  }
+  .slick-next {
+    @apply -right-2 md:-right-8 lg:-right-7;
+  }
+}
+.small-height {
+  .document-main {
+    .banner-img-main {
+      .banner-img {
+        @media (min-width: 1025px) and (max-width: 1398px) {
+          min-height: 350px;
+        }
+        @media (max-width: 1024px) {
+          max-width: 200px;
+        }
+        @media (max-width: 767px) {
+          max-width: 200px;
+          max-height: 100%;
+        }
+      }
+      @media (max-width: 767px) {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        max-height: 11vh;
+      }
+      @media (max-width: 767px) and (min-height: 750px) {
+        max-height: 16vh;
+      }
+    }
+    .banner-text {
+      @media (max-width: 1024px) {
+        height: 10vh;
+        max-height: 100%;
+      }
+      @media (max-width: 767px) {
+        height: 10vh;
+        max-height: 100%;
+      }
+      @media (max-width: 767px) and (min-height: 750px) {
+        height: 14vh;
+        max-height: 100%;
+      }
+    }
+  }
+}
+
+.timing-select {
+  .custom-select__control {
+    @apply text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug min-h-1 font-normal;
+    border-radius: 50%;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+  }
+  .custom-select__input-container {
+    @apply p-0 2xl:p-0.5 m-0;
+  }
+  .custom-select__indicator {
+    padding: 0 0.3rem;
+    svg {
+      @apply w-3 h-[1.5rem] lg:h-[1.144rem] 2xl:h-auto;
+    }
+  }
+  @media (max-width: 1749px) {
+    .custom-select__menu-list {
+      max-height: 150px;
+    }
+    .custom-select__option {
+      font-weight: normal;
+      font-size: 10px;
+      padding-block: 2px;
+    }
+  }
+  @media (max-width: 767px) {
+    .custom-select__menu {
+      left: 0;
+    }
+    .custom-select__menu-list {
+      max-height: 130px;
+    }
+    .custom-select__option {
+      font-weight: normal;
+      font-size: 10px;
+      padding-block: 2px;
+    }
+  }
+}
+
+.dashboard-identify-screen {
+  .custom-select__menu-list {
+    max-height: 8rem;
+    .custom-select__option--is-selected {
+      @apply bg-primary;
+    }
+  }
+  .timing-select {
+    .custom-select__control {
+      font-size: 0.7rem;
+      line-height: 140%;
+      min-height: 1.5rem;
+      border: 0;
+      outline: none;
+      box-shadow: none;
+      margin: 0 1px;
+    }
+  }
+}
+
+.patient-dashboard-dropdown {
+  &.practitioner-dashboard-agenda-select {
+    .css-b62m3t-container {
+      border-radius: 100px !important;
+    }
+  }
+  .css-b62m3t-container {
+    @apply inline-flex justify-between items-center text-left px-2 w-full rounded-xl border border-gray-300 shadow-sm bg-customBlue text-white text-2xs 2xl:text-xs font-semibold focus:outline-none h-6 2xl:h-8;
+
+    .custom-select__placeholder {
+      @apply text-white;
+    }
+
+    .custom-select__control {
+      @apply w-full bg-transparent border-0 shadow-none;
+    }
+
+    .custom-select__single-value {
+      @apply text-white;
+    }
+
+    .custom-select__indicators {
+      @apply text-white;
+
+      .custom-select__indicator-separator {
+        @apply hidden;
+      }
+
+      .css-tj5bde-Svg {
+        @apply text-white;
+      }
+    }
+
+    // inner-dropdown
+    .custom-select__menu-list {
+      @apply px-1;
+
+      .custom-select__option {
+        @apply text-blue rounded-md;
+
+        &.custom-select__option--is-selected {
+          @apply bg-customBlue text-white;
+        }
+
+        &.custom-select__option--is-focused {
+          @apply bg-customBlue bg-opacity-35 text-blue;
+        }
+      }
+    }
+  }
+  .custom-select__menu {
+    @apply z-50;
+  }
+}
+
+.dashboard-inner-dropdown {
+  @apply absolute right-0 mt-1 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none;
+}
+
+.patient-dashboard-consultations-dropdown {
+  .css-b62m3t-container {
+    @apply inline-flex justify-between items-center text-left px-2 w-full rounded-xl border border-gray-300 shadow-sm bg-white text-white text-xs font-semibold focus:outline-none h-8;
+
+    .custom-select__placeholder {
+      @apply text-black;
+    }
+
+    .custom-select__control {
+      @apply w-full bg-transparent border-0 shadow-none;
+    }
+
+    .custom-select__single-value {
+      @apply text-black;
+    }
+
+    .custom-select__indicators {
+      @apply text-white;
+
+      .custom-select__indicator-separator {
+        @apply hidden;
+      }
+
+      .css-tj5bde-Svg {
+        @apply text-black;
+      }
+    }
+
+    // inner-dropdown
+    .custom-select__menu-list {
+      @apply px-1;
+
+      .custom-select__option {
+        @apply text-blue rounded-md;
+
+        &.custom-select__option--is-selected {
+          @apply text-white;
+        }
+
+        &.custom-select__option--is-focused {
+          @apply bg-customBlue bg-opacity-35 text-blue;
+        }
+      }
+    }
+  }
+}
+
+.dashboard-identify-screen {
+  .custom-select__menu-list {
+    @apply shadow-lg rounded-lg max-h-40;
+  }
+}
+
+.language-multiselect {
+  .custom-select__multi-value {
+    @apply bg-sky-100 rounded-full overflow-hidden text-primary;
+
+    .custom-select__multi-value__label {
+      @apply text-primary;
+    }
+  }
+
+  .custom-select__menu {
+    @apply w-40;
+
+    .custom-select__menu-list {
+      overflow-y: scroll;
+      @apply max-h-40 overflow-y-scroll shadow-lg rounded-lg;
+    }
+
+    .custom-select__option {
+      cursor: pointer !important;
+    }
+  }
+}
+
+// document button style
+.main-document-tabs {
+  #document_tab-0 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #3a7dc0 0.01%, #7bcbdf 100%);
+  }
+
+  #document_tab-1 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #e8386f 0.01%, #d594c1 100%);
+  }
+
+  #document_tab-2 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #49b9b1 0.01%, #8ac057 100%);
+  }
+
+  #document_tab-3 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #ee713c 0.01%, #fdc424 100%);
+  }
+
+  #document_tab-4 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #e7205e 0%, #e94e3d 100%);
+  }
+
+  #document_tab-5 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #004994 0%, #4c509e 100%);
+  }
+
+  #document_tab-6 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #4c519f 0.01%, #a1bde4 100%);
+  }
+
+  #document_tab-7 {
+    @include custom-btn-one;
+    background: linear-gradient(0deg, #824493 0.01%, #e8337d 100%);
+  }
+}
+
+.identifyTabs {
+  .tabs {
+    border-bottom: 0.3rem solid transparent;
+
+    &.active-tab {
+      @apply border-primary;
+    }
+  }
+}
+
+.sidebar-img {
+  @media (max-height: 800px) {
+    @apply max-w-32;
+  }
+}
+
+.drop-icon {
+  img {
+    transform: rotate(180deg);
+  }
+}
+
+.custom-tooltip {
+  .react-tooltip {
+    @apply text-primary bg-sky-100 max-w-60;
+    font-size: 0.6rem;
+  }
+}
+
+.custom-light-tooltip {
+  .react-tooltip {
+    @apply text-primary bg-white max-w-60 z-50;
+    font-size: 0.6rem;
+  }
+}
+
+.tabs-content {
+  &#administer {
+    background: linear-gradient(0deg, #4c519f 0.01%, #a1bde4 100%);
+  }
+
+  &#biology {
+    background: linear-gradient(0deg, #e8386f 0%, #d594c1 100%);
+  }
+
+  &#document-view {
+    background: linear-gradient(0deg, #3a7dc0 0.01%, #7bcbdf 100%);
+  }
+
+  &#certificate {
+    background: linear-gradient(0deg, #e7205e 0%, #e94e3d 100%);
+  }
+
+  &#other-doc {
+    background: linear-gradient(0deg, #824493 0.01%, #e8337d 100%);
+  }
+
+  &#prescriptions-care {
+    background: linear-gradient(0deg, #49b9b1 0.01%, #8ac057 100%);
+  }
+
+  &#prevention-screen {
+    background: linear-gradient(0deg, #004994 0%, #4c509e 100%);
+  }
+
+  &#ultraSound {
+    background: linear-gradient(0deg, #ee713c 0.01%, #fdc424 100%);
+  }
+}
+
+#resume-call {
+  background-color: white;
+  @apply shadow-lg rounded-md font-semibold text-center;
+}
+
+.modal-box {
+  z-index: 9;
+  .propos-bg {
+    position: absolute;
+    z-index: 999;
+    width: 100%;
+    @apply top-4;
+    height: calc(100% - 1rem);
+    left: 0;
+    .ellipse.left-top {
+      position: absolute;
+      left: 0;
+      top: 0;
+      @media (max-height: 799px) and (max-width: 399px) {
+        width: 8.75rem;
+      }
+    }
+    .ellipse.left-bottom {
+      position: absolute;
+      left: 5rem;
+      bottom: 3.125rem;
+      @media (max-width: 768px) {
+        left: 0px;
+        bottom: 3.125rem;
+      }
+    }
+    .ellipse.right-top {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    .ellipse.right-bottom {
+      position: absolute;
+      right: 3.75rem;
+      bottom: 3.125rem;
+      @media (max-width: 768px) {
+        right: 0px !important;
+        bottom: 3.125rem;
+      }
+    }
+  }
+}
+
+.modal-content {
+  z-index: 9999;
+  position: absolute;
+  @apply top-4;
+}
+
+.propos {
+  @apply pb-2;
+  &:last-child {
+    @apply pe-2;
+  }
+  &:first-child {
+    @apply ps-2;
+  }
+}
+
+.propos.active-tab {
+  position: relative;
+  &::after {
+    content: "";
+    width: 100%;
+    height: 0.25rem;
+    background-color: #43a9df;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    z-index: 999;
+    border-radius: 0.313rem;
+  }
+}
+
+.custom-border-bottom {
+  position: relative;
+  &::after {
+    content: "";
+    width: 100%;
+    height: 0.25rem;
+    background-color: #eff1f4;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    z-index: 9;
+    border-radius: 0.313rem;
+  }
+}
+@media (max-width: 768px) {
+  .text-dynamic-size {
+    font-size: min(0.688rem, 1.8vw);
+  }
+}
+// for small Mobile Screen
+@media (max-height: 799px) and (max-width: 399px) {
+  .screen-1,
+  .screen-2,
+  .screen-3 {
+    .-mt-12 {
+      margin-top: -6rem;
+    }
+    .text-2xs {
+      font-size: 0.55rem;
+    }
+    .text-xs {
+      font-size: 0.6rem;
+    }
+  }
+}
+#news_tab-0 {
+  @apply relative;
+  &::after {
+    content: "";
+    @apply absolute w-px h-1/3 bg-blue bg-cover bg-no-repeat bg-center -right-1.5 bottom-0;
+  }
+}
+.quiz-inner-dashboard {
+  height: calc(100vh - 264px);
+  @apply overflow-auto;
+  @media (min-width: 1025px) and (max-width: 1536px) {
+    height: calc(100vh - 246px);
+  }
+  @media (max-width: 1024px) {
+    height: calc(100vh - 295px);
+  }
+  @media (max-width: 991px) {
+    height: calc(100vh - 342px);
+  }
+  @media (max-width: 767px) {
+    // height: calc(100vh - 360px);
+    @apply h-full;
+    &.quizz-whats-new {
+      height: calc(100dvh - 450px);
+    }
+  }
+}
+/* Custom progress bar styling */
+.completed-quizzes {
+  progress {
+    &::-webkit-progress-bar {
+      @apply bg-silver-300 rounded-full;
+    }
+    &::-webkit-progress-value {
+      @apply bg-white rounded-full;
+    }
+    &::-moz-progress-bar {
+      @apply bg-white rounded-full;
+    }
+    &.progress-point {
+      &::-webkit-progress-bar {
+        @apply bg-silver-500 rounded-full;
+      }
+      &::-webkit-progress-value {
+        @apply rounded-full;
+        background: linear-gradient(90deg, #3560a8 0%, #48a8df 100%);
+      }
+      &::-moz-progress-bar {
+        @apply rounded-full;
+        background: linear-gradient(90deg, #3560a8 0%, #48a8df 100%);
+      }
+    }
+  }
+}
+#profile_tab-1 {
+  @apply relative;
+  &::after {
+    content: "";
+    @apply absolute w-px h-1/3 bg-blue bg-cover bg-no-repeat bg-center -right-1.5 bottom-0;
+  }
+  &::before {
+    content: "";
+    @apply absolute w-px h-1/3 bg-blue bg-cover bg-no-repeat bg-center -left-1.5 bottom-0;
+  }
+}
+#profile_tab-2 {
+  @apply me-0;
+}
+
+.course-quizs {
+  &.cardiology {
+    background-image: linear-gradient(360deg, #e7205e, #e94e3d), linear-gradient(360deg, #e94e3d 0%, #e7205e 135%);
+  }
+
+  &.endocrinology {
+    background-image: linear-gradient(360deg, #3b9b94, #8ac057), linear-gradient(360deg, #8ac057 0%, #3b9b94 135%);
+  }
+
+  &.neurology {
+    background-image: linear-gradient(360deg, #004994, #4c509e), linear-gradient(360deg, #4c509e 0%, #004994 135%);
+  }
+
+  &.gynaecology {
+    background-image: linear-gradient(360deg, #824493, #e8337d), linear-gradient(360deg, #e8337d 0%, #824493 135%);
+  }
+
+  &.pneumology {
+    background-image: linear-gradient(360deg, #a1bde4, #00afc7), linear-gradient(360deg, #00afc7 0%, #a1bde4 135%);
+  }
+
+  &.paediatrics {
+    background-image: linear-gradient(360deg, #46519e, #804493), linear-gradient(360deg, #804493 0%, #46519e 135%);
+  }
+
+  &.nephrology {
+    background-image: linear-gradient(360deg, #ee713c, #fdc424), linear-gradient(360deg, #fdc424 0%, #ee713c 135%);
+  }
+
+  &.gastro {
+    background-image: linear-gradient(360deg, #4c519f, #a1bde4), linear-gradient(360deg, #a1bde4 0%, #4c519f 135%);
+  }
+
+  /* Default class */
+  &.default {
+    background-image: linear-gradient(360deg, #f5f5f5, #cfcfcf);
+  }
+}
+.telephone {
+  .PhoneInputInput {
+    outline: none;
+  }
+}
+.datepicker-identity {
+  .react-datepicker {
+    position: relative;
+    left: 20px;
+  }
+  .react-datepicker-ignore-onclickoutside {
+    outline: none;
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: spin 28s linear infinite;
+  }
+}
+// register form style
+.register-field {
+  .react-datepicker-popper {
+    transform: translate(0px, 40.8px) !important;
+  }
+}
+.register-phone {
+  input {
+    &:focus-visible {
+      @apply outline-none;
+    }
+  }
+}
+
+.medical-data-screen {
+  .react-datepicker__tab-loop {
+    position: absolute;
+    top: -20rem;
+    left: -1rem;
+  }
+}
+.practitioner-doc {
+  .identification {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #3a7dc0, #7bcbdf);
+  }
+  .curriculum {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #e8386f, #d594c1);
+  }
+  .diploma {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #49b9b1, #8ac057);
+  }
+  .certificate {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #ee713c, #fdc424);
+  }
+  .diu-diploma {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #e7245f, #e94e3d);
+  }
+  .signature {
+    @include custom-btn-doc;
+    background-image: linear-gradient(360deg, #ffffff, #ffffff), linear-gradient(90deg, #004994, #4c509e);
+  }
+}
+// For Header Login Modal Box
+.custom-modal-main {
+  box-shadow: inset 0 0 0 220px rgba(255, 255, 255, 0.3);
+  border: 5px solid #dcdadb;
+  padding: 16px;
+  background: none;
+  border-radius: 30px;
+}
+
+.article-main-screen {
+  background-image: url("/images/article-bg.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  @media (max-width: 797px) {
+    background-position: -89px 0px;
+  }
+  .slick-slide {
+    @apply relative;
+  }
+  .slick-slide .inner-slide {
+    @apply rounded-xl w-[18rem] lg:w-[12rem] xl:w-[10rem] 2xl:w-[13rem] hover:lg:w-[16rem] hover:xl:w-[20rem] hover:2xl:w-[22rem] hover:shadow-lg transition-all ease-in-out duration-100 cursor-pointer block relative;
+    z-index: 1;
+    &.big-size {
+      @apply rounded-xl w-[92%] lg:w-[12rem] xl:w-[16rem] 2xl:w-[20rem] hover:lg:w-[16rem] hover:xl:w-[20rem] hover:2xl:w-[26rem] hover:shadow-lg transition-all ease-in-out duration-100 cursor-pointer block relative;
+    }
+  }
+  .slick-slide .inner-slide::before {
+    content: "";
+    @apply absolute top-0 left-0 w-full h-full z-10 pointer-events-none bg-sky-300 opacity-50;
+  }
+  .slick-slide .inner-slide:hover::before {
+    background-color: transparent;
+  }
+  .slick-slide:nth-child(even) .inner-slide {
+    @apply -mt-20;
+  }
+  .slick-slide:nth-child(even) .inner-slide:hover {
+    @apply -mt-20;
+    z-index: 9999999999999999999;
+    .article-label {
+      box-shadow: inset 0 0 0 220px rgba(255, 255, 255, 0.3);
+      text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
+      @apply py-1;
+    }
+  }
+  .slick-slide:nth-child(odd) .inner-slide:hover {
+    z-index: 9999999999999999999;
+    .article-label {
+      box-shadow: inset 0 0 0 220px rgba(255, 255, 255, 0.3);
+      text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
+      @apply py-1;
+    }
+  }
+  .slick-track {
+    @apply lg:pt-20 xl:py-20 2xl:py-36 2xl:pt-36;
+  }
+  @media (max-width: 799px) {
+    .slick-slide:nth-child(even) .inner-slide {
+      @apply mt-0;
+    }
+    .slick-slide:nth-child(even) .inner-slide:hover {
+      @apply mt-0;
+    }
+    .slick-slide .inner-slide {
+      @apply w-[98%];
+    }
+  }
+  .slick-prev {
+    z-index: 9999;
+    @apply left-[15px] lg:-left-[50px];
+  }
+  .slick-next {
+    z-index: 9999;
+    @apply right-[25px] lg:-right-[35px];
+  }
+  .slick-prev:before,
+  .slick-next:before {
+    @apply text-white lg:text-customBlue opacity-100 lg:opacity-50 hover:opacity-100;
+    font-size: 30px;
+  }
+  .slick-dots {
+    li {
+      @apply m-0;
+      button {
+        &:before {
+          @apply text-customBlue;
+        }
+      }
+    }
+  }
+}
+.single-article-main {
+  background-image: url("/images/article-bg.svg");
+  @apply bg-no-repeat bg-cover;
+  background-color: white;
+  background-size: cover;
+  @media (max-width: 797px) {
+    background-position: -89px 0px;
+  }
+  .article-content {
+    @media (max-width: 1024px) {
+      max-height: calc(100vh - 470px);
+      overflow: auto;
+    }
+    @media (min-width: 1025px) {
+      max-height: calc(100vh - 560px);
+      overflow: auto;
+    }
+  }
+  .banner-img {
+    @media (max-width: 1024px) {
+      width: 150px;
+      height: 150px;
+    }
+  }
+}
+
+// practitioner Dashboard Css Start
+.practitioner-home {
+  background: radial-gradient(41.93% 65.91% at 50.14% 49.77%, rgba(67, 168, 223, 0) 0%, #43a6dc 51%, #355fa7b2 100%);
+  @apply p-[2dvh];
+
+  .teleconsultations-date-picker {
+    .form-date-picker .react-datepicker-popper {
+      margin-left: -15px !important;
+      z-index: 9999 !important;
+    }
+  }
+  .my-patient-tabs {
+    @apply relative pb-2 xl:pb-3;
+    &::before {
+      content: "";
+      @apply w-full h-1 xl:h-2 bg-gray-100 bottom-0 absolute left-0 rounded-full;
+    }
+    .active-tab {
+      @apply relative;
+      &.PractitionerMyPatients {
+        &::before {
+          content: "";
+          @apply w-full h-1 xl:h-2 bottom-0 absolute left-0 rounded-full -mb-2 xl:-mb-3;
+          background: linear-gradient(0deg, #e7376f 0.06%, #d493c0 99.94%);
+        }
+      }
+      &.Referringphysician {
+        &::before {
+          content: "";
+          @apply w-full h-1 xl:h-2 bottom-0 absolute left-0 rounded-full -mb-2 xl:-mb-3;
+          background: linear-gradient(0deg, #ed703c 0.06%, #fdc424 99.94%);
+        }
+      }
+    }
+  }
+  .mobile-language-select {
+    background: transparent !important;
+    border-bottom: 1px solid black;
+    .custom-select__placeholder {
+      @apply text-left text-black;
+    }
+    .custom-select__menu {
+      @apply bg-customBlue opacity-100;
+    }
+  }
+}
+
+.practitioner-document-main {
+  @apply bg-no-repeat bg-[url('/images/practitioner-welcome-bg-mobile.png')] md:bg-[url('/images/practitioner-welcome-bg.webp')] h-full;
+  background-size: cover;
+  background-position: 0% 2%;
+}
+.footer-language {
+  .custom-select__menu {
+    top: -300%;
+  }
+  .custom-select__control--menu-is-open {
+    .custom-select__indicator.custom-select__dropdown-indicator {
+      transform: rotate(180deg) translateX(-2px) !important;
+    }
+  }
+}
+.practitioner-dashboard-main {
+  .custom-gradient-green {
+    background: linear-gradient(0deg, #47b9bb 0%, #9bca8a 100%);
+  }
+  .custom-gradient-blue {
+    background: linear-gradient(0deg, #397dbf 0%, #7bcade 100%);
+  }
+}
+
+.active-info-tab::before {
+  content: "";
+  transition: all 0.5s ease-in-out;
+  @apply absolute left-0 z-50 rounded-xl bg-customBlue h-2 w-full bottom-0;
+}
+// document-page-style-jatin
+.document-half-list {
+  @media (max-width: 767px) {
+    height: calc(100dvh - 496px);
+  }
+}
+.document-select-dropdown {
+  @media (max-width: 1399px) {
+    .custom-select__menu-list {
+      @apply max-h-40 overflow-auto;
+    }
+  }
+  .custom-select__placeholder {
+    @apply text-black;
+  }
+  .custom-select__control {
+    min-height: 0;
+  }
+  .custom-select__dropdown-indicator {
+    @apply p-1.5 2xl:p-2;
+  }
+  .custom-select__value-container {
+    @apply px-1.5;
+  }
+}
+.bottom-dropdown-list {
+  @media (max-width: 991px) {
+    .custom-select__menu-list {
+      @apply max-h-12 overflow-y-auto;
+    }
+  }
+}
+.document-date-picker {
+  @media (max-width: 599px) {
+    .react-datepicker-popper {
+      margin-left: -33px !important;
+    }
+    .react-datepicker__navigation-icon {
+      &::before {
+        border-width: 2px 2px 0 0;
+      }
+    }
+  }
+}
+
+// { This style for upload document last dropdown "Latéralité" for manage position of dropdown }
+// .laterality-box-main {
+//   .custom-select__menu-list {
+//     @media (max-height:800px) {
+//       max-height: 90px;
+//     }
+//   }
+// }
+
+.medical-tabs {
+  .react-datepicker-popper {
+    z-index: 9999 !important;
+    margin-left: 20px;
+  }
+}
+
+.languages-select {
+  .custom-select__multi-value__remove {
+    display: none;
+  }
+}
+.patient-info {
+  .hide-scrollbar {
+    overflow-x: auto;
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Hides scrollbar in Chrome, Safari */
+  }
+}
+// Patient-dashboard-identy
+.patient-dashboard-select {
+  .timing-select {
+    .custom-select__control {
+      @apply rounded-md;
+    }
+  }
+  .add-child-main-div,
+  .identity-components {
+    .timing-select {
+      .custom-select__control {
+        @apply rounded-md;
+      }
+    }
+  }
+  .multipule-select {
+    .custom-select__control {
+      // @apply line-clamp-1;
+    }
+  }
+}
+
+// quiz-main-screen
+// .home-quizz {
+//   .main-screen {
+//     @apply mt-2.5 md:mt-4 lg:mt-0;
+//   }
+// }
+.TopHeader {
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+.header-login-modal-main {
+  @media (max-width: 767px) {
+    @apply relative;
+    .alert-msg-main {
+      position: absolute;
+      top: 220px;
+      margin: auto;
+      left: 0;
+      right: 0;
+    }
+  }
+}
+.alert-msg-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7%;
+}
+.alert-pwd-otp-main {
+  @media (max-width: 1024px) {
+    position: absolute;
+    top: 110px;
+    margin: auto;
+    left: 0;
+    right: 0;
+  }
+  @media (max-width: 369px) {
+    position: absolute;
+    top: 130px;
+    margin: auto;
+    left: 0;
+    right: 0;
+  }
+  @media (min-width: 1025px) and (max-width: 1276px) {
+    position: absolute;
+    top: 120px;
+    margin: auto;
+    left: 4%;
+  }
+  @media (min-width: 1277px) {
+    position: absolute;
+    top: 100px;
+    margin: auto;
+    left: 4%;
+  }
+}
+.quiz-inner-tabs {
+  height: calc(100dvh - 320px);
+}
+.quiz-small-height {
+  .quiz-inner-tabs {
+    height: calc(100dvh - 400px);
+  }
+  @media (max-width: 767px) {
+    .quiz-disease-height {
+      height: calc(100dvh - 400px);
+    }
+  }
+}
+.quiz-searchbox {
+  .custom-select__control {
+    @apply bg-transparent border-none outline-none shadow-none focus-visible:outline-none focus:outline-none min-h-5 lg:min-h-6 2xl:min-h-7 h-5 lg:h-6 2xl:h-7 items-baseline;
+    @media (max-width: 1024px) {
+      .custom-select__input-container {
+        @apply m-0 pt-0;
+      }
+    }
+  }
+  .custom-select__indicators {
+    @apply h-5 lg:h-6 2xl:h-7;
+    .custom-select__indicator-separator {
+      @apply hidden;
+    }
+    // .custom-select__indicator{@apply h-7;}
+  }
+}
+
+.patient-body-dashboard {
+  @media (max-width: 1024px) {
+    .dashboard-main-bg-screen {
+      height: calc(100dvh - 176px);
+    }
+  }
+  @media (max-width: 767px) {
+    .dashboard-main-bg-screen {
+      height: calc(100dvh - 138px);
+    }
+  }
+  @media (min-width: 1025px) {
+    .dashboard-main-bg-screen {
+      height: calc(100dvh - 185px);
+    }
+  }
+  @media (min-width: 1399px) {
+    .dashboard-main-bg-screen {
+      height: calc(100dvh - 195px);
+    }
+  }
+  @media (min-width: 1750px) {
+    .dashboard-main-bg-screen {
+      height: calc(100dvh - 200px);
+    }
+  }
+  .PhoneInputCountry {
+    @apply bg-gray-200 py-[7px] lg:py-2 px-3;
+  }
+  .ssn-update-date-picker {
+    .react-datepicker__tab-loop {
+      position: absolute;
+      top: -17.5rem;
+      left: -1rem;
+    }
+  }
+  .form-date-picker {
+    .react-datepicker-popper {
+      @media (max-width: 767px) {
+        margin-left: 30px;
+      }
+    }
+  }
+}
+.home-quizz {
+  .main-screen {
+    @media (max-width: 799px) {
+      .dashboard-main-bg-screen {
+        height: 100%;
+      }
+    }
+  }
+}
+.quiz-after-login-main {
+  .main-screen {
+    @media (max-width: 799px) {
+      .dashboard-main-bg-screen {
+        height: 100%;
+      }
+    }
+  }
+  .quiz-invite-inner {
+    @media (max-width: 767px) {
+      height: calc(100dvh - 513px);
+    }
+  }
+  .quiz-question-inner-tab {
+    @media (max-width: 991px) {
+      height: calc(100dvh - 530px);
+      overflow: scroll;
+    }
+  }
+  .quiz-inner-response {
+    @media (max-width: 767px) {
+      @apply h-[68%];
+    }
+  }
+}
+.quiz-invite-main-start {
+  .quiz-inner-dashboard {
+    @media (max-width: 991px) {
+      height: calc(100dvh - 265px);
+    }
+    @media (max-width: 767px) {
+      height: 100%;
+    }
+  }
+}
+.quiz-invite-inner {
+  @media (max-width: 767px) {
+    height: calc(100dvh - 450px);
+  }
+}
+
+.cstm-blue-filter {
+  filter: invert(67%) sepia(31%) saturate(2767%) hue-rotate(171deg) brightness(93%) contrast(88%);
+}
+
+.custom-select__placeholder {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.language-select-box {
+  .custom-select__value-container {
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+  .custom-select__multi-value__label {
+    line-height: 95% !important;
+  }
+}
+.quiz-inner-response {
+  @apply h-[76%] md:h-[72%] lg:h-[80%];
+}
+
+.nav-steps-links {
+  // @apply max-h-80 lg:max-h-max;
+  @media (max-width: 1024px) {
+    height: calc(100dvh - 360px);
+  }
+  @media (max-width: 767px) {
+    height: calc(100dvh - 335px);
+  }
+}
+// Quiz single discovery start
+.single-discovery {
+  @media (max-width: 767px) {
+    height: calc(100dvh - 400px);
+  }
+}
+
+.teleconsult-table {
+  @media (max-width: 1398px) {
+    height: calc(100dvh - 380px);
+    overflow: auto;
+  }
+  @media (max-width: 1024px) {
+    height: calc(100dvh - 400px);
+    overflow: auto;
+  }
+  @media (max-width: 767px) {
+    height: calc(100dvh - 370px);
+    overflow: auto;
+  }
+  @media (min-width: 1399px) {
+    height: calc(100dvh - 400px);
+    overflow: auto;
+  }
+}
+.hide-mobile-cstm-doc-nav {
+  @media (max-width: 1024px) {
+    nav {
+      display: none;
+    }
+  }
+}
+
+#proxy-renderer {
+  height: 100%;
+  #msdoc-renderer {
+    height: 100%;
+  }
+}
+.document-import-scroll {
+  @media (max-width: 1024px) {
+    height: calc(100dvh - 345px);
+  }
+  @media (max-width: 767px) {
+    height: calc(100dvh - 307px);
+  }
+}
+
+.cstmSlider {
+  .slick-list {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.quizz-question-heght-mobile {
+  @media (max-width: 999px) {
+    max-height: calc(100dvh - 30rem);
+    height: 100%;
+    &.quiz-question-inner-tab {
+      max-height: calc(100dvh - 29rem);
+    }
+  }
+}

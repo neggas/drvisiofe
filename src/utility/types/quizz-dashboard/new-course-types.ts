@@ -1,0 +1,161 @@
+export interface NewCourseTypes {
+  results: {
+    id: number;
+    speciality: {
+      id: number;
+      name: string;
+      description: string;
+      nameEn: string;
+      descriptionEn: string;
+      color: string;
+      file: {
+        id: number;
+        name: string;
+        extension: string;
+        size: number;
+        path: string | null;
+        url: string;
+        data: any | null;
+        dataBytes: any | null;
+        createdAt: string;
+        updatedAt: string | null;
+      };
+      nbAssociatedQuiz: number;
+      nbAssociatedCourse: number;
+      deletable: boolean;
+      createdAt: string;
+      updatedAt: string;
+    };
+    courseName: string;
+    courseNameEn: string | null;
+    courseSlug: string;
+    courseContent: string;
+    courseContentEn: string | null;
+    courseDetailsList: {
+      id: number;
+      courseContent: string;
+      courseContentEn: string;
+      createdAt: string;
+      updatedAt: string;
+    }[];
+    published: boolean;
+    file: {
+      id: number;
+      name: string;
+      extension: string;
+      size: number;
+      path: string | null;
+      url: string;
+      data: any | null;
+      dataBytes: any | null;
+      createdAt: string;
+      updatedAt: string | null;
+    };
+    quizz: {
+      id: number;
+      name: string;
+      nameEn: string | null;
+      complexity: string;
+      random: any | null;
+      duration: number;
+      generateByPlay: any | null;
+      speciality: {
+        id: number;
+        name: string;
+        description: string;
+        nameEn: string;
+        descriptionEn: string;
+        color: string;
+        file: {
+          id: number;
+          name: string;
+          extension: string;
+          size: number;
+          path: string | null;
+          url: string;
+          data: any | null;
+          dataBytes: any | null;
+          createdAt: string;
+          updatedAt: string | null;
+        };
+        nbAssociatedQuiz: number;
+        nbAssociatedCourse: number;
+        deletable: boolean;
+        createdAt: string;
+        updatedAt: string;
+      };
+      quizzPlays: any | null;
+      questions: {
+        id: number;
+        title: string;
+        booleanCorrectAnswer: boolean | null;
+        explanation: string;
+        points: number;
+        coin: number;
+        image: {
+          id: number;
+          name: string;
+          extension: string;
+          size: number;
+          path: string | null;
+          url: string;
+          data: any | null;
+          dataBytes: any | null;
+          createdAt: string;
+          updatedAt: string | null;
+        };
+        questionType: string;
+        questionTypeDescription: string;
+        complexity: string;
+        complexityDescription: string;
+        complexityPercentage: number | null;
+        time: number | null;
+        published: boolean;
+        quizz: any | null;
+        speciality: {
+          id: number;
+          name: string;
+          description: string;
+          nameEn: string;
+          descriptionEn: string;
+          color: string;
+          file: {
+            id: number;
+            name: string;
+            extension: string;
+            size: number;
+            path: string | null;
+            url: string;
+            data: any | null;
+            dataBytes: any | null;
+            createdAt: string;
+            updatedAt: string | null;
+          };
+          nbAssociatedQuiz: number;
+          nbAssociatedCourse: number;
+          deletable: boolean;
+          createdAt: string;
+          updatedAt: string;
+        };
+        questionAnswerPropositions: {
+          id: number;
+          texte: string;
+          question: any | null;
+          createdAt: string;
+          updatedAt: string;
+          correctAnswer: boolean;
+        }[];
+        quizzPlayQuestions: any | null;
+        createdAt: string;
+        updatedAt: string;
+      }[];
+      createdAt: string;
+      updatedAt: string;
+    };
+    coursesListened: any | null;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  totalCount: number;
+  totalPage: number;
+}

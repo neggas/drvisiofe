@@ -1,0 +1,11 @@
+export { default as createPatientReducer } from "./reducers/createPatientsSlice";
+export { default as practitionerReducer } from "./reducers/practitionerSlice";
+export { default as specialityReducer } from "./reducers/specialitySlice";
+export { default as loginReducer } from "./reducers/loginSlice";
+export { default as modalReducer } from "./reducers/modalSlice";
+export * from "./store";
+export { default as guestDetailsReducer } from "./reducers/guestDetailsSlice";
+export { default as quizReducer } from "./reducers/quizSlice";
+export { default as loaderReducer } from "./reducers/loaderSlice";
+export { default as patientDetailsReducer } from "./reducers/patientDetailsSlice";
+export { default as consultationBookingReducer } from "./reducers/consultationBookingSlice";

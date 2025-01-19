@@ -1,0 +1,9 @@
+export { default as AgendaDocuments } from "./document";
+export { default as PractitionerComptesRendus } from "./document-tabs/comptes-rendus";
+export { default as PractitionerBiologyResult } from "./document-tabs/biology-result";
+export { default as PractitionerPrescriptionsCare } from "./document-tabs/prescriptions-care";
+export { default as PractitionerXRayUltraSound } from "./document-tabs/xray-ultraSound";
+export { default as PractitionerMedicalCartificate } from "./document-tabs/medical-cartificate";
+export { default as PractitionerAdministrativeDocument } from "./document-tabs/administrative-document";
+export { default as PractitionerOtherDocument } from "./document-tabs/other-documents";
+export { default as PractitionerPreventionScreen } from "./document-tabs/prevention-screen";

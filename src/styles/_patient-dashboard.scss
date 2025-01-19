@@ -1,0 +1,175 @@
+@import "variables";
+
+// Custom Select Box Style Start
+.patient-dashboard-dropdown {
+  .css-b62m3t-container {
+    @apply inline-flex justify-between items-center text-left px-2 w-full rounded-xl border border-gray-300 shadow-sm bg-customBlue text-white text-xs font-semibold focus:outline-none h-8;
+    .custom-select__placeholder {
+      @apply text-white;
+    }
+    .custom-select__control {
+      @apply w-full bg-transparent border-0 shadow-none;
+    }
+    .custom-select__single-value {
+      @apply text-white;
+    }
+    .custom-select__indicators {
+      @apply text-white;
+      .custom-select__indicator-separator {
+        @apply hidden;
+      }
+      .css-tj5bde-Svg {
+        @apply text-white;
+      }
+    }
+    // inner-dropdown
+    .custom-select__menu {
+      left: 0;
+      .custom-select__menu-list {
+        @apply px-1;
+        .custom-select__option {
+          @apply text-blue rounded-md;
+          &.custom-select__option--is-selected {
+            @apply bg-customBlue text-white;
+          }
+        }
+      }
+    }
+  }
+}
+// Custom Select Box Style End
+
+.countries-select {
+  .custom-select__single-value {
+    color: #000000;
+  }
+}
+
+.custom-blue-gradient {
+  background-image: linear-gradient(40deg, #3a7dc0, #7bcbdf), linear-gradient(40deg, #7bcbdf 0%, #3a7dc0 135%);
+}
+.custom-pink-gradient {
+  background-image: linear-gradient(40deg, #e8386f, #d594c1), linear-gradient(40deg, #d594c1 0%, #e8386f 135%);
+}
+.custom-green-gradient {
+  background-image: linear-gradient(40deg, #49bbbc, #9dcb8c), linear-gradient(40deg, #9dcb8c 0%, #49bbbc 135%);
+}
+.custom-yellow-gradient {
+  background-image: linear-gradient(40deg, #ed6b55, #f5d93e), linear-gradient(40deg, #f5d93e 0%, #ed6b55 135%);
+}
+
+.main-tabs-section {
+  #custom_tab-0 {
+    @apply relative;
+    @extend .custom-blue-gradient;
+    @include gradient-base-btn;
+    &.active-tab {
+      @apply before:bg-[url('/images/blue-active-icon.svg')];
+    }
+  }
+  #custom_tab-1 {
+    @extend .custom-pink-gradient;
+    @include gradient-base-btn;
+    &.active-tab {
+      @apply before:bg-[url('/images/pink-active-icon.svg')];
+    }
+  }
+  #custom_tab-2 {
+    @extend .custom-green-gradient;
+    @include gradient-base-btn;
+    &.active-tab {
+      @apply before:bg-[url('/images/green-active-icon.svg')];
+    }
+  }
+  #custom_tab-3 {
+    @extend .custom-yellow-gradient;
+    @include gradient-base-btn;
+    &.active-tab {
+      @apply before:bg-[url('/images/yellow-active-icon.svg')];
+    }
+  }
+  .active-tab {
+    @media (max-width: 1024px) {
+      &::before {
+        display: none;
+      }
+    }
+    content: "";
+    @apply before:absolute lg:before:-right-[3.8rem] xl:before:-right-[3.875rem] before:top-[-0.3rem] xl:before:top-[-0.438rem] before:h-[2.5rem] before:w-[2.5rem] xl:before:h-[3.125rem] xl:before:w-[3.125rem] before:bg-contain before:bg-center before:bg-no-repeat;
+  }
+}
+
+.switch-input:checked + .switch-peer-style {
+  &::after {
+    background: white;
+  }
+}
+.switch-peer-style {
+  background-image: linear-gradient(360deg, #ffff, #ffff), linear-gradient(90deg, #335fa8 0%, #43abe1 135%);
+  @include gradient-base-btn;
+  &::after {
+    @apply bg-gradient-to-r from-[#335FA8] to-[#43ABE1];
+  }
+}
+
+.patient-custom-grey-btn {
+  @extend .custom-grey-btn;
+  @media (max-width: 1024px) {
+    background: transparent;
+  }
+}
+
+.main-patient-side-menu {
+  @extend .main-quiz-side-menu;
+  .menu-active {
+    @media (max-width: 1024px) {
+      background: transparent !important;
+      border-bottom-color: #44aae1 !important;
+      border-radius: 0.188rem;
+      img {
+        filter: invert(65%) sepia(66%) saturate(1903%) hue-rotate(171deg) brightness(94%) contrast(86%);
+      }
+      .quiz-side-text {
+        @apply text-sky-600 !important;
+      }
+    }
+  }
+}
+// List Style
+.list-style-number {
+  list-style: auto;
+}
+.normal-height {
+  .table-mobile-height {
+    height: calc(100dvh - 387px);
+  }
+  .treatment-tab {
+    @media (min-width: 768px) {
+      height: 100% !important;
+    }
+  }
+}
+.small-height {
+  .table-mobile-height {
+    @media (max-width: 460px) and (max-height: 999px) {
+      @media (min-width: 380px) and (min-height: 680px) {
+        @apply h-72;
+      }
+    }
+    @media (max-width: 380px) and (max-height: 680px) {
+      @apply h-44;
+    }
+  }
+}
+.z-full {
+  z-index: 9999999 !important;
+}
+.modal-select-box {
+  .custom-select__control {
+    min-height: 33px;
+    @apply border-0 rounded-md;
+  }
+  .custom-select__indicator {
+    @apply p-[5px];
+  }
+}
