@@ -22,16 +22,15 @@ const createPatientsSlice = createSlice({
   initialState,
   reducers: {
     setPatientDetailsData: (state, action: PayloadAction<any>) => {
-      const PatientId = getLocalStorageData("PatientId", null);
+      // const PatientId = getLocalStorageData("PatientId", null);
+      state.data = action.payload;
 
-      if (PatientId && PatientId === action.payload.id) {
-        // If IDs match, update the state
-        state.data = action.payload;
-      } else if (action.payload.id === PatientId && PatientId) {
-        state.data = action.payload;
-      } else {
-        return;
-      }
+      // if (PatientId && PatientId === action.payload.id) {
+      //   // If IDs match, update the state
+      //   state.data = action.payload;
+      // } else {
+      //   return;
+      // }
     },
     setMobileTabAddDocument: (state, action: PayloadAction<any>) => {
       state.addMobileDocumentValue = action.payload;

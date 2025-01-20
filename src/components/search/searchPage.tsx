@@ -63,22 +63,7 @@ export default function SearchPage() {
     if (page == 0) {
       fetchPractitioners();
     }
-
-    const params = [
-      { name: "specialty", value: specialty },
-      { name: "localDate", value: localDate },
-    ];
-
-    if (firstName) {
-      params.push({ name: "firstName", value: firstName });
-    }
-
-    if (lastName) {
-      params.push({ name: "lastName", value: lastName });
-    }
-
-    router.push(pathname + "?" + createQueryString(params));
-  }, [specialty, localDate, firstName]);
+  }, [page, specialty, localDate, firstName, lastName]);
 
   // Fetch Practitioners list
   const fetchPractitioners = async () => {
@@ -106,21 +91,6 @@ export default function SearchPage() {
       setPageLoader(false);
     }
   };
-
-  // Get a new searchParams string by merging the current
-  // searchParams with a provided key/value pair
-  const createQueryString = useCallback(
-    (params: { name: string; value: string }[]) => {
-      const urlsParams = new URLSearchParams(searchParams.toString());
-      urlsParams.delete("firstName");
-      urlsParams.delete("lastName");
-      params.map((param: any) => {
-        urlsParams.set(param.name, param.value);
-      });
-      return urlsParams.toString();
-    },
-    [searchParams]
-  );
 
   return (
     <DynamicHtmlTag

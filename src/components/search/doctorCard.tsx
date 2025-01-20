@@ -4,18 +4,28 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { DynamicHtmlTag, CustomButton, CustomImage, HeadingTag, CustomInput, Card, CustomLabel } from "@/components";
-import { PractitionerType, getFormateDate, getFormateTime } from "@/utility";
+import { PatientsType, PractitionerType, createBeneficiary, getFormateDate, getFormateTime, handleProcessError } from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import {
   setConsultationPractitionerId,
   setPractitionerAvatar,
   setPractitionerName,
   setPractitionerTarif,
+  setRdvId,
   setTimeSlot,
 } from "@/store/reducers/consultationBookingSlice";
+import { toast } from "react-toastify";
+import { ConsultationProcessState, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 interface PractitionerProps {
   practitioner: PractitionerType;
   localDate: string;
+}
+
+interface AppointmentPayload {
+  practitionerId: number;
+  patientId?: number;
+  daySlot: string;
+  timeSlot: string;
 }
 
 const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) => {
@@ -28,7 +38,29 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
     router.push(`/practitioner-profile/${practitioner?.id}`);
   };
 
-  const handleBookSlot = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const createAppointment = async (payload: AppointmentPayload) => {
+    try {
+      const response = await createBeneficiary(payload);
+
+      if (response.data) {
+        dispatch(setRdvId(response.data.id));
+      }
+
+      if (response?.data?.codeMessage === "RDV_NOT_AVAILABLE") {
+        router.push("/search");
+        return;
+      }
+    } catch (error: any) {
+      const errorHandlingResult = handleProcessError(error);
+      if (errorHandlingResult.action === "redirect") {
+        toast.error(errorHandlingResult.message);
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    }
+  };
+
+  const handleBookSlot = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTimeSlot = event.target.value;
     if (!loggedInUser?.data?.id) {
       router.push(`/login`);
@@ -49,6 +81,36 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
           }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`
         )
       );
+
+      const tarif = `${practitioner?.practitionerData?.tarifMin ? practitioner.practitionerData.tarifMin + "€" : ""} ${
+        practitioner?.practitionerData?.tarifMax ? "à " + practitioner.practitionerData.tarifMax + "€" : ""
+      }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`;
+
+      const startConsultationProcessPayload: ConsultationProcessState = {
+        profile: loggedInUser?.data,
+        practitioner: practitioner,
+        completedSteps: 1,
+        selectedMotifs: [],
+        otherMotifText: "",
+        confirmed: false,
+        information: false,
+        parentId: loggedInUser?.data?.id,
+        patientId: loggedInUser?.data?.id,
+        childrenId: null,
+        tarif: tarif,
+        timeSlot: selectedTimeSlot,
+        daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+      };
+
+      dispatch(startConsultationProcess(startConsultationProcessPayload));
+
+      await createAppointment({
+        practitionerId: practitioner?.id,
+        daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+        timeSlot: selectedTimeSlot,
+        patientId: loggedInUser?.data?.id,
+      });
+
       router.push(`/consultationprocess/beneficiary`);
     }
   };

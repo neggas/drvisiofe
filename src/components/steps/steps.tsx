@@ -34,6 +34,11 @@ const Steps = () => {
       const previousStepPath = `/consultationprocess/${getStepPathByIndex(currentStepIndex - 1)}`;
       router.push(previousStepPath);
     } else {
+      if (consultationBooking.rdvId) {
+        try {
+          cancelAppointment(consultationBooking.rdvId);
+        } catch (error) {}
+      }
       router.push("/search");
     }
   };

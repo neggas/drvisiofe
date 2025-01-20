@@ -45,6 +45,7 @@ import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { RootState } from "@/store";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
 import { toast } from "react-toastify";
+import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 
 type Errors = {
   firstName?: string;
@@ -77,6 +78,9 @@ export default function Beneficiary() {
   const [selectedPatientIdState, setSelectedPatientIdState] = useState<string | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [existingRdv, setExistingRdv] = useState<number | null>(null);
+  const currentPatient = useSelector(selectLoginResponse);
+
+  const patientDetailsData = useSelector(selectPatientDetailsData);
 
   const handleDateOptionChange = (date: Date | null) => {
     setErrors(prevErrors => ({ ...prevErrors, birthdayDate: undefined }));
@@ -240,11 +244,6 @@ export default function Beneficiary() {
         return;
       }
 
-      const rdvId = response?.data?.id;
-      if (rdvId) {
-        dispatch(setRdvId(rdvId));
-      }
-
       handleNextStep(1, "/consultationprocess/motifs");
     } catch (error: any) {
       const errorHandlingResult = handleProcessError(error);
@@ -334,6 +333,26 @@ export default function Beneficiary() {
     dispatch(openModal("rdvAlreadyStarted"));
   };
 
+  const handlePatientChange = (patientId: number | undefined, childrenPatientId: number | null) => {
+    console.log(childrenPatientId, patientId);
+    if (childrenPatientId) {
+      const patientData = nearbyPatients.find(patient => patient.nearby.id === childrenPatientId);
+
+      dispatch(
+        setPatientDetailsData({
+          patientId: patientId,
+          childrenPatientId: childrenPatientId,
+          ...patientData?.nearby,
+        })
+      );
+    } else {
+      setPatientDetailsData({
+        patientId: patientId,
+        ...currentPatient?.data,
+      });
+    }
+  };
+
   if (isLoading) {
     return <CustomFullScreenLoader />;
   }
@@ -357,15 +376,8 @@ export default function Beneficiary() {
                 name="selectTime"
                 id="time-slot-vous"
                 value={loggedInUser?.data?.id || ""}
-                onChange={() =>
-                  dispatch(
-                    setSelectedPatientId({
-                      patientId: loggedInUser?.data?.id || 0,
-                      childrenPatientId: null,
-                    })
-                  )
-                }
-                defaultChecked={true}
+                onChange={() => handlePatientChange(loggedInUser?.data?.id, null)}
+                defaultChecked={consultationBooking.patientId === loggedInUser?.data?.id}
                 // disabled={consultationBooking.completedSteps >= 2}
               />
               <CustomLabel htmlFor="time-slot-vous" className={`radio-label d-block flex items-center justify-center cursor-pointer`}>
@@ -389,15 +401,8 @@ export default function Beneficiary() {
                     name="selectTime"
                     id={`time-slot-${patient.id}`}
                     value={patient.nearby.id}
-                    onChange={() =>
-                      dispatch(
-                        setSelectedPatientId({
-                          patientId: loggedInUser?.data?.id || 0,
-                          childrenPatientId: patient.nearby.id, // Pass patient.id directly
-                        })
-                      )
-                    }
-                    defaultChecked={false}
+                    onChange={() => handlePatientChange(loggedInUser?.data?.id, patient.nearby.id)}
+                    defaultChecked={patientDetailsData.id === patient.nearby.id}
                   />
                   <CustomLabel htmlFor={`time-slot-${patient.id}`} className="radio-label d-block flex items-center justify-center cursor-pointer">
                     <DynamicHtmlTag
@@ -524,6 +529,7 @@ export default function Beneficiary() {
                           dateFormat={"dd/MM/yyyy"}
                           placeholderText="jj/mm/aaaa"
                           className="outline-none text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs rounded-md w-full"
+                          inline={false}
                         />
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>

@@ -15,6 +15,7 @@ import {
   loaderReducer,
   patientDetailsReducer,
   consultationBookingReducer,
+  consultationProcessReducer,
 } from "@/store";
 import { logout } from "./reducers/loginSlice";
 
@@ -44,6 +45,7 @@ const appReducer = combineReducers({
   specialityData: specialityReducer,
   quiz: quizReducer,
   consultationBooking: consultationBookingReducer,
+  consultationProcess: consultationProcessReducer,
 });
 
 // Root reducer to handle logout action by resetting the state

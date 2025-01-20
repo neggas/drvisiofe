@@ -20,6 +20,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import { MdClose } from "react-icons/md";
 import { selectConsultationBooking, setSelectedDate } from "@/store/reducers/consultationBookingSlice";
+import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 
 interface SpecialitiesProps {
   selectedSpecialty: string;
@@ -169,6 +170,8 @@ const SideBar: React.FC<SpecialitiesProps> = ({
       dispatch(setSelectedDate(currentDate));
     }
   }, [dispatch, consultationBooking.selectedDate]);
+
+  const patientDetails = useSelector(selectPatientDetailsData);
 
   return (
     <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row h-auto rounded-2xl min-h-full lg:border">
@@ -333,6 +336,26 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                     </DynamicHtmlTag>
                     <DynamicHtmlTag type="p" className="text-customBlue text-2xs 2xl:text-xs font-semibold">
                       à {consultationBooking.timeSlot || "Tarif not available"}
+                    </DynamicHtmlTag>
+                  </DynamicHtmlTag>
+                </DynamicHtmlTag>
+                <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
+                  <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center uppercase">
+                    Pour le patient
+                  </HeadingTag>
+                  <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
+                    <CustomImage
+                      key={patientDetails?.avatar.id}
+                      src={patientDetails?.avatar ? `${API_URL}${patientDetails.avatar.url}` : "/images/dr-franck-image.webp"}
+                      alt={patientDetails?.firstName + " " + patientDetails?.lastName}
+                      className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
+                      width={15}
+                      height={15}
+                    />
+                    <DynamicHtmlTag type="div">
+                      <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
+                        {patientDetails?.lastName + " " + patientDetails?.firstName || "Unknown Doctor"}
+                      </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>

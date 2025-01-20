@@ -9,3 +9,4 @@ export { default as quizReducer } from "./reducers/quizSlice";
 export { default as loaderReducer } from "./reducers/loaderSlice";
 export { default as patientDetailsReducer } from "./reducers/patientDetailsSlice";
 export { default as consultationBookingReducer } from "./reducers/consultationBookingSlice";
+export { default as consultationProcessReducer } from "./reducers/consultationProcessReducerSlice";
