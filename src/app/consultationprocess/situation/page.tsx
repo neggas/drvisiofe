@@ -18,18 +18,23 @@ import {
   addSituation,
   API_URL,
   getPatientDeatils,
+  handleCancelRdv,
+  handleProcessError,
   HealthRight,
   HealthRightsResponse,
   listOfDynamicSituations,
   listOfWhySituations,
   PatientData,
+  PatientsType,
   WhySituation,
   WhySituationsResponse,
 } from "@/utility";
 import { RootState } from "@/store";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/consultationBookingSlice";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
 
 const Situation = () => {
   const dispatch = useDispatch();
@@ -41,9 +46,9 @@ const Situation = () => {
   const [whySituationsList, setWhySituationsList] = useState<WhySituation[]>([]);
   const [isMaternityChecked, setIsMaternityChecked] = useState(false);
   const [deleteDocument, setDeleteDocument] = useState(false);
+  const [patientProfile, setPatientProfile] = useState<PatientsType | null>(null);
 
   const [healthComplNumber, setHealthComplNumber] = useState<string>(fetchPatientData?.patientData?.healthComplNumber || "");
-
   const [healthComplStartDate, setHealthComplStartDate] = useState<Date | null>(
     fetchPatientData?.patientData?.healthComplStartDate
       ? new Date(fetchPatientData?.patientData?.healthComplStartDate.split("/").reverse().join("/"))
@@ -89,6 +94,7 @@ const Situation = () => {
   const patientDetails = useCallback(async () => {
     try {
       const data = await getPatientDeatils();
+      setPatientProfile(data.data);
       dispatch(setPatientDetailsData(data.data));
     } catch (error) {}
   }, [dispatch]);
@@ -161,12 +167,10 @@ const Situation = () => {
   };
 
   useEffect(() => {
-    if (!fetchPatientData?.patientData?.rdvWhyId) {
-      patientDetails();
-    }
+    patientDetails();
     situationList();
     fetchWhySituations();
-  }, [patientDetails, situationList, fetchWhySituations, fetchPatientData?.patientData?.rdvWhyId]);
+  }, [patientDetails, situationList, fetchWhySituations]);
 
   useEffect(() => {
     if (fetchPatientData) {
@@ -372,7 +376,20 @@ const Situation = () => {
 
       dispatch(setPatientDetailsData(updatedPatientData));
       handleNextStep(3, "/consultationprocess/dosier-medical");
-    } catch (error) {}
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+      toast.error(errorHandlingResult.message);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    }
   };
 
   return (
@@ -425,7 +442,7 @@ const Situation = () => {
                   <CustomInput
                     type="number"
                     name="healthComplNumber"
-                    value={addMutuelleNumber}
+                    value={patientProfile?.patientData?.healthComplNumber || addMutuelleNumber}
                     onChange={handleAddMutuelleNumberChange}
                     className="grow input outline-none focus:outline-none border-none p-1 h-auto font-medium text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug"
                     placeholder="Numéro"
@@ -825,7 +842,18 @@ const Situation = () => {
           </DynamicHtmlTag>
         </DynamicHtmlTag>
       </CustomModal>
+
       {/* Empty SSN Input Modal Modal Ends */}
+
+      {modalType === "rdvAlreadyStarted" && (
+        <RdvAlreadyStartedModal
+          isOpen={modalType === "rdvAlreadyStarted"}
+          onClose={() => dispatch(closeModal())}
+          consultationBooking={consultationBooking}
+          existingRdv={fetchPatientData?.patientData?.rdvWhyId}
+          handleCancelRdv={() => handleCancelRdv(fetchPatientData?.patientData?.rdvWhyId, router, () => dispatch(closeModal()))}
+        />
+      )}
     </DynamicHtmlTag>
   );
 };

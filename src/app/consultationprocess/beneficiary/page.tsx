@@ -18,9 +18,13 @@ import { CgAdd } from "react-icons/cg";
 import {
   addBeneficiaryChildSchema,
   cancelRdv,
+  CONSULTAION_PROCESS_ERRORS,
+  CONSULTATION_PROCESS_ERROR_MESSAGES_CODE,
   createBeneficiary,
   deleteNearbyPatientApi,
   genderListingApi,
+  handleConsultationProcessError,
+  handleProcessError,
   ListOption,
   patientNearbyList,
   PatientTeleconsultationsNearbyResponse,
@@ -28,7 +32,13 @@ import {
 } from "@/utility";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
-import { selectConsultationBooking, setCompletedStep, setRdvId, setSelectedPatientId } from "@/store/reducers/consultationBookingSlice";
+import {
+  resetConsultationBooking,
+  selectConsultationBooking,
+  setCompletedStep,
+  setRdvId,
+  setSelectedPatientId,
+} from "@/store/reducers/consultationBookingSlice";
 import { useRouter } from "next/navigation";
 import { SlClose } from "react-icons/sl";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
@@ -234,13 +244,21 @@ export default function Beneficiary() {
       if (rdvId) {
         dispatch(setRdvId(rdvId));
       }
+
       handleNextStep(1, "/consultationprocess/motifs");
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.codeMessage || "Une erreur est survenue lors de la création du rendez-vous";
-      const rdvId = error?.response?.data?.errorMapValue?.rdvId;
-      if (errorMessage === "RDV_ALREADY_PRESENT") {
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "openModal") {
         openRdvAlreadyStartedModal();
-        setExistingRdv(rdvId);
+        setExistingRdv(errorHandlingResult?.rdvId || null);
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        toast.error(errorHandlingResult.message);
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
       }
     }
   };
@@ -251,6 +269,10 @@ export default function Beneficiary() {
         await cancelRdv(existingRdv);
         toast.success("Rendez-vous annulé avec succès");
         closeRdvAlreadyStartedModal();
+        router.push("/search");
+        return;
+      } else {
+        console.log("ah daccord");
       }
     } catch (error) {
       toast.error("Une erreur est survenue lors de l'annulation du rendez-vous");
@@ -344,11 +366,9 @@ export default function Beneficiary() {
                   )
                 }
                 defaultChecked={true}
-                disabled={consultationBooking.completedSteps >= 2}
+                // disabled={consultationBooking.completedSteps >= 2}
               />
-              <CustomLabel
-                htmlFor="time-slot-vous"
-                className={`radio-label d-block flex items-center justify-center cursor-pointer ${consultationBooking.completedSteps >= 2 ? "cursor-not-allowed opacity-50" : ""}`}>
+              <CustomLabel htmlFor="time-slot-vous" className={`radio-label d-block flex items-center justify-center cursor-pointer`}>
                 <DynamicHtmlTag
                   type="span"
                   className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn"
@@ -378,7 +398,6 @@ export default function Beneficiary() {
                       )
                     }
                     defaultChecked={false}
-                    disabled={consultationBooking.completedSteps >= 2}
                   />
                   <CustomLabel htmlFor={`time-slot-${patient.id}`} className="radio-label d-block flex items-center justify-center cursor-pointer">
                     <DynamicHtmlTag
@@ -620,9 +639,8 @@ export default function Beneficiary() {
             <DynamicHtmlTag type="div" className="sticky bottom-0 z-10 bg-base-100 w-full text-end">
               <CustomButton
                 as="button"
-                className={`card-btn text-xs text-white py-2 px-10 lg:px-9 2xl:px-10 font-semibold rounded-full inline-block ${consultationBooking.completedSteps >= 2 ? "cursor-not-allowed opacity-50" : ""}`}
+                className={`card-btn text-xs text-white py-2 px-10 lg:px-9 2xl:px-10 font-semibold rounded-full inline-block`}
                 onClick={handleNextButtonClick}
-                disabled={consultationBooking.completedSteps >= 2}
                 title="La prise de rendez-vous pour la téléconsultation a déjà commencé">
                 Suivant
               </CustomButton>

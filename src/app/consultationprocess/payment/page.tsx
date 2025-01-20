@@ -1,7 +1,7 @@
 "use client";
 import { CustomButton, CustomFullScreenLoader, CustomImage, DynamicHtmlTag, HeadingTag } from "@/components";
 import React, { useState } from "react";
-import { resetConsultationBooking, selectConsultationBooking, setCompletedStep } from "@/store/reducers/consultationBookingSlice";
+import { resetConsultationBooking, selectConsultationBooking, setCompletedStep, setConfirmed } from "@/store/reducers/consultationBookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { appointmentPaymentApi, extractMinMaxValues, getFormateDate, validateAppointment } from "@/utility";
 import { RootState } from "@/store";
@@ -10,7 +10,7 @@ import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
 const Payment = () => {
   const dispatch = useDispatch();
   const consultationBooking = useSelector(selectConsultationBooking);
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed] = useState(consultationBooking?.confirmed);
   const [IsSubmitDetail, setIsSubmitDetail] = useState(false);
   const isLoading = useSelector((state: RootState) => state.loader.isLoading);
   const tarif = consultationBooking?.tarif ?? "";
@@ -27,13 +27,13 @@ const Payment = () => {
 
     try {
       await validateAppointment(payload);
-      setIsConfirmed(true);
+      dispatch(setConfirmed(true));
     } catch (error) {}
   };
 
   const handlePaymentInitiated = (stepNumber: number) => {
     dispatch(setCompletedStep(stepNumber));
-    dispatch(resetConsultationBooking());
+    // dispatch(resetConsultationBooking());
   };
 
   const handleSubmitDetail = async () => {
@@ -116,7 +116,7 @@ const Payment = () => {
                 {/* after complete confirmation start */}
                 <DynamicHtmlTag
                   type="div"
-                  className={`absolute w-full h-full bg-primary/45 top-0 left-0 shadow-lg rounded-lg p-3 justify-center items-center flex ${isConfirmed ? "" : "hidden"}`}>
+                  className={`absolute w-full h-full bg-primary/45 top-0 left-0 shadow-lg rounded-lg p-3 justify-center items-center flex ${consultationBooking?.confirmed ? "" : "hidden"}`}>
                   <CustomImage src="/images/right-tick.svg" alt="right-tick" width={150} height={150} className="w-24 lg:w-36" />
                 </DynamicHtmlTag>
                 {/* after complete confirmation end*/}
@@ -184,10 +184,10 @@ const Payment = () => {
                   <CustomButton
                     onClick={handleSubmitDetail}
                     className={`cstm-btn view-more-btn text-xs 2xl:text-sm py-2 px-3 text-base-100 rounded-full font-semibold ms-auto lg:mb-0 w-1/3 md:w-1/5 lg:w-1/3 xl:w-1/4 lg:bg-transparent flex justify-center max-w-x ${
-                      isConfirmed ? "" : "opacity-65 cursor-not-allowed"
+                      consultationBooking?.confirmed ? "" : "opacity-65 cursor-not-allowed"
                     }`}
-                    title={!isConfirmed ? "Confirmer le rendez-vous pour pouvoir payer." : ""}
-                    disabled={!isConfirmed}>
+                    title={!consultationBooking?.confirmed ? "Confirmer le rendez-vous pour pouvoir payer." : ""}
+                    disabled={!consultationBooking?.confirmed}>
                     Payer
                   </CustomButton>
                 </DynamicHtmlTag>

@@ -1,11 +1,15 @@
 "use client";
 import { CustomButton, CustomForm, CustomImage, CustomInput, CustomLabel, DynamicHtmlTag, HeadingTag } from "@/components";
+import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
 import { selectConsultationBooking, setCompletedStep, setOtherMotifText, setSelectedMotifs } from "@/store/reducers/consultationBookingSlice";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
-import { addMotif, API_URL, fetchMotifs } from "@/utility";
+import { closeModal, openModal } from "@/store/reducers/modalSlice";
+import { RootState } from "@/store/store";
+import { addMotif, API_URL, fetchMotifs, handleCancelRdv, handleProcessError } from "@/utility";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Motifs = () => {
   const router = useRouter();
@@ -14,6 +18,8 @@ const Motifs = () => {
   const [selected, setSelected] = useState<number[]>([]);
   const [motifs, setMotifs] = useState<any[]>([]);
   const [otherMotif, setOtherMotif] = useState<string>("");
+  const [existingRdv, setExistingRdv] = useState<number | null>(null);
+  const modalType = useSelector((state: RootState) => state.modal.modalType);
 
   const loadMotifs = async () => {
     try {
@@ -105,7 +111,21 @@ const Motifs = () => {
         return;
       }
       handleNextStep(2, "/consultationprocess/situation");
-    } catch (error) {}
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+      toast.error(errorHandlingResult.message);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        setExistingRdv(errorHandlingResult?.rdvId || null);
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    }
   };
 
   return (
@@ -193,6 +213,16 @@ const Motifs = () => {
           </CustomForm>
         </DynamicHtmlTag>
       </DynamicHtmlTag>
+
+      {modalType === "rdvAlreadyStarted" && (
+        <RdvAlreadyStartedModal
+          isOpen={modalType === "rdvAlreadyStarted"}
+          onClose={() => dispatch(closeModal())}
+          consultationBooking={consultationBooking}
+          existingRdv={existingRdv}
+          handleCancelRdv={() => handleCancelRdv(existingRdv, router, () => dispatch(closeModal()))}
+        />
+      )}
     </DynamicHtmlTag>
   );
 };

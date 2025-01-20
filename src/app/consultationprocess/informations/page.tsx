@@ -1,14 +1,19 @@
 "use client";
 import { Card, CustomButton, CustomImage, DynamicHtmlTag, HeadingTag } from "@/components";
-import { selectConsultationBooking, setCompletedStep, setTarifInformation } from "@/store/reducers/consultationBookingSlice";
-import { validateMedicalInformation } from "@/utility";
+import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
+import { selectConsultationBooking, setCompletedStep, setInformation, setTarifInformation } from "@/store/reducers/consultationBookingSlice";
+import { closeModal, openModal } from "@/store/reducers/modalSlice";
+import { RootState } from "@/store/store";
+import { handleCancelRdv, handleProcessError, validateMedicalInformation } from "@/utility";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Information = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const consultationBooking = useSelector(selectConsultationBooking);
+  const modalType = useSelector((state: RootState) => state.modal.modalType);
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
@@ -37,9 +42,28 @@ const Information = () => {
             tarifPenality: response.data.tarifPenality,
           })
         );
+
+        dispatch(setInformation(true));
       }
       handleNextStep(5, "/consultationprocess/payment");
-    } catch (error) {}
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+      toast.error(errorHandlingResult.message);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    }
+  };
+
+  const isAccepteInformation = () => {
+    return consultationBooking.information;
   };
 
   return (
@@ -234,14 +258,33 @@ const Information = () => {
       {/* --- Teleconsultation info section end ---- */}
       {/* -- Accept button start -- */}
       <DynamicHtmlTag type="div" className="flex justify-end lg:px-5">
-        <CustomButton
-          type="submit"
-          onClick={handleValidateMedicalInfoSubmit}
-          className="card-btn text-xs 2xl:text-sm py-2 px-10 lg:px-9 2xl:px-10 text-base-100 rounded-full font-semibold inline-block mt-4 lg:mt-0">
-          J{"’"}ai lu et j{"’"}accepte
-        </CustomButton>
+        {!isAccepteInformation() ? (
+          <CustomButton
+            type="submit"
+            onClick={handleValidateMedicalInfoSubmit}
+            className="card-btn text-xs 2xl:text-sm py-2 px-10 lg:px-9 2xl:px-10 text-base-100 rounded-full font-semibold inline-block mt-4 lg:mt-0">
+            J{"’"}ai lu et j{"’"}accepte
+          </CustomButton>
+        ) : (
+          <CustomButton
+            type="submit"
+            className="card-btn text-xs 2xl:text-sm py-2 px-10 lg:px-9 2xl:px-10 text-base-100 rounded-full font-semibold inline-block mt-4 lg:mt-0"
+            onClick={() => handleNextStep(5, "/consultationprocess/payment")}>
+            Suivant
+          </CustomButton>
+        )}
       </DynamicHtmlTag>
       {/* -- Accept button end -- */}
+
+      {modalType === "rdvAlreadyStarted" && (
+        <RdvAlreadyStartedModal
+          isOpen={modalType === "rdvAlreadyStarted"}
+          onClose={() => dispatch(closeModal())}
+          consultationBooking={consultationBooking}
+          existingRdv={consultationBooking?.rdvId ?? null}
+          handleCancelRdv={() => handleCancelRdv(consultationBooking?.rdvId ?? null, router, () => dispatch(closeModal()))}
+        />
+      )}
     </>
   );
 };

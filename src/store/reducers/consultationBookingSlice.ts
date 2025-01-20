@@ -17,12 +17,16 @@ interface ConsultationBookingState {
   tarifInformation?: { tarif: number; serviceFee: number; tarifTotal: number; tarifPenality: number };
   selectedMotifs: Array<string | { id: number; name: string }>;
   otherMotifText?: string;
+  confirmed: boolean;
+  information: boolean;
 }
 
 const initialState: ConsultationBookingState = {
   completedSteps: 1, // Start with first step as completed by default
   selectedMotifs: [],
   otherMotifText: "",
+  confirmed: false,
+  information: false,
 };
 
 const consultationBookingSlice = createSlice({
@@ -41,7 +45,7 @@ const consultationBookingSlice = createSlice({
       state.childrenPatientId = action.payload.childrenPatientId || null;
     },
     setCompletedStep: (state, action: PayloadAction<number>) => {
-      state.completedSteps = action.payload;
+      state.completedSteps = Math.max(state.completedSteps, action.payload);
     },
     setRdvId: (state, action: PayloadAction<number>) => {
       console.log("action.payload", action.payload);
@@ -73,10 +77,17 @@ const consultationBookingSlice = createSlice({
     setOtherMotifText: (state, action: PayloadAction<string>) => {
       state.otherMotifText = action.payload;
     },
+    setConfirmed: (state, action: PayloadAction<boolean>) => {
+      state.confirmed = action.payload;
+    },
+    setInformation: (state, action: PayloadAction<boolean>) => {
+      state.information = action.payload;
+    },
     resetConsultationBooking: state => {
       const { selectedDate } = state;
       return {
-        ...initialState, // Reset to initial state
+        ...initialState,
+        completedSteps: 0, // Reset to initial state
         selectedDate, // Preserve the selectedDate
       };
     },
@@ -98,6 +109,8 @@ export const {
   setTarifInformation,
   setSelectedMotifs,
   setOtherMotifText,
+  setConfirmed,
+  setInformation,
 } = consultationBookingSlice.actions;
 
 export const selectConsultationBooking = (state: RootState) => state.consultationBooking;

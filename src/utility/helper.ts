@@ -2,7 +2,17 @@ import moment from "moment";
 import "moment/locale/fr"; // without this line it didn't work
 moment.locale("fr");
 import { toast } from "react-toastify";
-import { clearLocalStorageData, getLocalStorageData, openApis, setLocalStorageData } from "@/utility";
+import {
+  cancelRdv,
+  clearLocalStorageData,
+  CONSULTAION_PROCESS_ERRORS,
+  CONSULTATION_PROCESS_ERROR_MESSAGES_CODE,
+  CONSULTATION_STEP,
+  getLocalStorageData,
+  openApis,
+  setLocalStorageData,
+} from "@/utility";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 /**
  * @name getCurrentDateTime
@@ -313,4 +323,52 @@ export const extractMinMaxValues = (tarif: string): { min: string; max: string }
   }
 
   return { min: "", max: "" };
+};
+
+export type ErrorHandlingResult = {
+  action: "none" | "openModal" | "redirect";
+  message?: string;
+  rdvId?: number;
+  redirectPath?: string;
+};
+
+export const handleProcessError = (error: any): ErrorHandlingResult => {
+  const errorCode = error?.response?.data?.codeMessage;
+  const errorMessage = error?.response?.data?.message;
+  const rdvId = error?.response?.data?.errorMapValue?.rdvId;
+  const { RDV_ALREADY_PRESENT, RDV_NOT_AVAILABLE, RDV_NOT_FOUND, RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED } =
+    CONSULTATION_PROCESS_ERROR_MESSAGES_CODE;
+
+  if (CONSULTAION_PROCESS_ERRORS.includes(errorCode)) {
+    if ([RDV_ALREADY_PRESENT].includes(errorCode)) {
+      return { action: "openModal", message: errorMessage, rdvId };
+    } else if ([RDV_NOT_AVAILABLE, RDV_NOT_FOUND, RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED].includes(errorCode)) {
+      return { action: "redirect", message: errorMessage, redirectPath: "/search" };
+    }
+  }
+
+  return { action: "none", message: errorMessage };
+};
+
+export const handleCancelRdv = async (existingRdv: number | null, router: AppRouterInstance, closeRdvAlreadyStartedModal: () => void) => {
+  try {
+    if (existingRdv) {
+      await cancelRdv(existingRdv);
+      toast.success("Rendez-vous annulé avec succès");
+      closeRdvAlreadyStartedModal();
+      router.push("/search");
+      return;
+    } else {
+      console.log("ah daccord");
+    }
+  } catch (error) {
+    toast.error("Une erreur est survenue lors de l'annulation du rendez-vous");
+  } finally {
+    closeRdvAlreadyStartedModal();
+  }
+};
+
+export const getCurrentStep = (pathname: string) => {
+  const currentStep = CONSULTATION_STEP.indexOf(pathname.split("/")[2]);
+  return currentStep;
 };

@@ -34,7 +34,7 @@ const Steps = () => {
       const previousStepPath = `/consultationprocess/${getStepPathByIndex(currentStepIndex - 1)}`;
       router.push(previousStepPath);
     } else {
-      router.back();
+      router.push("/search");
     }
   };
 
@@ -73,6 +73,8 @@ const Steps = () => {
         closeAppointmentExitModal();
         router.push("/search");
       } catch (error) {}
+    } else {
+      router.push("/search");
     }
   };
 
@@ -91,7 +93,8 @@ const Steps = () => {
         <CustomNav defaultActiveKey="/consultationprocess/beneficiary" className="flex-column steps-menu light-gradient flex rounded-md">
           {["beneficiary", "motifs", "situation", "dosier-medical", "informations", "payment"].map((step, index) => {
             const stepNumber = index + 1;
-            const isStepEnabled = consultationBooking.completedSteps >= stepNumber && consultationBooking.completedSteps < 6;
+            // const isStepEnabled = consultationBooking.completedSteps >= stepNumber && consultationBooking.completedSteps < 6;
+            const isStepEnabled = consultationBooking.completedSteps >= stepNumber && consultationBooking.completedSteps <= 6;
 
             const disabledTitle = `Remplissez d'abord les informations de ${
               ["bénéficiaire", "motifs", "situation", "dossier médical", "informations", "paiement"][stepNumber - 2]

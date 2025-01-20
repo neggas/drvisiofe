@@ -1,16 +1,20 @@
 "use client";
 import { CustomImage, CustomLink, DynamicHtmlTag, HeadingTag } from "@/components";
+import { resetConsultationBooking } from "@/store/reducers/consultationBookingSlice";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { GoDotFill } from "react-icons/go";
+import { useDispatch } from "react-redux";
 
 const PaymentSuccessful = () => {
   const [timer, setTimer] = useState(3);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (timer === 0) {
       router.push("/patient-dashboard");
+      dispatch(resetConsultationBooking());
     } else {
       const countdown = setInterval(() => {
         setTimer((prev: any) => prev - 1);
@@ -18,7 +22,7 @@ const PaymentSuccessful = () => {
 
       return () => clearInterval(countdown);
     }
-  }, [timer, router]);
+  }, [timer, router, dispatch]);
 
   return (
     <>
