@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { DynamicHtmlTag, CustomButton, CustomImage, HeadingTag, CustomInput, Card, CustomLabel } from "@/components";
-import { PatientsType, PractitionerType, createBeneficiary, getFormateDate, getFormateTime, handleProcessError } from "@/utility";
+import { PatientData, PatientsType, PractitionerType, createBeneficiary, getFormateDate, getFormateTime, handleProcessError } from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import {
   setConsultationPractitionerId,
@@ -15,7 +15,7 @@ import {
   setTimeSlot,
 } from "@/store/reducers/consultationBookingSlice";
 import { toast } from "react-toastify";
-import { ConsultationProcessState, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import { ConsultationProcessState, setProcessRdvId, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 interface PractitionerProps {
   practitioner: PractitionerType;
   localDate: string;
@@ -44,6 +44,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
 
       if (response.data) {
         dispatch(setRdvId(response.data.id));
+        dispatch(setProcessRdvId({ rdvId: response.data.id, parentId: loggedInUser?.data?.id! }));
       }
 
       if (response?.data?.codeMessage === "RDV_NOT_AVAILABLE") {
@@ -87,7 +88,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
       }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`;
 
       const startConsultationProcessPayload: ConsultationProcessState = {
-        profile: loggedInUser?.data,
+        profile: loggedInUser?.data as unknown as PatientsType,
         practitioner: practitioner,
         completedSteps: 1,
         selectedMotifs: [],
@@ -100,6 +101,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
         tarif: tarif,
         timeSlot: selectedTimeSlot,
         daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+        isActive: true,
       };
 
       dispatch(startConsultationProcess(startConsultationProcessPayload));

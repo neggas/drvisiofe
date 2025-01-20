@@ -21,6 +21,7 @@ import { usePathname } from "next/navigation";
 import { MdClose } from "react-icons/md";
 import { selectConsultationBooking, setSelectedDate } from "@/store/reducers/consultationBookingSlice";
 import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
+import { getActiveProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 interface SpecialitiesProps {
   selectedSpecialty: string;
@@ -171,8 +172,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
     }
   }, [dispatch, consultationBooking.selectedDate]);
 
-  const patientDetails = useSelector(selectPatientDetailsData);
-
+  const activeProcess = useSelector(getActiveProcess);
   return (
     <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row h-auto rounded-2xl min-h-full lg:border">
       <DynamicHtmlTag type="div" className="bg-base-100 w-full px-4 sm:pb-0 sm:pt-2 lg:py-4 rounded-full">
@@ -199,35 +199,39 @@ const SideBar: React.FC<SpecialitiesProps> = ({
               </CustomButton>
             </DynamicHtmlTag>
           </DynamicHtmlTag>
-          <DynamicHtmlTag
-            type="div"
-            className={`relative ${pathname && !pathname.startsWith("/consultationprocess/") && !pathname.startsWith("/waiting-room") ? "block" : "hidden lg:block"}`}>
-            <CustomAsyncSelect
-              className="custom-search w-full text-[12px] border-none rounded-full px-8 lg:px-2 lg:pl-12 py-0 bg-base-200"
-              isClearable
-              cacheOptions
-              classNamePrefix={"custom-select"}
-              defaultOptions={searchPractitionerList}
-              loadOptions={searchPractitionersByPattern}
-              onChange={(data: any) => {
-                setFirstName(data?.firstName ?? "");
-                setLastName(data?.lastName ?? "");
-                setFilter(true);
-              }}
-              placeholder="Rechercher un médecin"
-              noOptionsMessage={({ inputValue }) => (!inputValue ? "Saisissez au moins 3 caractères" : "Aucune option trouvée")}
-            />
-            <DynamicHtmlTag type="div" className="absolute left-0 inset-y-0 flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 2xl:h-6 w-5 2xl:w-6 ml-3 text-gray-400 hover:text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+
+          {pathname && !pathname.startsWith("/consultationprocess/beneficiary") && (
+            <DynamicHtmlTag
+              type="div"
+              className={`relative ${pathname && !pathname.startsWith("/consultationprocess/") && !pathname.startsWith("/waiting-room") ? "block" : "hidden lg:block"}`}>
+              <CustomAsyncSelect
+                className="custom-search w-full text-[12px] border-none rounded-full px-8 lg:px-2 lg:pl-12 py-0 bg-base-200"
+                isClearable
+                cacheOptions
+                classNamePrefix={"custom-select"}
+                defaultOptions={searchPractitionerList}
+                loadOptions={searchPractitionersByPattern}
+                onChange={(data: any) => {
+                  setFirstName(data?.firstName ?? "");
+                  setLastName(data?.lastName ?? "");
+                  setFilter(true);
+                }}
+                placeholder="Rechercher un médecin"
+                noOptionsMessage={({ inputValue }) => (!inputValue ? "Saisissez au moins 3 caractères" : "Aucune option trouvée")}
+              />
+              <DynamicHtmlTag type="div" className="absolute left-0 inset-y-0 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 2xl:h-6 w-5 2xl:w-6 ml-3 text-gray-400 hover:text-gray-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </DynamicHtmlTag>
             </DynamicHtmlTag>
-          </DynamicHtmlTag>
+          )}
+
           <DynamicHtmlTag
             type="div"
             className={`${pathname && !pathname.startsWith("/consultationprocess/") && !pathname.startsWith("/waiting-room") ? "block" : "hidden lg:block"} bg-white rounded-lg p-2 lg:px-2 lg:py-4 xl:p-4 shadow-md lg:shadow-lg lg:space-y-2 gap-x-5 my-2`}>
@@ -330,12 +334,10 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                   <CustomImage src={PinkCheck} alt="check" className="mt-0.5 2xl:mt-1" width={13} height={13} />
                   <DynamicHtmlTag type="div">
                     <DynamicHtmlTag type="p" className="text-pink-500 text-2xs 2xl:text-xs font-bold">
-                      {consultationBooking?.selectedDate
-                        ? getFormateDate(new Date(consultationBooking.selectedDate).toISOString(), "dddd DD MMMM", true)
-                        : ""}
+                      {activeProcess?.daySlot ? getFormateDate(new Date(activeProcess.daySlot).toISOString(), "dddd DD MMMM", true) : ""}
                     </DynamicHtmlTag>
                     <DynamicHtmlTag type="p" className="text-customBlue text-2xs 2xl:text-xs font-semibold">
-                      à {consultationBooking.timeSlot || "Tarif not available"}
+                      à {activeProcess?.timeSlot || "Tarif not available"}
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
@@ -345,16 +347,16 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                   </HeadingTag>
                   <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
                     <CustomImage
-                      key={patientDetails?.avatar.id}
-                      src={patientDetails?.avatar ? `${API_URL}${patientDetails.avatar.url}` : "/images/dr-franck-image.webp"}
-                      alt={patientDetails?.firstName + " " + patientDetails?.lastName}
+                      key={activeProcess?.profile?.avatar?.id}
+                      src={activeProcess?.profile?.avatar ? `${API_URL}${activeProcess.profile.avatar.url}` : "/images/dr-franck-image.webp"}
+                      alt={activeProcess?.profile?.firstName + " " + activeProcess?.profile?.lastName}
                       className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
                       width={15}
                       height={15}
                     />
                     <DynamicHtmlTag type="div">
                       <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
-                        {patientDetails?.lastName + " " + patientDetails?.firstName || "Unknown Doctor"}
+                        {activeProcess?.profile?.lastName + " " + activeProcess?.profile?.firstName || "Unknown Doctor"}
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
@@ -365,8 +367,10 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                   </HeadingTag>
                   <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
                     <CustomImage
-                      key={consultationBooking?.avatar}
-                      src={consultationBooking?.avatar ? `${API_URL}${consultationBooking.avatar}` : "/images/dr-franck-image.webp"}
+                      key={activeProcess?.practitioner?.avatar?.id}
+                      src={
+                        activeProcess?.practitioner?.avatar ? `${API_URL}${activeProcess.practitioner.avatar.url}` : "/images/dr-franck-image.webp"
+                      }
                       alt="Dr.Franck"
                       className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
                       width={15}
@@ -374,7 +378,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                     />
                     <DynamicHtmlTag type="div" className="mb-4">
                       <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
-                        {consultationBooking.name || "Unknown Doctor"}
+                        {activeProcess?.practitioner?.firstName + " " + activeProcess?.practitioner?.lastName || "Unknown Doctor"}
                       </DynamicHtmlTag>
                       <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs text-gray-400">
                         Médecin Généraliste
@@ -382,7 +386,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs font-bold">
-                    Tarif {consultationBooking.tarif || "Tarif not available"}
+                    Tarif {activeProcess?.tarif || "Tarif not available"}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
               </DynamicHtmlTag>

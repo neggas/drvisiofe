@@ -8,6 +8,7 @@ import { DynamicHtmlTag, CustomLink, CustomImage, SideBar, DoctorCard, CustomLoa
 import { PractitionerType, searchPractitionerApi, getCurrentDateTime, NUMBER_OF_PRACTITIONERS_TO_FETCH, getLocalStorageData } from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import { resetConsultationBooking } from "@/store/reducers/consultationBookingSlice";
+import { resetConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     dispatch(resetConsultationBooking());
+    dispatch(resetConsultationProcess());
   }, [dispatch]);
 
   let selectedDate = searchParams.get("localDate");

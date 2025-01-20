@@ -46,6 +46,7 @@ import { RootState } from "@/store";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
 import { toast } from "react-toastify";
 import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
+import { addChildrenConsultationProcess, getActiveProcess, setProcessIsActive } from "@/store/reducers/consultationProcessReducerSlice";
 
 type Errors = {
   firstName?: string;
@@ -81,6 +82,7 @@ export default function Beneficiary() {
   const currentPatient = useSelector(selectLoginResponse);
 
   const patientDetailsData = useSelector(selectPatientDetailsData);
+  const activeProcess = useSelector(getActiveProcess);
 
   const handleDateOptionChange = (date: Date | null) => {
     setErrors(prevErrors => ({ ...prevErrors, birthdayDate: undefined }));
@@ -98,6 +100,16 @@ export default function Beneficiary() {
       dispatch(showLoader("nearby-patient-consultation"));
       const data = await patientNearbyList();
       setNearbyPatients(data.data.results);
+      const childrenPatient = data.data.results.map((patient: any) => {
+        return {
+          profile: { ...patient.nearby },
+          parentId: loggedInUser?.data?.id,
+          patientId: patient.nearby.id,
+          childrenId: patient.nearby.id,
+        };
+      });
+
+      dispatch(addChildrenConsultationProcess(childrenPatient));
     } catch (error) {
     } finally {
       dispatch(hideLoader());
@@ -334,8 +346,10 @@ export default function Beneficiary() {
   };
 
   const handlePatientChange = (patientId: number | undefined, childrenPatientId: number | null) => {
-    console.log(childrenPatientId, patientId);
+    console.log(patientId, childrenPatientId);
+
     if (childrenPatientId) {
+      dispatch(setProcessIsActive({ isActive: true, patientId: childrenPatientId! }));
       const patientData = nearbyPatients.find(patient => patient.nearby.id === childrenPatientId);
 
       dispatch(
@@ -350,6 +364,8 @@ export default function Beneficiary() {
         patientId: patientId,
         ...currentPatient?.data,
       });
+
+      dispatch(setProcessIsActive({ isActive: true, patientId: patientId! }));
     }
   };
 
@@ -377,7 +393,7 @@ export default function Beneficiary() {
                 id="time-slot-vous"
                 value={loggedInUser?.data?.id || ""}
                 onChange={() => handlePatientChange(loggedInUser?.data?.id, null)}
-                defaultChecked={consultationBooking.patientId === loggedInUser?.data?.id}
+                defaultChecked={activeProcess?.patientId === loggedInUser?.data?.id}
                 // disabled={consultationBooking.completedSteps >= 2}
               />
               <CustomLabel htmlFor="time-slot-vous" className={`radio-label d-block flex items-center justify-center cursor-pointer`}>
@@ -402,7 +418,7 @@ export default function Beneficiary() {
                     id={`time-slot-${patient.id}`}
                     value={patient.nearby.id}
                     onChange={() => handlePatientChange(loggedInUser?.data?.id, patient.nearby.id)}
-                    defaultChecked={patientDetailsData.id === patient.nearby.id}
+                    defaultChecked={activeProcess?.patientId === patient.nearby.id}
                   />
                   <CustomLabel htmlFor={`time-slot-${patient.id}`} className="radio-label d-block flex items-center justify-center cursor-pointer">
                     <DynamicHtmlTag
