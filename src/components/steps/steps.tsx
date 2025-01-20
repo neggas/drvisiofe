@@ -10,6 +10,7 @@ import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/co
 import { RootState } from "@/store";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { cancelAppointment } from "@/utility";
+import { getActiveProcess, resetConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 const Steps = () => {
   const pathName = usePathname() || "";
@@ -20,6 +21,7 @@ const Steps = () => {
   const openExitModal = () => setIsExitModalOpen(true);
   const closeExitModal = () => setIsExitModalOpen(false);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
+  const activePatientProcess = useSelector(getActiveProcess);
 
   const getActiveRoute = (currentPath: string, linkPath: string, activeClass: string) => {
     return currentPath === linkPath ? activeClass : "";
@@ -34,11 +36,12 @@ const Steps = () => {
       const previousStepPath = `/consultationprocess/${getStepPathByIndex(currentStepIndex - 1)}`;
       router.push(previousStepPath);
     } else {
-      if (consultationBooking.rdvId) {
+      if (activePatientProcess?.rdvId) {
         try {
-          cancelAppointment(consultationBooking.rdvId);
+          cancelAppointment(activePatientProcess.rdvId);
         } catch (error) {}
       }
+      dispatch(resetConsultationProcess());
       router.push("/search");
     }
   };

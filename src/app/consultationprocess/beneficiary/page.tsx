@@ -20,6 +20,7 @@ import {
   cancelRdv,
   CONSULTAION_PROCESS_ERRORS,
   CONSULTATION_PROCESS_ERROR_MESSAGES_CODE,
+  CONSULTATION_STEP,
   createBeneficiary,
   deleteNearbyPatientApi,
   genderListingApi,
@@ -45,8 +46,12 @@ import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { RootState } from "@/store";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
 import { toast } from "react-toastify";
-import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
-import { addChildrenConsultationProcess, getActiveProcess, setProcessIsActive } from "@/store/reducers/consultationProcessReducerSlice";
+import {
+  addChildrenConsultationProcess,
+  getActiveProcess,
+  setProcessCompletedSteps,
+  setProcessIsActive,
+} from "@/store/reducers/consultationProcessReducerSlice";
 
 type Errors = {
   firstName?: string;
@@ -79,9 +84,6 @@ export default function Beneficiary() {
   const [selectedPatientIdState, setSelectedPatientIdState] = useState<string | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [existingRdv, setExistingRdv] = useState<number | null>(null);
-  const currentPatient = useSelector(selectLoginResponse);
-
-  const patientDetailsData = useSelector(selectPatientDetailsData);
   const activeProcess = useSelector(getActiveProcess);
 
   const handleDateOptionChange = (date: Date | null) => {
@@ -233,6 +235,7 @@ export default function Beneficiary() {
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
+    dispatch(setProcessCompletedSteps({ completedSteps: stepNumber, patientId: activeProcess?.patientId || null }));
     router.push(nextPath);
   };
 
@@ -280,10 +283,9 @@ export default function Beneficiary() {
         await cancelRdv(existingRdv);
         toast.success("Rendez-vous annulé avec succès");
         closeRdvAlreadyStartedModal();
-        router.push("/search");
+        const nextStepUrl = CONSULTATION_STEP[Math.min(activeProcess?.completedSteps! + 1, 6)];
+        router.push(`/consultationprocess/${nextStepUrl}`);
         return;
-      } else {
-        console.log("ah daccord");
       }
     } catch (error) {
       toast.error("Une erreur est survenue lors de l'annulation du rendez-vous");
@@ -346,25 +348,9 @@ export default function Beneficiary() {
   };
 
   const handlePatientChange = (patientId: number | undefined, childrenPatientId: number | null) => {
-    console.log(patientId, childrenPatientId);
-
     if (childrenPatientId) {
       dispatch(setProcessIsActive({ isActive: true, patientId: childrenPatientId! }));
-      const patientData = nearbyPatients.find(patient => patient.nearby.id === childrenPatientId);
-
-      dispatch(
-        setPatientDetailsData({
-          patientId: patientId,
-          childrenPatientId: childrenPatientId,
-          ...patientData?.nearby,
-        })
-      );
     } else {
-      setPatientDetailsData({
-        patientId: patientId,
-        ...currentPatient?.data,
-      });
-
       dispatch(setProcessIsActive({ isActive: true, patientId: patientId! }));
     }
   };

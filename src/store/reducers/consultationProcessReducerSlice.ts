@@ -115,7 +115,7 @@ export const consultationProcessReducer = createSlice({
       state = updatedState;
     },
     resetConsultationProcess: state => {
-      state = [];
+      state.length = 0;
     },
     setProcessIsActive: (state, action: PayloadAction<{ isActive: boolean; patientId: number | null }>) => {
       // Désactiver tous les processus d'abord
@@ -128,17 +128,26 @@ export const consultationProcessReducer = createSlice({
       if (consultationProcess) {
         consultationProcess.isActive = action.payload.isActive;
       }
-
-      console.log(state);
+    },
+    setProcessCompletedSteps: (state, action: PayloadAction<{ completedSteps: number; patientId: number | null }>) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.completedSteps = Math.max(consultationProcess.completedSteps, action.payload.completedSteps);
+      }
     },
   },
 });
 
-export const { startConsultationProcess, addChildrenConsultationProcess, resetConsultationProcess, setProcessRdvId, setProcessIsActive } =
-  consultationProcessReducer.actions;
+export const {
+  startConsultationProcess,
+  addChildrenConsultationProcess,
+  resetConsultationProcess,
+  setProcessRdvId,
+  setProcessIsActive,
+  setProcessCompletedSteps,
+} = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {
-  console.log(state.consultationProcess.find(consultation => consultation.isActive));
   return state.consultationProcess.find(consultation => consultation.isActive) || null;
 };
 

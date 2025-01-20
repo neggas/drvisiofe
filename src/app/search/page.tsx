@@ -3,8 +3,8 @@ import { PageFallback, SearchPage } from "@/components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Search Practitioner",
-  description: "Search Practitioner for Patients",
+  title: "DrViso Rechercher praticien",
+  description: "Rechercher praticien pour patients",
 };
 
 export default function DoctorsList() {
