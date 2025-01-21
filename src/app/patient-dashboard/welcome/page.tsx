@@ -2,14 +2,31 @@
 import { CustomImage, CustomSlickCarousel, DynamicHtmlTag, HeadingTag } from "@/components";
 import React, { useEffect, useState } from "react";
 import parse from "html-react-parser";
-import { allArticleList, formatDate, getCurrentDate, getLocalStorageData, GlobalArticleListType, parseDate } from "@/utility";
+import { allArticleList, cancelRdv, formatDate, getCurrentDate, getLocalStorageData, GlobalArticleListType, parseDate } from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import { useSelector } from "react-redux";
 import { welcomeArticleList } from "@/utility/apis/patient-dashboard";
+import { getActiveProcess, resetConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 const Welcome = () => {
   const [articlelist, setarticleList] = useState<GlobalArticleListType[]>([]);
   const isTeleconsultationBooked = getLocalStorageData("isTeleconsultationBooked", false);
+  const activeConsultationProcess = useSelector(getActiveProcess);
+
+  //Cancel and clean appointment
+  useEffect(() => {
+    const handleCancelRdv = async () => {
+      if (activeConsultationProcess && activeConsultationProcess.rdvId) {
+        try {
+          await cancelRdv(activeConsultationProcess.rdvId);
+        } catch (error) {
+          console.log("error", error);
+        }
+      }
+    };
+    handleCancelRdv();
+    resetConsultationProcess();
+  }, [activeConsultationProcess]);
 
   useEffect(() => {
     articleList();

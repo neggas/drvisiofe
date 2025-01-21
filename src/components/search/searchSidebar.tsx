@@ -324,100 +324,102 @@ const SideBar: React.FC<SpecialitiesProps> = ({
             )}
           </DynamicHtmlTag>
           {/* REQUEST AN APPOINTMENT  CARD WITH CALENDER FOR LG:SCREEN */}
-          <DynamicHtmlTag type="div" className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg open-date-picker">
-            <HeadingTag type="h3" className="text-2xs 2xl:text-xs font-semibold">
-              DEMANDE DE RENDEZ-VOUS LE
-            </HeadingTag>
-            {pathname && pathname.startsWith("/consultationprocess") ? (
-              <DynamicHtmlTag type="div">
-                <DynamicHtmlTag type="div" className="flex items-start my-2 gap-1">
-                  <CustomImage src={PinkCheck} alt="check" className="mt-0.5 2xl:mt-1" width={13} height={13} />
-                  <DynamicHtmlTag type="div">
-                    <DynamicHtmlTag type="p" className="text-pink-500 text-2xs 2xl:text-xs font-bold">
-                      {activeProcess?.daySlot ? getFormateDate(new Date(activeProcess.daySlot).toISOString(), "dddd DD MMMM", true) : ""}
-                    </DynamicHtmlTag>
-                    <DynamicHtmlTag type="p" className="text-customBlue text-2xs 2xl:text-xs font-semibold">
-                      à {activeProcess?.timeSlot || "Tarif not available"}
-                    </DynamicHtmlTag>
-                  </DynamicHtmlTag>
-                </DynamicHtmlTag>
-                <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
-                  <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center uppercase">
-                    Pour le patient
-                  </HeadingTag>
-                  <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
-                    <CustomImage
-                      key={activeProcess?.profile?.avatar?.id}
-                      src={activeProcess?.profile?.avatar ? `${API_URL}${activeProcess.profile.avatar.url}` : "/images/dr-franck-image.webp"}
-                      alt={activeProcess?.profile?.firstName + " " + activeProcess?.profile?.lastName}
-                      className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
-                      width={15}
-                      height={15}
-                    />
+          {activeProcess && (
+            <DynamicHtmlTag type="div" className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg open-date-picker">
+              <HeadingTag type="h3" className="text-2xs 2xl:text-xs font-semibold">
+                DEMANDE DE RENDEZ-VOUS LE
+              </HeadingTag>
+              {pathname && pathname.startsWith("/consultationprocess") ? (
+                <DynamicHtmlTag type="div">
+                  <DynamicHtmlTag type="div" className="flex items-start my-2 gap-1">
+                    <CustomImage src={PinkCheck} alt="check" className="mt-0.5 2xl:mt-1" width={13} height={13} />
                     <DynamicHtmlTag type="div">
-                      <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
-                        {activeProcess?.profile?.lastName + " " + activeProcess?.profile?.firstName || "Unknown Doctor"}
+                      <DynamicHtmlTag type="p" className="text-pink-500 text-2xs 2xl:text-xs font-bold">
+                        {activeProcess?.daySlot ? getFormateDate(new Date(activeProcess.daySlot).toISOString(), "dddd DD MMMM", true) : ""}
+                      </DynamicHtmlTag>
+                      <DynamicHtmlTag type="p" className="text-customBlue text-2xs 2xl:text-xs font-semibold">
+                        à {activeProcess?.timeSlot || "Tarif not available"}
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
+                  <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
+                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center uppercase">
+                      Pour le patient
+                    </HeadingTag>
+                    <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
+                      <CustomImage
+                        key={activeProcess?.profile?.avatar?.id}
+                        src={activeProcess?.profile?.avatar ? `${API_URL}${activeProcess.profile.avatar.url}` : "/images/dr-franck-image.webp"}
+                        alt={activeProcess?.profile?.firstName + " " + activeProcess?.profile?.lastName}
+                        className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
+                        width={15}
+                        height={15}
+                      />
+                      <DynamicHtmlTag type="div">
+                        <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
+                          {activeProcess?.profile?.lastName + " " + activeProcess?.profile?.firstName || "Unknown Doctor"}
+                        </DynamicHtmlTag>
+                      </DynamicHtmlTag>
+                    </DynamicHtmlTag>
+                  </DynamicHtmlTag>
+                  <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
+                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center">
+                      VOTRE RDV AURA LIEU AVEC
+                    </HeadingTag>
+                    <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
+                      <CustomImage
+                        key={activeProcess?.practitioner?.avatar?.id}
+                        src={
+                          activeProcess?.practitioner?.avatar ? `${API_URL}${activeProcess.practitioner.avatar.url}` : "/images/dr-franck-image.webp"
+                        }
+                        alt="Dr.Franck"
+                        className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
+                        width={15}
+                        height={15}
+                      />
+                      <DynamicHtmlTag type="div" className="mb-4">
+                        <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
+                          {activeProcess?.practitioner?.firstName + " " + activeProcess?.practitioner?.lastName || "Unknown Doctor"}
+                        </DynamicHtmlTag>
+                        <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs text-gray-400">
+                          Médecin Généraliste
+                        </DynamicHtmlTag>
+                      </DynamicHtmlTag>
+                    </DynamicHtmlTag>
+                    <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs font-bold">
+                      Tarif {activeProcess?.tarif || "Tarif not available"}
+                    </DynamicHtmlTag>
+                  </DynamicHtmlTag>
                 </DynamicHtmlTag>
-                <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
-                  <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center">
-                    VOTRE RDV AURA LIEU AVEC
-                  </HeadingTag>
-                  <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
-                    <CustomImage
-                      key={activeProcess?.practitioner?.avatar?.id}
-                      src={
-                        activeProcess?.practitioner?.avatar ? `${API_URL}${activeProcess.practitioner.avatar.url}` : "/images/dr-franck-image.webp"
-                      }
-                      alt="Dr.Franck"
-                      className="w-8 2xl:w-10 h-8 2xl:h-10 rounded-full"
-                      width={15}
-                      height={15}
+              ) : (
+                <DynamicHtmlTag type="div" className="date-picker  w-full mt-4">
+                  <DynamicHtmlTag type="div" className="w-full">
+                    <CustomDatePicker
+                      selected={startDate}
+                      onChange={(date: any) => handleDateOptionChange(date)}
+                      todayButton="Aujourd'hui"
+                      showTimeSelect
+                      minDate={new Date()}
                     />
-                    <DynamicHtmlTag type="div" className="mb-4">
-                      <DynamicHtmlTag type="div" className="font-bold text-2xs 2xl:text-xs text-gray-900">
-                        {activeProcess?.practitioner?.firstName + " " + activeProcess?.practitioner?.lastName || "Unknown Doctor"}
+                  </DynamicHtmlTag>
+                  <DynamicHtmlTag type="div" className="flex items-center justify-center capitalize w-full gap-x-4 mt-2">
+                    <DynamicHtmlTag type="div" className="flex items-center justify-center gap-x-1">
+                      <DynamicHtmlTag type="span" className="bg-gradient-to-l from-sky-500 to-indigo-500 p-1 rounded-full"></DynamicHtmlTag>
+                      <DynamicHtmlTag type="span" className="text-2xs xl:text-3xs 2xl:text-2xs">
+                        date du jour
                       </DynamicHtmlTag>
-                      <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs text-gray-400">
-                        Médecin Généraliste
+                    </DynamicHtmlTag>
+                    <DynamicHtmlTag type="div" className="flex items-center justify-center gap-x-1">
+                      <DynamicHtmlTag type="span" className="bg-gradient-to-r from-red-600 to-red-400 p-1 rounded-full"></DynamicHtmlTag>
+                      <DynamicHtmlTag type="span" className="text-2xs xl:text-3xs 2xl:text-2xs">
+                        date Sélectionnée
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
-                  <DynamicHtmlTag type="div" className="text-2xs 2xl:text-xs font-bold">
-                    Tarif {activeProcess?.tarif || "Tarif not available"}
-                  </DynamicHtmlTag>
                 </DynamicHtmlTag>
-              </DynamicHtmlTag>
-            ) : (
-              <DynamicHtmlTag type="div" className="date-picker  w-full mt-4">
-                <DynamicHtmlTag type="div" className="w-full">
-                  <CustomDatePicker
-                    selected={startDate}
-                    onChange={(date: any) => handleDateOptionChange(date)}
-                    todayButton="Aujourd'hui"
-                    showTimeSelect
-                    minDate={new Date()}
-                  />
-                </DynamicHtmlTag>
-                <DynamicHtmlTag type="div" className="flex items-center justify-center capitalize w-full gap-x-4 mt-2">
-                  <DynamicHtmlTag type="div" className="flex items-center justify-center gap-x-1">
-                    <DynamicHtmlTag type="span" className="bg-gradient-to-l from-sky-500 to-indigo-500 p-1 rounded-full"></DynamicHtmlTag>
-                    <DynamicHtmlTag type="span" className="text-2xs xl:text-3xs 2xl:text-2xs">
-                      date du jour
-                    </DynamicHtmlTag>
-                  </DynamicHtmlTag>
-                  <DynamicHtmlTag type="div" className="flex items-center justify-center gap-x-1">
-                    <DynamicHtmlTag type="span" className="bg-gradient-to-r from-red-600 to-red-400 p-1 rounded-full"></DynamicHtmlTag>
-                    <DynamicHtmlTag type="span" className="text-2xs xl:text-3xs 2xl:text-2xs">
-                      date Sélectionnée
-                    </DynamicHtmlTag>
-                  </DynamicHtmlTag>
-                </DynamicHtmlTag>
-              </DynamicHtmlTag>
-            )}
-          </DynamicHtmlTag>
+              )}
+            </DynamicHtmlTag>
+          )}
         </DynamicHtmlTag>
       </DynamicHtmlTag>
       {allowedMotifSidebarPaths.includes(pathname) && (selectedMotifs?.length > 0 || otherMotifText) && (
