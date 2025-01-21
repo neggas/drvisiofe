@@ -361,7 +361,7 @@ export default function Header(): ReactNode {
         <DynamicHtmlTag type="div" className="flex items-center gap-2 md:gap-3 xl:gap-5 lg:justify-end">
           {isClient && loggedInUser?.data?.id ? (
             <>
-              {pathname !== "/teleconsult-doctor" && !pathname.includes("consultationprocess") ? (
+              {pathname !== "/teleconsult-doctor" && !pathname.includes("consultationprocess") && !pathname.includes("/search") ? (
                 <>
                   <CustomLink
                     href="/teleconsult-doctor"

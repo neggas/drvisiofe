@@ -486,17 +486,19 @@ export default function Beneficiary() {
                       className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn text-ellipsis overflow-hidden whitespace-nowrap select-none"
                       title={patient.nearby.firstName}>
                       {patient.nearby.firstName} {patient.nearby.lastName}
-                      <MdEditNote
-                        className="absolute  right-6 top-2 mt-[3px] cursor-pointer"
-                        onClick={() => openChildUpdateModal(patient.nearby, patient.id)}
-                      />
-                      <SlClose
-                        className="absolute right-2 top-2 mt-[3px] cursor-pointer"
-                        onClick={e => {
-                          e.stopPropagation();
-                          openDeletePatientModal(patient.id.toString());
-                        }}
-                      />
+                      <DynamicHtmlTag type="div" className="flex items-center justify-center">
+                        <MdEditNote
+                          className="absolute right-6 top-2 mt-[3px] cursor-pointer"
+                          onClick={() => openChildUpdateModal(patient.nearby, patient.id)}
+                        />
+                        <SlClose
+                          className="absolute right-2 top-2 mt-[3px] cursor-pointer"
+                          onClick={e => {
+                            e.stopPropagation();
+                            openDeletePatientModal(patient.id.toString());
+                          }}
+                        />
+                      </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </CustomLabel>
                 </DynamicHtmlTag>

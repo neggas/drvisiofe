@@ -135,6 +135,24 @@ export const consultationProcessReducer = createSlice({
         consultationProcess.completedSteps = Math.max(consultationProcess.completedSteps, action.payload.completedSteps);
       }
     },
+
+    setConsultationMotifs: (state, action: PayloadAction<{ selectedMotifs: Array<string>; patientId: number | null }>) => {
+      if (action.payload.patientId) {
+        const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+        if (consultationProcess) {
+          consultationProcess.selectedMotifs = action.payload.selectedMotifs;
+        }
+      }
+    },
+
+    setConsultationOtherMotifText: (state, action: PayloadAction<{ otherMotifText: string; patientId: number | null }>) => {
+      if (action.payload.patientId) {
+        const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+        if (consultationProcess) {
+          consultationProcess.otherMotifText = action.payload.otherMotifText;
+        }
+      }
+    },
   },
 });
 
@@ -145,6 +163,8 @@ export const {
   setProcessRdvId,
   setProcessIsActive,
   setProcessCompletedSteps,
+  setConsultationMotifs,
+  setConsultationOtherMotifText,
 } = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {

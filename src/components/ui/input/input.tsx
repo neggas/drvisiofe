@@ -43,7 +43,9 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>((props, ref) 
   const [touched, setTouched] = useState<boolean>(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTouched(true);
+    if (!touched) {
+      setTouched(true);
+    }
     if (onChange) {
       onChange(event);
     }

@@ -1,7 +1,14 @@
 "use client";
-import { CustomButton, CustomForm, CustomImage, CustomInput, CustomLabel, DynamicHtmlTag, HeadingTag } from "@/components";
+import { CustomButton, CustomForm, CustomImage, CustomInput, CustomLabel, CustomTextarea, DynamicHtmlTag, HeadingTag } from "@/components";
+import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
 import { selectConsultationBooking, setCompletedStep, setOtherMotifText, setSelectedMotifs } from "@/store/reducers/consultationBookingSlice";
+import {
+  getActiveProcess,
+  setConsultationMotifs,
+  setConsultationOtherMotifText,
+  setProcessCompletedSteps,
+} from "@/store/reducers/consultationProcessReducerSlice";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { RootState } from "@/store/store";
@@ -20,7 +27,9 @@ const Motifs = () => {
   const [otherMotif, setOtherMotif] = useState<string>("");
   const [existingRdv, setExistingRdv] = useState<number | null>(null);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
-
+  const activeConsultationProcess = useSelector(getActiveProcess);
+  const [remainingCharacters, setRemainingCharacters] = useState<number>(300 - (activeConsultationProcess?.otherMotifText?.length || 0));
+  const [processNoticeMessage, setProcessNoticeMessage] = useState<string>("");
   const loadMotifs = async () => {
     try {
       dispatch(showLoader("motifs-loader"));
@@ -37,16 +46,18 @@ const Motifs = () => {
   }, []);
 
   useEffect(() => {
-    const selectedMotifs = consultationBooking.selectedMotifs;
-    const selectedMotifsIds = motifs.filter(motif => selectedMotifs.includes(motif.name)).map(motif => motif.id);
-    if (selectedMotifsIds.length > 0) {
-      setSelected(selectedMotifsIds);
-    }
+    if (activeConsultationProcess) {
+      const selectedMotifs = activeConsultationProcess.selectedMotifs;
+      const selectedMotifsIds = motifs.filter(motif => selectedMotifs.includes(motif.name)).map(motif => motif.id);
+      if (selectedMotifsIds.length > 0) {
+        setSelected(selectedMotifsIds);
+      }
 
-    if (consultationBooking.otherMotifText) {
-      setOtherMotif(consultationBooking.otherMotifText);
+      if (activeConsultationProcess.otherMotifText) {
+        setOtherMotif(activeConsultationProcess.otherMotifText);
+      }
     }
-  }, [consultationBooking.selectedMotifs, motifs, consultationBooking.otherMotifText]);
+  }, [activeConsultationProcess, consultationBooking.selectedMotifs, motifs, consultationBooking.otherMotifText]);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
@@ -65,6 +76,7 @@ const Motifs = () => {
         const updatedMotifNames = motifs.filter(motif => updatedSelected.includes(motif.id)).map(motif => motif.name);
 
         dispatch(setSelectedMotifs(updatedMotifNames));
+        dispatch(setConsultationMotifs({ selectedMotifs: updatedMotifNames, patientId: activeConsultationProcess?.patientId || null }));
       }
     } else {
       // Update local state
@@ -75,31 +87,42 @@ const Motifs = () => {
       const updatedMotifNames = motifs.filter(motif => updatedSelected.includes(motif.id)).map(motif => motif.name);
 
       dispatch(setSelectedMotifs(updatedMotifNames));
+      dispatch(setConsultationMotifs({ selectedMotifs: updatedMotifNames, patientId: activeConsultationProcess?.patientId || null }));
     }
   };
 
-  const handleOtherMotifChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOtherMotifChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const updatedOtherMotif = event.target.value;
+    const difference = updatedOtherMotif.length - otherMotif.length;
+    setRemainingCharacters(remainingCharacters - difference);
     setOtherMotif(updatedOtherMotif);
     dispatch(setOtherMotifText(updatedOtherMotif));
+    dispatch(setConsultationOtherMotifText({ otherMotifText: updatedOtherMotif, patientId: activeConsultationProcess?.patientId || null }));
   };
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
+    dispatch(setProcessCompletedSteps({ completedSteps: stepNumber, patientId: activeConsultationProcess?.patientId || null }));
     router.push(nextPath);
+  };
+
+  const closeProcessNoticeModal = () => {
+    setProcessNoticeMessage("");
+    dispatch(closeModal());
+    router.push("/search");
   };
 
   const handleAddMotifSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!consultationBooking.practitionerId || !consultationBooking.patientId) {
+    if (!activeConsultationProcess?.practitioner?.id || !activeConsultationProcess?.patientId) {
       return;
     }
 
     const payload = {
-      practitionerId: consultationBooking.practitionerId,
-      patientId: consultationBooking.patientId,
-      rdvId: consultationBooking.rdvId ?? null,
+      practitionerId: activeConsultationProcess.practitioner.id,
+      patientId: activeConsultationProcess.patientId,
+      rdvId: activeConsultationProcess.rdvId ?? null,
       motifIdList: selected,
       otherMotif: otherMotif.trim(),
     };
@@ -107,7 +130,8 @@ const Motifs = () => {
     try {
       const response = await addMotif(payload);
       if (response?.data?.codeMessage === "RDV_NOT_AVAILABLE") {
-        router.push("/search");
+        setProcessNoticeMessage("Le praticien n'est disponible pour le moment");
+        dispatch(openModal("processNoticeModal"));
         return;
       }
       handleNextStep(2, "/consultationprocess/situation");
@@ -122,8 +146,8 @@ const Motifs = () => {
       }
 
       if (errorHandlingResult.action === "redirect") {
-        router.push(errorHandlingResult.redirectPath || "/search");
-        return;
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        dispatch(openModal("processNoticeModal"));
       }
     }
   };
@@ -138,15 +162,14 @@ const Motifs = () => {
         {/* Symptômes Card section start */}
         <DynamicHtmlTag type="div" className="flex flex-wrap items-start doctor-card-detail consult-radio gap-2 my-2">
           {motifs.map(motif => {
-            const isSelected = consultationBooking.selectedMotifs.includes(motif.name) || selected.includes(motif.id);
-            const isDisabled = selected.length >= 3 && !selected.includes(motif.id);
+            const isSelected = activeConsultationProcess?.selectedMotifs.includes(motif.name) || selected.includes(motif.id);
+            const isDisabled = (activeConsultationProcess?.selectedMotifs?.length || 0) >= 3 && !selected.includes(motif.id);
 
             return (
               <DynamicHtmlTag
                 key={motif.id}
                 type="div"
-                className={`w-full sm:w-[48%] md:w-[32%] xl:w-[24%] 2xl:w-[32%] ${isDisabled ? "cursor-not-allowed" : ""}`}
-                title={isDisabled ? "Vous pouvez sélectionnez seulement 3 motifs." : ""}>
+                className={`w-full sm:w-[48%] md:w-[32%] xl:w-[24%] 2xl:w-[32%] ${isDisabled ? "cursor-not-allowed" : ""}`}>
                 <CustomInput
                   type="checkbox"
                   className="hidden text-sm custom-select"
@@ -187,21 +210,21 @@ const Motifs = () => {
                   Si votre motif n’est pas dans la liste, merci de le saisir
                 </HeadingTag>
                 <DynamicHtmlTag type="span" className="text-2xs xl:text-xs opacity-1 w-full md:w-auto text-right hidden md:block">
-                  100 caractères maximum
+                  {remainingCharacters} caractères maximum
                 </DynamicHtmlTag>
               </CustomLabel>
               <CustomLabel className="input border border-gray-400 p-2 flex lg:items-center gap-2 rounded-lg h-20 md:h-auto mb-1">
-                <CustomInput
-                  type="text"
+                <CustomTextarea
                   name="otherMotif"
-                  className="grow input outline-none focus:outline-none border-none border-[0px] h-auto pl-1 pr-0 text-xs md:text-xs 2xl:text-sm"
-                  placeholder="Saisir votre motif ici"
+                  className="grow input outline-none focus:outline-none border-none border-[0px] h-auto pl-1 pr-0 text-xs md:text-xs 2xl:text-sm resize-none"
                   value={otherMotif}
                   onChange={handleOtherMotifChange}
+                  maxLength={300}
+                  row="2"
                 />
               </CustomLabel>
               <DynamicHtmlTag type="span" className="text-[9px] opacity-75 w-full md:w-auto text-right block md:hidden">
-                100 caractères maximum
+                {remainingCharacters} caractères maximum
               </DynamicHtmlTag>
             </DynamicHtmlTag>
             <CustomButton
@@ -222,6 +245,10 @@ const Motifs = () => {
           existingRdv={existingRdv}
           handleCancelRdv={() => handleCancelRdv(existingRdv, router, () => dispatch(closeModal()))}
         />
+      )}
+
+      {modalType === "processNoticeModal" && (
+        <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
       )}
     </DynamicHtmlTag>
   );
