@@ -37,12 +37,8 @@ const Steps = () => {
       router.push(previousStepPath);
     } else {
       if (activePatientProcess?.rdvId) {
-        try {
-          cancelAppointment(activePatientProcess.rdvId);
-        } catch (error) {}
+        dispatch(openModal("cancelPaymentModal"));
       }
-      dispatch(resetConsultationProcess());
-      router.push("/search");
     }
   };
 
@@ -79,6 +75,7 @@ const Steps = () => {
       try {
         await cancelAppointment(consultationBooking.rdvId);
         closeAppointmentExitModal();
+        dispatch(resetConsultationProcess());
         router.push("/search");
       } catch (error) {}
     } else {

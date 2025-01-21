@@ -343,7 +343,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
-                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center uppercase">
+                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-left uppercase">
                       Pour le patient
                     </HeadingTag>
                     <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
@@ -363,7 +363,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="div" className="mt-5 2xl:mt-6">
-                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-center">
+                    <HeadingTag type="h4" className="text-2xs 2xl:text-xs text-gray-700 font-bold mb-2 text-left">
                       VOTRE RDV AURA LIEU AVEC
                     </HeadingTag>
                     <DynamicHtmlTag type="div" className="flex items-center mb-4 gap-2">
