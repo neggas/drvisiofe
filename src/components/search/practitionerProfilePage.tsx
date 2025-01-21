@@ -25,6 +25,10 @@ import {
   getFormateDate,
   getFormateTime,
   getLocalStorageData,
+  PatientsType,
+  createBeneficiary,
+  handleProcessError,
+  PractitionerType,
 } from "@/utility";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
@@ -33,8 +37,16 @@ import {
   setPractitionerAvatar,
   setPractitionerName,
   setPractitionerTarif,
+  setRdvId,
   setTimeSlot,
 } from "@/store/reducers/consultationBookingSlice";
+import { ConsultationProcessState, resetConsultationProcess, setProcessRdvId, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import { toast } from "react-toastify";
+
+interface PractitionerProps {
+  practitioner: PractitionerType;
+  localDate: string;
+}
 
 const beneficiaire = [
   { value: "Vous", label: "Dr Vous" },
@@ -98,6 +110,10 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
     }
   }, [filter, specialty, localDate, firstName]);
 
+  useEffect(() => {
+    resetConsultationProcess()
+  }, []);
+
   // Fetch Practitioner Profile
   const fetchPractitionerProfile = async (practitionerId: number) => {
     try {
@@ -148,7 +164,30 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
     }
   };
 
-  const handleTimeSlotSelection = (selectedTimeSlot: string, selectedDay: string) => {
+  const createAppointment = async (payload: AppointmentPayload) => {
+    try {
+      const response = await createBeneficiary(payload);
+
+      if (response.data) {
+        dispatch(setRdvId(response.data.id));
+        dispatch(setProcessRdvId({ rdvId: response.data.id, parentId: loggedInUser?.data?.id! }));
+      }
+
+      if (response?.data?.codeMessage === "RDV_NOT_AVAILABLE") {
+        router.push("/search");
+        return;
+      }
+    } catch (error: any) {
+      const errorHandlingResult = handleProcessError(error);
+      if (errorHandlingResult.action === "redirect") {
+        toast.error(errorHandlingResult.message);
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    }
+  };
+
+  const handleTimeSlotSelection = async (selectedTimeSlot: string, selectedDay: string) => {
     dispatch(
       setTimeSlot({
         daySlot: getFormateDate(selectedDay, "YYYY-MM-DD"),
@@ -167,6 +206,36 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
         }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`
       )
     );
+
+    const tarif = `${practitioner?.practitionerData?.tarifMin ? practitioner.practitionerData.tarifMin + "€" : ""} ${
+      practitioner?.practitionerData?.tarifMax ? "à " + practitioner.practitionerData.tarifMax + "€" : ""
+    }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`;
+
+    const startConsultationProcessPayload: ConsultationProcessState = {
+      profile: loggedInUser?.data as unknown as PatientsType,
+      practitioner: practitioner,
+      completedSteps: 1,
+      selectedMotifs: [],
+      otherMotifText: "",
+      confirmed: false,
+      information: false,
+      parentId: loggedInUser?.data?.id || null,
+      patientId: loggedInUser?.data?.id || null,
+      childrenId: null,
+      tarif: tarif,
+      timeSlot: selectedTimeSlot,
+      daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+      isActive: true,
+    };
+
+    dispatch(startConsultationProcess(startConsultationProcessPayload));
+
+    await createAppointment({
+      practitionerId: practitioner?.id,
+      daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+      timeSlot: selectedTimeSlot,
+      patientId: loggedInUser?.data?.id,
+    });
 
     // Navigate to the beneficiary URL
     router.push(`/consultationprocess/beneficiary`);

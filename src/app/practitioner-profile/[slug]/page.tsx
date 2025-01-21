@@ -3,8 +3,8 @@ import { PractitionerProfilePage, CustomLoader } from "@/components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Practitioner Profile",
-  description: "Practitioner Profile",
+  title: "DrVisio Recherche de praticien",
+  description: "DrVisio Recherche de praticien",
 };
 
 function PractitionerProfilePageFallback() {
