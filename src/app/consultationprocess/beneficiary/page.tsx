@@ -13,7 +13,7 @@ import {
   CustomSelect,
   CustomFullScreenLoader,
 } from "@/components";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdEditNote } from "react-icons/md";
 import { CgAdd, CgEye } from "react-icons/cg";
 import {
   addBeneficiaryChildSchema,
@@ -54,6 +54,7 @@ import {
   setProcessCompletedSteps,
   setProcessIsActive,
 } from "@/store/reducers/consultationProcessReducerSlice";
+import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
 
 type Errors = {
   firstName?: string;
@@ -91,6 +92,7 @@ export default function Beneficiary() {
   const [fetchingData, setFetchingData] = useState(false);
   const [editChild, setEditChild] = useState(false);
   const [child, setChild] = useState({});
+  const [processNoticeMessage, setProcessNoticeMessage] = useState("");
 
   const handleDateOptionChange = (date: Date | null) => {
     setErrors(prevErrors => ({ ...prevErrors, birthdayDate: undefined }));
@@ -277,9 +279,8 @@ export default function Beneficiary() {
       }
 
       if (errorHandlingResult.action === "redirect") {
-        toast.error(errorHandlingResult.message);
-        router.push(errorHandlingResult.redirectPath || "/search");
-        return;
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        openProcessNoticeModal();
       }
     }
   };
@@ -416,6 +417,15 @@ export default function Beneficiary() {
     dispatch(openModal("addPatientInfant"));
   };
 
+  const openProcessNoticeModal = () => {
+    dispatch(openModal("processNoticeModal"));
+  };
+
+  const closeProcessNoticeModal = () => {
+    dispatch(closeModal());
+    setProcessNoticeMessage("");
+  };
+
   if (isLoading) {
     return <CustomFullScreenLoader />;
   }
@@ -476,6 +486,10 @@ export default function Beneficiary() {
                       className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn text-ellipsis overflow-hidden whitespace-nowrap select-none"
                       title={patient.nearby.firstName}>
                       {patient.nearby.firstName} {patient.nearby.lastName}
+                      <MdEditNote
+                        className="absolute  right-6 top-2 mt-[3px] cursor-pointer"
+                        onClick={() => openChildUpdateModal(patient.nearby, patient.id)}
+                      />
                       <SlClose
                         className="absolute right-2 top-2 mt-[3px] cursor-pointer"
                         onClick={e => {
@@ -824,6 +838,9 @@ export default function Beneficiary() {
               </DynamicHtmlTag>
             </DynamicHtmlTag>
           </CustomModal>
+        )}
+        {modalType === "processNoticeModal" && (
+          <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
         )}
       </DynamicHtmlTag>
     </>

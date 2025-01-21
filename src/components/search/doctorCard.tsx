@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { DynamicHtmlTag, CustomButton, CustomImage, HeadingTag, CustomInput, Card, CustomLabel } from "@/components";
@@ -16,6 +16,9 @@ import {
 } from "@/store/reducers/consultationBookingSlice";
 import { toast } from "react-toastify";
 import { ConsultationProcessState, setProcessRdvId, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import ProcessNoticeModal from "../process-notice-modal/processNoticeModal";
+import { RootState } from "@/store/store";
+import { closeModal, openModal } from "@/store/reducers/modalSlice";
 interface PractitionerProps {
   practitioner: PractitionerType;
   localDate: string;
@@ -32,10 +35,21 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
   const router = useRouter();
   const dispatch = useDispatch();
   const loggedInUser = useSelector(selectLoginResponse);
+  const modalType = useSelector((state: RootState) => state.modal.modalType);
+  const [processNoticeMessage, setProcessNoticeMessage] = useState("");
 
   const handleLink = () => {
     dispatch(setConsultationPractitionerId(practitioner?.id));
     router.push(`/practitioner-profile/${practitioner?.id}`);
+  };
+
+  const openProcessNoticeModal = () => {
+    dispatch(openModal("processNoticeModal"));
+  };
+
+  const closeProcessNoticeModal = () => {
+    dispatch(closeModal());
+    setProcessNoticeMessage("");
   };
 
   const createAppointment = async (payload: AppointmentPayload) => {
@@ -51,11 +65,13 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
         router.push("/search");
         return;
       }
+
+      return response.data;
     } catch (error: any) {
       const errorHandlingResult = handleProcessError(error);
       if (errorHandlingResult.action === "redirect") {
-        toast.error(errorHandlingResult.message);
-        router.push(errorHandlingResult.redirectPath || "/search");
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        openProcessNoticeModal();
         return;
       }
     }
@@ -106,14 +122,16 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
 
       dispatch(startConsultationProcess(startConsultationProcessPayload));
 
-      await createAppointment({
+      const appointment = await createAppointment({
         practitionerId: practitioner?.id,
         daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
         timeSlot: selectedTimeSlot,
         patientId: loggedInUser?.data?.id,
       });
 
-      router.push(`/consultationprocess/beneficiary`);
+      if (appointment) {
+        router.push(`/consultationprocess/beneficiary`);
+      }
     }
   };
 
@@ -183,6 +201,10 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
         onClick={handleLink}>
         Voir {"l'"}agenda complet
       </CustomButton>
+
+      {modalType === "processNoticeModal" && (
+        <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
+      )}
     </Card>
   );
 };

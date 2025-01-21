@@ -28,6 +28,7 @@ interface ModalState {
     | "emptySSNModal"
     | "cancelPaymentModal"
     | "rdvAlreadyStarted"
+    | "processNoticeModal"
     | null;
 }
 
