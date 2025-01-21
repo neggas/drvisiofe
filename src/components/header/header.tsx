@@ -28,6 +28,7 @@ import {
   updatePatientNewsletterStatus,
   getPatientDeatils,
   getTeleconsultationNextPatientApi,
+  cancelAppointment,
 } from "@/utility";
 import { MdClose } from "react-icons/md";
 import { selectLoginResponse, logout } from "@/store/reducers/loginSlice";
@@ -37,6 +38,7 @@ import { useTranslation } from "react-i18next";
 import { RootState } from "@/store";
 import { closeModal, resetModal, openModal } from "@/store/reducers/modalSlice";
 import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
+import { getActiveProcess, resetConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 // Custom hook to encapsulate the logic for using MutationObserver
 const useMutationObserver = (callback: MutationCallback, options?: MutationObserverInit) => {
@@ -78,6 +80,7 @@ export default function Header(): ReactNode {
   const [isAcceptNewLetter, setIsAcceptNewLetter] = useState<boolean>(false);
   const [teleConsultation, setTeleconsultation] = useState();
   const fetchPatientData = useSelector(selectPatientDetailsData);
+  const activeConsultation = useSelector(getActiveProcess);
 
   // Profile Dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -236,6 +239,30 @@ export default function Header(): ReactNode {
     } catch (error) {}
   };
 
+  const handleDashboardClick = () => {
+    if (activeConsultation?.rdvId && pathname.includes("/consultationprocess")) {
+      dispatch(openModal("cancelPaymentModal"));
+    } else {
+      router.push("/patient-dashboard");
+    }
+  };
+
+  const closeAppointmentExitModal = () => {
+    dispatch(closeModal());
+  };
+
+  const handleAppointmentCancel = async () => {
+    if (activeConsultation?.rdvId && pathname.includes("/consultationprocess")) {
+      try {
+        await cancelAppointment(activeConsultation.rdvId);
+        closeAppointmentExitModal();
+        dispatch(resetConsultationProcess());
+        router.push("/patient-dashboard");
+      } catch (error) {}
+    } else {
+      router.push("/patient-dashboard");
+    }
+  };
   useEffect(() => {
     if (loggedInUser?.data?.id) {
       fetchTeleconsultationBookingTimer();
@@ -361,11 +388,11 @@ export default function Header(): ReactNode {
               )}
               {/* Dashboard button is hidden now on mobile */}
               {pathname && !pathname.startsWith("/patient-dashboard") && (
-                <CustomLink
-                  className="hidden md:block lg:px-3 text-2xs btn btn-secondary uppercase justify-self-start absolute middle:relative top-[100%] middle:top-0 right-[0%] left-[0%] mx-auto middle:mx-0 middle:right-0 middle:left-0"
-                  href={`${loggedInUser?.data.patientStatus === "ACTIVATED" ? "/patient-dashboard" : ""}`}>
+                <CustomButton
+                  onClick={handleDashboardClick}
+                  className="hidden md:block lg:px-3 text-2xs btn btn-secondary uppercase justify-self-start absolute middle:relative top-[100%] middle:top-0 right-[0%] left-[0%] mx-auto middle:mx-0 middle:right-0 middle:left-0">
                   Tableau de board
-                </CustomLink>
+                </CustomButton>
               )}
               <CustomList className="z-[100] menu menu-horizontal p-0">
                 <CustomListItems>
@@ -630,6 +657,44 @@ export default function Header(): ReactNode {
         </CustomModal>
       )}
       {/* Practitioner Login Modal End */}
+
+      {modalType === "cancelPaymentModal" && (
+        <CustomModal
+          isOpen={modalType === "cancelPaymentModal"}
+          onClose={closeAppointmentExitModal}
+          modalClassName="w-11/12 sm:max-w-xl md:max-w-xl rounded-xl">
+          <DynamicHtmlTag type="div" className="modal-box bg-gradient-to-l from-sky-500 to-indigo-500 p-0 pt-4">
+            <DynamicHtmlTag type="div" className="bg-base-100 p-4">
+              <MdClose
+                onClick={closeAppointmentExitModal}
+                className="absolute top-6 right-2 cursor-pointer text-blue border border-blue rounded-full w-6 h-6 p-1 hover:bg-primary hover:border-primary hover:text-white"
+              />
+              <HeadingTag type="h3" className="text-blue font-semibold text-xl/8 w-8/12 m-auto text-center mt-5">
+                Êtes-vous sûre de vouloir quitter la prise de rendez-vous ?
+              </HeadingTag>
+
+              <DynamicHtmlTag type="div" className="w-full flex md:gap-x-3 justify-center my-10">
+                <CustomImage src="/images/danger-icon.svg" width={18} height={18} alt="danger" className="" />
+                <HeadingTag type="h4" className="text-sm font-bold my-5">
+                  Attention, le créneau horaire ne sera pas reservé
+                </HeadingTag>
+              </DynamicHtmlTag>
+              <DynamicHtmlTag type="div" className="flex gap-x-10 justify-center mb-3">
+                <CustomButton
+                  className={`text-sm btn-danger cstm-btn flex py-2 px-1 justify-center w-3/6  md:w-2/6 view-more-btn rounded-full text-white font-semibold`}
+                  onClick={closeAppointmentExitModal}>
+                  ANNULER
+                </CustomButton>
+                <CustomButton
+                  onClick={handleAppointmentCancel}
+                  className={`text-sm cstm-btn flex py-2 px-1 justify-center w-3/6  md:w-2/6 view-more-btn rounded-full text-white font-semibold`}>
+                  QUITTER
+                </CustomButton>
+              </DynamicHtmlTag>
+            </DynamicHtmlTag>
+          </DynamicHtmlTag>
+        </CustomModal>
+      )}
     </DynamicHtmlTag>
   );
 }
