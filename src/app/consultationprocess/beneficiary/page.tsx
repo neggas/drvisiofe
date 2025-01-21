@@ -14,7 +14,7 @@ import {
   CustomFullScreenLoader,
 } from "@/components";
 import { MdClose } from "react-icons/md";
-import { CgAdd } from "react-icons/cg";
+import { CgAdd, CgEye } from "react-icons/cg";
 import {
   addBeneficiaryChildSchema,
   cancelRdv,
@@ -24,12 +24,14 @@ import {
   createBeneficiary,
   deleteNearbyPatientApi,
   genderListingApi,
-  handleConsultationProcessError,
+  getFormateDatetwoDateformate,
   handleProcessError,
   ListOption,
+  parseDate,
   patientNearbyList,
   PatientTeleconsultationsNearbyResponse,
   registerPatientNearby,
+  updatePatientNearby,
 } from "@/utility";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
@@ -75,8 +77,9 @@ export default function Beneficiary() {
     weight: "",
     height: "",
     genre: "",
-    birthdayDate: "",
     patientParentID: loggedInUser?.data?.id,
+    birthdayDate: "",
+    id: 0,
   });
   const [gender, setGender] = useState<ListOption[]>([]);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
@@ -85,6 +88,9 @@ export default function Beneficiary() {
   const [errors, setErrors] = useState<Errors>({});
   const [existingRdv, setExistingRdv] = useState<number | null>(null);
   const activeProcess = useSelector(getActiveProcess);
+  const [fetchingData, setFetchingData] = useState(false);
+  const [editChild, setEditChild] = useState(false);
+  const [child, setChild] = useState({});
 
   const handleDateOptionChange = (date: Date | null) => {
     setErrors(prevErrors => ({ ...prevErrors, birthdayDate: undefined }));
@@ -180,8 +186,9 @@ export default function Beneficiary() {
         weight: "",
         height: "",
         genre: "",
-        birthdayDate: "",
         patientParentID: loggedInUser?.data?.id,
+        id: 0,
+        birthdayDate: "",
       });
       setStartDate(null);
 
@@ -332,9 +339,11 @@ export default function Beneficiary() {
       weight: "",
       height: "",
       genre: "",
-      birthdayDate: "",
       patientParentID: loggedInUser?.data?.id,
+      id: 0,
+      birthdayDate: "",
     });
+    setEditChild(false);
     setStartDate(null);
     dispatch(closeModal());
   };
@@ -347,12 +356,64 @@ export default function Beneficiary() {
     dispatch(openModal("rdvAlreadyStarted"));
   };
 
+  const handleEditChild = async (event: any) => {
+    event.preventDefault();
+    const formattedBirthday = getFormateDatetwoDateformate(addChildData.birthdayDate.split("T")[0], "YYYY-MM-DD");
+    try {
+      const formData = {
+        relationType: "ENFANT",
+        birthdayDate: formattedBirthday,
+        height: addChildData.height,
+        weight: addChildData.weight,
+        firstName: addChildData.firstName,
+        lastName: addChildData.lastName,
+        genre: addChildData.genre,
+        idNearby: addChildData.id,
+        patientParentID: addChildData.patientParentID,
+      };
+      const response = await updatePatientNearby(formData);
+      console.log(response);
+      setEditChild(false);
+      setAddChildData({
+        id: 0,
+        firstName: "",
+        lastName: "",
+        genre: "",
+        weight: "",
+        height: "",
+        patientParentID: loggedInUser?.data?.id,
+        birthdayDate: "",
+      });
+      closeAddChildModal();
+    } catch (error) {}
+  };
+
   const handlePatientChange = (patientId: number | undefined, childrenPatientId: number | null) => {
     if (childrenPatientId) {
       dispatch(setProcessIsActive({ isActive: true, patientId: childrenPatientId! }));
     } else {
       dispatch(setProcessIsActive({ isActive: true, patientId: patientId! }));
     }
+  };
+
+  const openChildUpdateModal = (child: any, nearbyId: number) => {
+    setEditChild(true);
+    setErrors({});
+
+    const formattedDate = parseDate(child.birthdayDate);
+    setStartDate(formattedDate);
+    setAddChildData({
+      id: nearbyId,
+      firstName: child.firstName,
+      lastName: child.lastName,
+      genre: child.genre,
+      weight: child.patientData.weight,
+      height: child.patientData.height,
+      patientParentID: loggedInUser?.data?.id,
+      birthdayDate: formattedDate.toISOString(),
+    });
+
+    dispatch(openModal("addPatientInfant"));
   };
 
   if (isLoading) {
@@ -406,10 +467,13 @@ export default function Beneficiary() {
                     onChange={() => handlePatientChange(loggedInUser?.data?.id, patient.nearby.id)}
                     defaultChecked={activeProcess?.patientId === patient.nearby.id}
                   />
-                  <CustomLabel htmlFor={`time-slot-${patient.id}`} className="radio-label d-block flex items-center justify-center cursor-pointer">
+                  <CustomLabel
+                    htmlFor={`time-slot-${patient.id}`}
+                    className="radio-label d-block flex items-center justify-center cursor-pointer select-none">
                     <DynamicHtmlTag
+                      onDoubleClick={() => openChildUpdateModal(patient.nearby, patient.id)}
                       type="span"
-                      className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn text-ellipsis overflow-hidden whitespace-nowrap"
+                      className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn text-ellipsis overflow-hidden whitespace-nowrap select-none"
                       title={patient.nearby.firstName}>
                       {patient.nearby.firstName} {patient.nearby.lastName}
                       <SlClose
@@ -442,14 +506,14 @@ export default function Beneficiary() {
           <DynamicHtmlTag type="div" className="modal-box bg-gradient-to-l from-sky-500 to-indigo-500 p-0 pt-4">
             <DynamicHtmlTag type="div" className="bg-base-100 p-4">
               <HeadingTag type="h3" className="text-blue font-semibold text-sm md:text-base 2xl:text-lg flex items-center gap-2">
-                <CgAdd className="w-5 h-5" />
-                Ajouter un enfant
+                {editChild ? <CgEye className="w-5 h-5" /> : <CgAdd className="w-5 h-5" />}
+                {editChild ? "Détails de l'enfant" : "Ajouter un enfant"}
                 <MdClose
                   onClick={closeAddChildModal}
                   className="ms-auto cursor-pointer text-blue border border-blue rounded-full w-5 h-5 lg:w-6 lg:h-6 p-1 hover:bg-primary hover:border-primary hover:text-white"
                 />
               </HeadingTag>
-              <CustomForm onSubmit={handleAddChild} className="pt-5 lg:px-4 space-y-3">
+              <CustomForm onSubmit={editChild ? handleEditChild : handleAddChild} className="pt-5 lg:px-4 space-y-3">
                 <DynamicHtmlTag type="div" className="form-group flex gap-3 w-full items-start">
                   <DynamicHtmlTag type="p" className="w-4/12 text-xs md:text-xs 2xl:text-sm font-semibold text-blue pb-1">
                     Nom:
@@ -469,6 +533,7 @@ export default function Beneficiary() {
                         placeholder="Nom"
                         value={addChildData.firstName}
                         onChange={handleInputChange}
+                        disabled={editChild}
                       />
                     </CustomLabel>
                     {errors.firstName && (
@@ -498,6 +563,7 @@ export default function Beneficiary() {
                         placeholder="Prénom"
                         value={addChildData.lastName}
                         onChange={handleInputChange}
+                        disabled={editChild}
                       />
                     </CustomLabel>
                     {errors.lastName && (
@@ -532,6 +598,7 @@ export default function Beneficiary() {
                           placeholderText="jj/mm/aaaa"
                           className="outline-none text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs rounded-md w-full"
                           inline={false}
+                          disabled={editChild}
                         />
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>
@@ -560,6 +627,7 @@ export default function Beneficiary() {
                         placeholder="Poids"
                         value={addChildData.weight}
                         onChange={handleInputChange}
+                        disabled={editChild}
                       />
                     </CustomLabel>
                     {errors.weight && (
@@ -587,6 +655,7 @@ export default function Beneficiary() {
                         placeholder="Taille"
                         value={addChildData.height}
                         onChange={handleInputChange}
+                        disabled={editChild}
                       />
                     </CustomLabel>
                     {errors.height && (
@@ -618,6 +687,7 @@ export default function Beneficiary() {
                       }}
                       isClearable
                       menuPlacement="top"
+                      isDisabled={editChild}
                     />
                     {errors.genre && (
                       <DynamicHtmlTag type="div" className="text-red-500 text-xs mt-1">
@@ -626,14 +696,16 @@ export default function Beneficiary() {
                     )}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
-                <DynamicHtmlTag type="div" className="flex justify-between pt-6">
-                  <CustomButton type="button" className="btn btn-danger text-xs 2xl:text-sm rounded-full py-2 px-3 " onClick={closeAddChildModal}>
-                    ANNULER
-                  </CustomButton>
-                  <CustomButton type="submit" className="btn btn-primary text-xs 2xl:text-sm card-btn rounded-full py-2 px-3">
-                    AJOUTER
-                  </CustomButton>
-                </DynamicHtmlTag>
+                {!editChild && (
+                  <DynamicHtmlTag type="div" className="flex justify-between pt-6">
+                    <CustomButton type="button" className="btn btn-danger text-xs 2xl:text-sm rounded-full py-2 px-3 " onClick={closeAddChildModal}>
+                      ANNULER
+                    </CustomButton>
+                    <CustomButton type="submit" className="btn btn-primary text-xs 2xl:text-sm card-btn rounded-full py-2 px-3">
+                      {editChild ? "MODIFIER" : "AJOUTER"}
+                    </CustomButton>
+                  </DynamicHtmlTag>
+                )}
               </CustomForm>
             </DynamicHtmlTag>
           </DynamicHtmlTag>

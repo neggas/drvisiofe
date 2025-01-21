@@ -11,6 +11,7 @@ interface DynamicHtmlTagsProps {
   role?: string;
   style?: any;
   onChange?: any;
+  onDoubleClick?: any;
   onMouseLeave?: any;
   onMouseMove?: any;
   onMouseEnter?: any;
@@ -41,6 +42,7 @@ const DynamicHtmlTag = forwardRef<any, DynamicHtmlTagsProps>((props, ref) => {
     value,
     htmlFor,
     max,
+    onDoubleClick,
   } = props;
   const DynamicHtmlTag: any = type ? type : "p";
   return (
@@ -61,7 +63,8 @@ const DynamicHtmlTag = forwardRef<any, DynamicHtmlTagsProps>((props, ref) => {
       value={value}
       htmlFor={htmlFor}
       max={max}
-      onChange={onChange}>
+      onChange={onChange}
+      onDoubleClick={onDoubleClick}>
       {children}
     </DynamicHtmlTag>
   );

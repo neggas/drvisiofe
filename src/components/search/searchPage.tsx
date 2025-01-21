@@ -38,7 +38,7 @@ export default function SearchPage() {
   const [practitioners, setPractitioners] = useState<PractitionerType[]>([]);
   const [practitionerError, setPractitionerError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState<boolean>(false);
-  const [pageLoader, setPageLoader] = useState<boolean>(true);
+  const [pageLoader, setPageLoader] = useState<boolean>(false);
   const [filter, setFilter] = useState<boolean>(false);
   const loggedInUser = useSelector(selectLoginResponse);
   const isTeleconsultationBooked = getLocalStorageData("isTeleconsultationBooked", false);
@@ -69,6 +69,7 @@ export default function SearchPage() {
 
   // Fetch Practitioners list
   const fetchPractitioners = async () => {
+    setPageLoader(true);
     try {
       let dateTime = localDate ? localDate.split(" ") : getCurrentDateTime().split(" ");
       let date = dateTime[0];
