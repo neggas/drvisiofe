@@ -334,10 +334,7 @@ export default function Header(): ReactNode {
         <DynamicHtmlTag type="div" className="flex items-center gap-2 md:gap-3 xl:gap-5 lg:justify-end">
           {isClient && loggedInUser?.data?.id ? (
             <>
-              {pathname == "/teleconsult-doctor" ? (
-                ""
-              ) : (
-                // /* Make an appointment button is hidden now on mobile it will show after login */
+              {pathname !== "/teleconsult-doctor" && !pathname.includes("consultationprocess") ? (
                 <>
                   <CustomLink
                     href="/teleconsult-doctor"
@@ -351,6 +348,8 @@ export default function Header(): ReactNode {
                     <CustomImage src="/images/teleconsult-icon.svg" alt="teleconsult-icon" width={20} height={27} className="opacity-50 mx-auto" />
                   </CustomLink>
                 </>
+              ) : (
+                ""
               )}
               {pathname && !pathname.startsWith("/patient-dashboard") && (
                 <CustomLink
