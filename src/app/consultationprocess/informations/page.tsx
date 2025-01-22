@@ -2,6 +2,7 @@
 import { Card, CustomButton, CustomImage, DynamicHtmlTag, HeadingTag } from "@/components";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
 import { selectConsultationBooking, setCompletedStep, setInformation, setTarifInformation } from "@/store/reducers/consultationBookingSlice";
+import { getActiveProcess, setProcessInformation, setProcessTarifInformation } from "@/store/reducers/consultationProcessReducerSlice";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { RootState } from "@/store/store";
 import { handleCancelRdv, handleProcessError, validateMedicalInformation } from "@/utility";
@@ -14,6 +15,7 @@ const Information = () => {
   const dispatch = useDispatch();
   const consultationBooking = useSelector(selectConsultationBooking);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
+  const activePatient = useSelector(getActiveProcess);
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
@@ -22,9 +24,9 @@ const Information = () => {
 
   const handleValidateMedicalInfoSubmit = async () => {
     const payload = {
-      practitionerId: consultationBooking.practitionerId,
-      patientId: consultationBooking.patientId,
-      rdvId: consultationBooking.rdvId ?? null,
+      practitionerId: activePatient?.practitioner?.id,
+      patientId: activePatient?.patientId,
+      rdvId: activePatient?.rdvId ?? null,
       informationValidation: true,
     };
     try {
@@ -42,8 +44,10 @@ const Information = () => {
             tarifPenality: response.data.tarifPenality,
           })
         );
+        dispatch(setProcessTarifInformation({ tarifInformation: response.data, patientId: activePatient?.patientId || null }));
 
         dispatch(setInformation(true));
+        dispatch(setProcessInformation({ information: true, patientId: activePatient?.patientId || null }));
       }
       handleNextStep(5, "/consultationprocess/payment");
     } catch (error) {
@@ -63,7 +67,7 @@ const Information = () => {
   };
 
   const isAccepteInformation = () => {
-    return consultationBooking.information;
+    return activePatient?.information;
   };
 
   return (

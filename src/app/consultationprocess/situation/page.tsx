@@ -10,7 +10,6 @@ import {
   CustomForm,
   CustomModal,
   CustomDatePicker,
-  CustomFullScreenLoader,
   CustomLoader,
 } from "@/components";
 import { MdClose } from "react-icons/md";
@@ -40,7 +39,13 @@ import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/co
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
-import { getActiveProcess, setProcessCompletedSteps, setProfileMutuelle, setSituation } from "@/store/reducers/consultationProcessReducerSlice";
+import {
+  getActiveProcess,
+  setProcessCompletedSteps,
+  setProfileMutuelle,
+  setSituation,
+  updateProfileMutuelle,
+} from "@/store/reducers/consultationProcessReducerSlice";
 
 const Situation = () => {
   const dispatch = useDispatch();
@@ -194,11 +199,11 @@ const Situation = () => {
       setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
       setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
 
-      // // Update local states as well
-      // setLocalHealthComplNumber(patientData?.healthComplNumber || "");
-      // setLocalStartDate(patientData ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
-      // setLocalEndDate(patientData ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
-      // setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
+      // Update local states as well
+      setLocalHealthComplNumber(patientData?.healthComplNumber || "");
+      setLocalStartDate(patientData ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
+      setLocalEndDate(patientData ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
     }
   }, [activeConsultationProcess]);
 
@@ -290,7 +295,6 @@ const Situation = () => {
     setHealthComplStartDate(localStartDate);
     setHealthComplEndDate(localEndDate);
     setHealthPreviewImage(localHealthPreviewImage);
-
     dispatch(closeModal());
   };
 
@@ -833,7 +837,7 @@ const Situation = () => {
                 </DynamicHtmlTag>
                 <DynamicHtmlTag className="border border-gray-400 p-2 flex items-center gap-2 rounded-lg mb-1" type="div">
                   <DynamicHtmlTag type="div" className="form-date-picker date-picker text-xs md:text-xs 2xl:text-sm">
-                    <CustomDatePicker selected={localStartDate} onChange={handleStartDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
+                    <CustomDatePicker inline={false} selected={localStartDate} onChange={handleStartDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
               </DynamicHtmlTag>
@@ -846,7 +850,7 @@ const Situation = () => {
                 </DynamicHtmlTag>
                 <DynamicHtmlTag className="border border-gray-400 p-2 flex items-center gap-2 rounded-lg mb-1" type="div">
                   <DynamicHtmlTag type="div" className="form-date-picker date-picker text-xs md:text-xs 2xl:text-sm">
-                    <CustomDatePicker selected={localEndDate} onChange={handleEndDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
+                    <CustomDatePicker inline={false} selected={localEndDate} onChange={handleEndDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
               </DynamicHtmlTag>

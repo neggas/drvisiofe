@@ -6,28 +6,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { appointmentPaymentApi, extractMinMaxValues, getFormateDate, validateAppointment } from "@/utility";
 import { RootState } from "@/store";
 import { hideLoader, showLoader } from "@/store/reducers/loaderSlice";
+import { getActiveProcess, setProcessConfirmed } from "@/store/reducers/consultationProcessReducerSlice";
 
 const Payment = () => {
   const dispatch = useDispatch();
   const consultationBooking = useSelector(selectConsultationBooking);
-  const [isConfirmed] = useState(consultationBooking?.confirmed);
+  const activePatient = useSelector(getActiveProcess);
+  const [isConfirmed] = useState(activePatient?.confirmed);
   const [IsSubmitDetail, setIsSubmitDetail] = useState(false);
   const isLoading = useSelector((state: RootState) => state.loader.isLoading);
-  const tarif = consultationBooking?.tarif ?? "";
+  const tarif = activePatient?.tarif ?? "";
   const { min, max } = extractMinMaxValues(tarif as string);
   const [isPaymentInitiated, setIsPaymentInitiated] = useState(false);
 
   const handleConfirmClick = async () => {
     const payload = {
-      practitionerId: consultationBooking.practitionerId,
-      patientId: consultationBooking.patientId,
-      rdvId: consultationBooking.rdvId ?? null,
+      practitionerId: activePatient?.practitioner?.id,
+      patientId: activePatient?.patientId,
+      rdvId: activePatient?.rdvId ?? null,
       appointementValidation: true,
     };
 
     try {
       await validateAppointment(payload);
       dispatch(setConfirmed(true));
+      dispatch(setProcessConfirmed({ confirmed: true, patientId: activePatient?.patientId || null }));
     } catch (error) {}
   };
 
@@ -41,9 +44,9 @@ const Payment = () => {
     dispatch(showLoader("payment_started"));
     try {
       const payload = {
-        practitionerId: consultationBooking.practitionerId,
-        patientId: consultationBooking.patientId,
-        rdvId: consultationBooking.rdvId ?? null,
+        practitionerId: activePatient?.practitioner?.id,
+        patientId: activePatient?.patientId,
+        rdvId: activePatient?.rdvId ?? null,
       };
       const paymentResponse = await appointmentPaymentApi(payload);
 
@@ -85,14 +88,12 @@ const Payment = () => {
                       Vous vous engagez à honorer votre présence en téléconsultation,<DynamicHtmlTag type="br"></DynamicHtmlTag>
                       le
                       <DynamicHtmlTag type="span" className="text-customBlue px-1">
-                        {consultationBooking?.selectedDate
-                          ? getFormateDate(new Date(consultationBooking.selectedDate).toISOString(), "dddd DD MMMM", true)
-                          : ""}
-                        à {consultationBooking.timeSlot}
+                        {activePatient?.selectedDate ? getFormateDate(new Date(activePatient?.selectedDate).toISOString(), "dddd DD MMMM", true) : ""}
+                        à {activePatient?.timeSlot}
                       </DynamicHtmlTag>
                       avec le
                       <DynamicHtmlTag type="span" className="text-customBlue ps-1">
-                        {consultationBooking.name}.
+                        {activePatient?.practitioner?.firstName} {activePatient?.practitioner?.lastName}.
                       </DynamicHtmlTag>
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
@@ -103,7 +104,7 @@ const Payment = () => {
                     <CustomImage src="/images/danger-icon.svg" width={18} height={18} alt="danger" className="pt-1" />
                     <DynamicHtmlTag type="p" className="text-2xs 2xl:text-sm">
                       Vous pouvez annuler le RDV gratuitement sans pénalité jusqu’à 1h avant. Au-delà des frais s’appliqueront ! Si vous n’honorez pas
-                      le RDV, vous serez redevable d’une pénalité forfaitaire de {consultationBooking?.tarifInformation?.tarifPenality} €
+                      le RDV, vous serez redevable d’une pénalité forfaitaire de {activePatient?.tarifInformation?.tarifPenality} €
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
@@ -116,7 +117,7 @@ const Payment = () => {
                 {/* after complete confirmation start */}
                 <DynamicHtmlTag
                   type="div"
-                  className={`absolute w-full h-full bg-primary/45 top-0 left-0 shadow-lg rounded-lg p-3 justify-center items-center flex ${consultationBooking?.confirmed ? "" : "hidden"}`}>
+                  className={`absolute w-full h-full bg-primary/45 top-0 left-0 shadow-lg rounded-lg p-3 justify-center items-center flex ${activePatient?.confirmed ? "" : "hidden"}`}>
                   <CustomImage src="/images/right-tick.svg" alt="right-tick" width={150} height={150} className="w-24 lg:w-36" />
                 </DynamicHtmlTag>
                 {/* after complete confirmation end*/}
@@ -144,7 +145,7 @@ const Payment = () => {
                       Téléconsultation : Entre {min} et {max}€ max.
                     </HeadingTag>
                     <DynamicHtmlTag type="span" className="text-[#48A7DE] text-sm 2xl:text-base font-semibold">
-                      {consultationBooking?.tarifInformation?.tarif} €
+                      {activePatient?.tarifInformation?.tarif} €
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="p" className="text-[#48A7DE] text-2xs 2xl:text-sm font-[600]">
@@ -157,7 +158,7 @@ const Payment = () => {
                       Frais de service DrVisio
                     </HeadingTag>
                     <DynamicHtmlTag type="span" className="text-[#48A7DE] text-sm xl:text-base font-semibold">
-                      {consultationBooking?.tarifInformation?.serviceFee} €
+                      {activePatient?.tarifInformation?.serviceFee} €
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="div" className="flex justify-between py-2">
@@ -165,7 +166,7 @@ const Payment = () => {
                       Montant total
                     </HeadingTag>
                     <DynamicHtmlTag type="span" className="text-[#48A7DE] text-xs xl:text-sm 2xl:text-base font-bold">
-                      {consultationBooking?.tarifInformation?.tarifTotal} €
+                      {activePatient?.tarifInformation?.tarifTotal} €
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
                   <DynamicHtmlTag type="div" className="bg-sky-100 text-center p-2 rounded-lg mt-1">
@@ -184,10 +185,10 @@ const Payment = () => {
                   <CustomButton
                     onClick={handleSubmitDetail}
                     className={`cstm-btn view-more-btn text-xs 2xl:text-sm py-2 px-3 text-base-100 rounded-full font-semibold ms-auto lg:mb-0 w-1/3 md:w-1/5 lg:w-1/3 xl:w-1/4 lg:bg-transparent flex justify-center max-w-x ${
-                      consultationBooking?.confirmed ? "" : "opacity-65 cursor-not-allowed"
+                      activePatient?.confirmed ? "" : "opacity-65 cursor-not-allowed"
                     }`}
-                    title={!consultationBooking?.confirmed ? "Confirmer le rendez-vous pour pouvoir payer." : ""}
-                    disabled={!consultationBooking?.confirmed}>
+                    title={!activePatient?.confirmed ? "Confirmer le rendez-vous pour pouvoir payer." : ""}
+                    disabled={!activePatient?.confirmed}>
                     Payer
                   </CustomButton>
                 </DynamicHtmlTag>

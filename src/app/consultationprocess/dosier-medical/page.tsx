@@ -13,7 +13,7 @@ import {
   DynamicHtmlTag,
   HeadingTag,
 } from "@/components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { act, useEffect, useRef, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import { IoCloseSharp } from "react-icons/io5";
@@ -29,16 +29,20 @@ import {
   dosierMedicalDocumentListingApi,
   DosierMedicalDocumentsType,
   fetchMedicalCategoryDocumentsApi,
+  handleProcessError,
   medicalRecordsAdd,
 } from "@/utility";
 import { useRouter } from "next/navigation";
 import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 import { toast } from "react-toastify";
+import { getActiveProcess, setMedicalStateData, setProcessCompletedSteps } from "@/store/reducers/consultationProcessReducerSlice";
+import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
 
 const DosierMedical = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const consultationBooking = useSelector(selectConsultationBooking);
+  const activePatient = useSelector(getActiveProcess);
   const patient = useSelector(selectPatientDetailsData);
   const isModalOpen = useSelector((state: RootState) => state.modal.isOpen);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
@@ -65,14 +69,15 @@ const DosierMedical = () => {
   });
   const [categories, setCategories] = useState([]);
   const [buttonText, setButtonText] = useState("Passer cette étape");
+  const [processNoticeMessage, setProcessNoticeMessage] = useState("");
 
   useEffect(() => {
     setMedicalData({
       ...medicalData,
-      weight: patient.patientData.weight,
-      height: patient.patientData.height,
+      weight: activePatient?.profile?.patientData?.weight ?? "",
+      height: activePatient?.profile?.patientData?.height ?? "",
     });
-  }, [patient]);
+  }, [activePatient]);
 
   useEffect(() => {
     const hasData = Object.values(medicalData).some(value => value.toString().trim() !== "");
@@ -107,6 +112,7 @@ const DosierMedical = () => {
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
+    dispatch(setProcessCompletedSteps({ patientId: activePatient?.patientId || null, completedSteps: stepNumber }));
     router.push(nextPath);
   };
 
@@ -132,16 +138,26 @@ const DosierMedical = () => {
           medicalHistory: medicalData.medicalHistory,
           longTermTreatment: medicalData.longTermTreatment,
           medicationTakenPreviously: medicalData.medicationTakenPreviously,
+          allergies: medicalData.allergies,
         },
       };
+
+      const medicalDataPayload = {
+        medicalHistory: medicalData.medicalHistory,
+        longTermTreatment: medicalData.longTermTreatment,
+        medicationTakenPreviously: medicalData.medicationTakenPreviously,
+        allergies: medicalData.allergies,
+      };
       dispatch(setPatientDetailsData(updatetedPatientData));
+      dispatch(setMedicalStateData({ medicalData: medicalDataPayload, patientId: activePatient?.patientId || null }));
+
       handleNextStep(4, "/consultationprocess/informations");
     } catch (error: any) {
-      const response = await error.response;
-      if (response?.data?.codeMessage === "RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED") {
-        toast.error(response?.data?.message);
-        router.push("/search");
-        return;
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        openProcessNoticeModal();
       }
     }
   };
@@ -194,6 +210,15 @@ const DosierMedical = () => {
     setTimeout(() => dispatch(openModal("documentDeleteModal")));
   };
 
+  const openProcessNoticeModal = () => {
+    dispatch(openModal("processNoticeModal"));
+  };
+
+  const closeProcessNoticeModal = () => {
+    dispatch(closeModal());
+    setProcessNoticeMessage("");
+    router.push("/search");
+  };
   const closeDocumentDeleteModal = () => {
     openDocumentShowModal();
   };
@@ -212,9 +237,9 @@ const DosierMedical = () => {
   const fetchDocuments = async () => {
     try {
       const payload = {
-        practitionerId: consultationBooking.practitionerId,
-        patientId: consultationBooking.patientId,
-        rdvId: consultationBooking.rdvId ?? null,
+        practitionerId: activePatient?.practitionerId,
+        patientId: activePatient?.patientId,
+        rdvId: activePatient?.rdvId ?? null,
       };
       const response = await dosierMedicalDocumentListingApi(payload, 10, 0);
       setDocuments(Array.isArray(response.data.results) ? response.data.results : []);
@@ -225,9 +250,9 @@ const DosierMedical = () => {
 
   const handleDeleteDocument = async (docId: number) => {
     const payload = {
-      practitionerId: consultationBooking.practitionerId,
-      patientId: consultationBooking.patientId,
-      rdvId: consultationBooking.rdvId ?? null,
+      practitionerId: activePatient?.practitionerId,
+      patientId: activePatient?.patientId,
+      rdvId: activePatient?.rdvId ?? null,
       docId,
     };
 
@@ -250,9 +275,9 @@ const DosierMedical = () => {
       await addMedicalSituationDocumentApi(formData);
       fetchDocuments();
       setDocumentFormData({
-        practitionerId: consultationBooking.practitionerId,
-        patientId: consultationBooking.patientId,
-        rdvId: consultationBooking.rdvId ?? null,
+        practitionerId: activePatient?.practitionerId,
+        patientId: activePatient?.patientId || undefined,
+        rdvId: activePatient?.rdvId ?? null,
         categoryId: "",
         date: "",
         name: "",
@@ -797,6 +822,10 @@ const DosierMedical = () => {
         </CustomModal>
       )}
       {/* Delete Document Modal End */}
+
+      {modalType === "processNoticeModal" && (
+        <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
+      )}
     </>
   );
 };

@@ -169,6 +169,7 @@ const Motifs = () => {
               <DynamicHtmlTag
                 key={motif.id}
                 type="div"
+                title={isDisabled ? "Vous avez déjà sélectionné 3 motifs" : ""}
                 className={`w-full sm:w-[48%] md:w-[32%] xl:w-[24%] 2xl:w-[32%] ${isDisabled ? "cursor-not-allowed" : ""}`}>
                 <CustomInput
                   type="checkbox"

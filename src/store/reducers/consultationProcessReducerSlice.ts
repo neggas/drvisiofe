@@ -16,6 +16,13 @@ interface Avatar {
   updatedAt: [number, number, number, number, number, number, number] | null;
 }
 
+interface MedicalData {
+  medicalHistory: string;
+  longTermTreatment: string;
+  medicationTakenPreviously: string;
+  allergies: string;
+}
+
 export interface ConsultationProcessState {
   practitionerId?: number;
   daySlot?: string;
@@ -40,6 +47,10 @@ export interface ConsultationProcessState {
   isActive: boolean;
   rdvWhyId?: number;
   healthRightIds?: number[];
+  medicalHistory?: string;
+  longTermTreatment?: string;
+  medicationTakenPreviously?: string;
+  allergies?: string;
 }
 
 interface SituationType {
@@ -185,6 +196,16 @@ export const consultationProcessReducer = createSlice({
       }
     },
 
+    updateProfileMutuelle: (state, action: PayloadAction<{ mutelle: MutelleType; patientId: number | null }>) => {
+      const currentPatient = state.find(patient => patient.patientId === action.payload.patientId);
+      if (currentPatient && currentPatient.profile) {
+        currentPatient.profile.patientData.healthComplNumber = action.payload.mutelle.healthComplNumber;
+        currentPatient.profile.patientData.healthComplEndDate = action.payload.mutelle.healthComplEndDate;
+        currentPatient.profile.patientData.healthComplStartDate = action.payload.mutelle.healthComplStartDate;
+        currentPatient.profile.patientData.healthCompl = action.payload.mutelle.healthCompl;
+      }
+    },
+
     setSituation: (state, action: PayloadAction<{ situation: SituationType; patientId: number | null }>) => {
       const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
 
@@ -201,6 +222,42 @@ export const consultationProcessReducer = createSlice({
         }
       }
     },
+
+    setMedicalStateData: (state, action: PayloadAction<{ medicalData: MedicalData; patientId: number | null }>) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.medicalHistory = action.payload.medicalData.medicalHistory;
+        consultationProcess.longTermTreatment = action.payload.medicalData.longTermTreatment;
+        consultationProcess.medicationTakenPreviously = action.payload.medicalData.medicationTakenPreviously;
+        consultationProcess.allergies = action.payload.medicalData.allergies;
+      }
+    },
+
+    setProcessInformation: (state, action: PayloadAction<{ information: boolean; patientId: number | null }>) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.information = action.payload.information;
+      }
+    },
+
+    setProcessTarifInformation: (
+      state,
+      action: PayloadAction<{
+        tarifInformation: { tarif: number; serviceFee: number; tarifTotal: number; tarifPenality: number };
+        patientId: number | null;
+      }>
+    ) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.tarifInformation = action.payload.tarifInformation;
+      }
+    },
+    setProcessConfirmed: (state, action: PayloadAction<{ confirmed: boolean; patientId: number | null }>) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.confirmed = action.payload.confirmed;
+      }
+    },
   },
 });
 
@@ -215,6 +272,11 @@ export const {
   setConsultationOtherMotifText,
   setProfileMutuelle,
   setSituation,
+  updateProfileMutuelle,
+  setMedicalStateData,
+  setProcessInformation,
+  setProcessTarifInformation,
+  setProcessConfirmed,
 } = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {
