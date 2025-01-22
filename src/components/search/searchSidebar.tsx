@@ -59,7 +59,11 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   const dispatch = useDispatch();
   const specialities = useSelector(selectSpecialityData);
   const consultationBooking = useSelector(selectConsultationBooking);
-  const { selectedMotifs = [], otherMotifText = "" } = consultationBooking;
+  const activeProcess = useSelector(getActiveProcess);
+  console.log("activeProcess", activeProcess);
+
+  const selectedMotifs = activeProcess?.selectedMotifs || [];
+  const otherMotifText = activeProcess?.otherMotifText || "";
 
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState(localDate ? new Date(localDate) : new Date());
@@ -75,6 +79,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
     "/consultationprocess/dosier-medical",
     "/consultationprocess/informations",
     "/consultationprocess/payment",
+    "/consultationprocess/beneficiary",
   ];
 
   const defaultSelectedPractitioner = [];
@@ -173,7 +178,6 @@ const SideBar: React.FC<SpecialitiesProps> = ({
     }
   }, [dispatch, consultationBooking.selectedDate]);
 
-  const activeProcess = useSelector(getActiveProcess);
   return (
     <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row h-auto rounded-2xl min-h-full lg:border">
       <DynamicHtmlTag type="div" className="bg-base-100 w-full px-4 sm:pb-0 sm:pt-2 lg:py-4 rounded-full">
@@ -421,7 +425,9 @@ const SideBar: React.FC<SpecialitiesProps> = ({
           </DynamicHtmlTag>
 
           {allowedMotifSidebarPaths.includes(pathname) && (selectedMotifs?.length > 0 || otherMotifText) && (
-            <DynamicHtmlTag type="div" className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg">
+            <DynamicHtmlTag
+              type="div"
+              className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg h-[238px] md:max-h-[230px]  lg:max-h-[200px] overflow-y-scroll">
               <HeadingTag type="h3" className="text-xs font-semibold text-center mb-2">
                 MOTIFS
               </HeadingTag>
@@ -436,7 +442,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                 {otherMotifText && (
                   <CustomTextarea
                     name="motif"
-                    className="w-full px-2 py-2 border text-xs  focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-black"
+                    className="w-full h- px-2 py-2 border text-xs  focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-black"
                     value={otherMotifText}
                     disabled={true}
                     readOnly

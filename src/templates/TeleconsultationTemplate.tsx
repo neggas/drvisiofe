@@ -18,7 +18,7 @@ const TeleconsultationTemplate = (props: IBaseTemplateProps) => {
 
   return (
     <DynamicHtmlTag type="div" className="flex flex-col lg:flex-row gap-x-5 gap-y-0 lg:gap-y-0 sm:pb-0 md:py-5 sm:px-0 md:px-5 h-full">
-      <DynamicHtmlTag type="div" className="w-[100%] lg:w-[27%] xl:w-[20%] sidebar-main">
+      <DynamicHtmlTag type="div" className="w-[100%] lg:w-[27%] xl:w-[20%]  sidebar-main">
         <SideBar
           selectedSpecialty={""}
           setSeleectedSpecialty={function (value: string): void {
