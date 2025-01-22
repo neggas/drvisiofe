@@ -199,3 +199,17 @@ export const addSituationHelthCompl = async (data: any) => {
     throw error;
   }
 };
+
+export const removeMutuelleCard = async (data: any) => {
+  const API_URL = `/teleconsultation/rdv/delete-situation-health-compl`;
+  try {
+    const response = await axiosInstance.post(API_URL, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

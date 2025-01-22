@@ -29,6 +29,8 @@ import {
   listOfWhySituations,
   PatientData,
   PatientsType,
+  removeMutelleCard,
+  removeMutuelleCard,
   WhySituation,
   WhySituationsResponse,
 } from "@/utility";
@@ -240,13 +242,45 @@ const Situation = () => {
     dispatch(closeModal());
   };
 
-  const handleDeleteDocument = () => {
-    setDeleteDocument(true);
-    setHealthComplNumber("");
-    setHealthComplStartDate(null);
-    setHealthComplEndDate(null);
-    setHealthPreviewImage(null);
-    dispatch(closeModal());
+  const handleDeleteDocument = async () => {
+    console.log(activeConsultationProcess?.rdvId, activeConsultationProcess?.patientId, activeConsultationProcess?.practitioner?.id);
+    try {
+      const formData = new FormData();
+      formData.append("rdvId", activeConsultationProcess?.rdvId?.toString() || "");
+      formData.append("patientId", activeConsultationProcess?.patientId?.toString() || "");
+      formData.append("practitionerId", activeConsultationProcess?.practitioner?.id?.toString() || "");
+
+      const response = await removeMutuelleCard(formData);
+      if (response.data) {
+        toast.success(response.message);
+        setDeleteDocument(true);
+        setHealthComplNumber("");
+        setHealthComplStartDate(null);
+        setHealthComplEndDate(null);
+        setHealthPreviewImage(null);
+        dispatch(closeModal());
+        dispatch(
+          setProfileMutuelle({
+            mutelle: {
+              healthCompl: {
+                id: 0,
+                name: "",
+                extension: "",
+                size: 0,
+                url: "",
+              },
+              healthComplNumber: "",
+              healthComplStartDate: "",
+              healthComplEndDate: "",
+            },
+            patientId: activeConsultationProcess?.patientId || null,
+          })
+        );
+      }
+      console.log(response, "Response from removeMutelleCard");
+    } catch (error) {
+      console.log(error, "Error from removeMutelleCard");
+    }
   };
 
   const handleEditMutuelleSubmit = (e: React.FormEvent) => {
@@ -435,7 +469,6 @@ const Situation = () => {
 
     try {
       const response = await addSituationHelthCompl(formData);
-      console.log(response, "Response from addSituationHelthCompl");
 
       if (response.data) {
         dispatch(setProfileMutuelle({ mutelle: response.data, patientId: activeConsultationProcess?.patientId || null }));
