@@ -185,3 +185,17 @@ export const cancelAppointment = async (rdvId: number) => {
     throw error;
   }
 };
+
+export const addSituationHelthCompl = async (data: any) => {
+  try {
+    const API_URL = "/teleconsultation/rdv/add-situation-health-compl";
+    const response = await axiosInstance.post(API_URL, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

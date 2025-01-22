@@ -37,6 +37,8 @@ export interface ConsultationProcessState {
   patientId: number | null;
   childrenId: number | null;
   isActive: boolean;
+  rdvWhyId?: number;
+  healthRightIds?: number[];
 }
 
 const initialState: ConsultationProcessState[] = [];

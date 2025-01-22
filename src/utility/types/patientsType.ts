@@ -11,13 +11,21 @@ interface Avatar {
   updatedAt: [number, number, number, number, number, number, number] | null;
 }
 
+interface HealthCompl {
+  id: number;
+  name: string;
+  extension: string;
+  size: number;
+  url: string;
+}
+
 export type PatientData = {
   weight: string;
   height: string;
   firstNameContactPerson: string | null;
   lastNameContactPerson: string | null;
   phoneContactPerson: string | null;
-  healthCompl: string | null;
+  healthCompl?: HealthCompl;
   hasSocialSecurityNumber: boolean;
   socialSecurityNumber: string | null;
   hasFullCareAndSupport: boolean;

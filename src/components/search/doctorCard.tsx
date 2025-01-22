@@ -19,6 +19,7 @@ import { ConsultationProcessState, setProcessRdvId, startConsultationProcess } f
 import ProcessNoticeModal from "../process-notice-modal/processNoticeModal";
 import { RootState } from "@/store/store";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
+import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 interface PractitionerProps {
   practitioner: PractitionerType;
   localDate: string;
@@ -37,6 +38,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
   const loggedInUser = useSelector(selectLoginResponse);
   const modalType = useSelector((state: RootState) => state.modal.modalType);
   const [processNoticeMessage, setProcessNoticeMessage] = useState("");
+  const patientData = useSelector(selectPatientDetailsData);
 
   const handleLink = () => {
     dispatch(setConsultationPractitionerId(practitioner?.id));
@@ -104,7 +106,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
       }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`;
 
       const startConsultationProcessPayload: ConsultationProcessState = {
-        profile: loggedInUser?.data as unknown as PatientsType,
+        profile: patientData,
         practitioner: practitioner,
         completedSteps: 1,
         selectedMotifs: [],

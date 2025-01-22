@@ -10,12 +10,14 @@ import {
   CustomForm,
   CustomModal,
   CustomDatePicker,
+  CustomFullScreenLoader,
 } from "@/components";
 import { MdClose } from "react-icons/md";
 import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addSituation,
+  addSituationHelthCompl,
   API_URL,
   getPatientDeatils,
   handleCancelRdv,
@@ -35,6 +37,7 @@ import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/co
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
+import { getActiveProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 const Situation = () => {
   const dispatch = useDispatch();
@@ -47,22 +50,25 @@ const Situation = () => {
   const [isMaternityChecked, setIsMaternityChecked] = useState(false);
   const [deleteDocument, setDeleteDocument] = useState(false);
   const [patientProfile, setPatientProfile] = useState<PatientsType | null>(null);
+  const activeConsultationProcess = useSelector(getActiveProcess);
 
-  const [healthComplNumber, setHealthComplNumber] = useState<string>(fetchPatientData?.patientData?.healthComplNumber || "");
+  const [healthComplNumber, setHealthComplNumber] = useState<string>(activeConsultationProcess?.profile?.patientData?.healthComplNumber || "");
   const [healthComplStartDate, setHealthComplStartDate] = useState<Date | null>(
-    fetchPatientData?.patientData?.healthComplStartDate
-      ? new Date(fetchPatientData?.patientData?.healthComplStartDate.split("/").reverse().join("/"))
+    activeConsultationProcess?.profile?.patientData?.healthComplStartDate
+      ? new Date(activeConsultationProcess?.profile.patientData?.healthComplStartDate.split("/").reverse().join("/"))
       : null
   );
 
   const [healthComplEndDate, setHealthComplEndDate] = useState<Date | null>(
-    fetchPatientData?.patientData?.healthComplEndDate
-      ? new Date(fetchPatientData?.patientData?.healthComplEndDate.split("/").reverse().join("/"))
+    activeConsultationProcess?.profile?.patientData?.healthComplEndDate
+      ? new Date(activeConsultationProcess?.profile?.patientData?.healthComplEndDate.split("/").reverse().join("/"))
       : null
   );
 
   const [healthPreviewImage, setHealthPreviewImage] = useState<string | null>(
-    fetchPatientData?.patientData?.healthCompl?.url ? `${API_URL}${fetchPatientData.patientData.healthCompl.url}` : null
+    activeConsultationProcess?.profile?.patientData?.healthCompl?.url
+      ? `${API_URL}${activeConsultationProcess?.profile?.patientData.healthCompl.url}`
+      : null
   );
 
   // Local state variables for modal inputs
@@ -80,10 +86,9 @@ const Situation = () => {
   const [addMutuelleEndDate, setAddMutuelleEndDate] = useState<Date | null>(null);
   const [addMutuelleImage, setAddMutuelleImage] = useState<string | null>(null);
 
-  const [selectedHealthRights, setSelectedHealthRights] = useState<string[]>([]);
-  const [selectedWhyConsultation, setSelectedWhyConsultation] = useState<string | null>(null);
-
-  const consultationBooking = useSelector(selectConsultationBooking);
+  const [selectedHealthRights, setSelectedHealthRights] = useState<number[]>([]);
+  const [selectedWhyConsultation, setSelectedWhyConsultation] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [healthFile, setHealthFile] = useState<File | null>(null);
 
@@ -151,10 +156,10 @@ const Situation = () => {
       setIsMaternityChecked(checked);
     }
 
-    setSelectedHealthRights(prev => (checked ? [...prev, value] : prev.filter(id => id !== value)));
+    setSelectedHealthRights(prev => (checked ? [...prev, Number(value)] : prev.filter(id => id !== Number(value))));
   };
 
-  const handleHealthRightChange = (id: string, isChecked: boolean) => {
+  const handleHealthRightChange = (id: number, isChecked: boolean) => {
     setSelectedHealthRights(prev => (isChecked ? [...prev, id] : prev.filter(item => item !== id)));
   };
 
@@ -173,54 +178,50 @@ const Situation = () => {
   }, [patientDetails, situationList, fetchWhySituations]);
 
   useEffect(() => {
-    if (fetchPatientData) {
-      const { patientData } = fetchPatientData;
+    if (activeConsultationProcess && activeConsultationProcess.profile?.patientData) {
+      const { patientData } = activeConsultationProcess.profile;
       const ssn = patientData?.socialSecurityNumber || "";
       // Remove non-digit characters and limit to 15 digits
       const cleanedSSN = ssn.replace(/\D/g, "").slice(0, 15);
       setSocialSecurityNumber(cleanedSSN);
-      const { healthComplStartDate, healthComplEndDate } = patientData || {};
+      // const { healthComplStartDate, healthComplEndDate } = patientData || {};
 
-      setHealthComplNumber(patientData?.healthComplNumber || "");
-      setHealthComplStartDate(healthComplStartDate ? new Date(healthComplStartDate.split("/").reverse().join("/")) : null);
-      setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate.split("/").reverse().join("/")) : null);
-      setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
+      // setHealthComplNumber(patientData?.healthComplNumber || "");
+      // setHealthComplStartDate(healthComplStartDate ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
+      // setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      // setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
 
-      // Update local states as well
-      setLocalHealthComplNumber(patientData?.healthComplNumber || "");
-      setLocalStartDate(healthComplStartDate ? new Date(healthComplStartDate.split("/").reverse().join("/")) : null);
-      setLocalEndDate(healthComplEndDate ? new Date(healthComplEndDate.split("/").reverse().join("/")) : null);
-      setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
+      // // Update local states as well
+      // setLocalHealthComplNumber(patientData?.healthComplNumber || "");
+      // setLocalStartDate(patientData ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
+      // setLocalEndDate(patientData ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      // setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
     }
-  }, [fetchPatientData]);
+  }, [activeConsultationProcess]);
 
   useEffect(() => {
-    if (fetchPatientData?.patientData?.rdvWhyId) {
-      setSelectedWhyConsultation(fetchPatientData?.patientData?.rdvWhyId);
-      setSelectedHealthRights(fetchPatientData?.patientData?.healthRightIds || []);
-      setSocialSecurityNumber(fetchPatientData?.patientData?.socialSecurityNumber || "");
-      setAddMutuelleNumber(fetchPatientData?.patientData?.healthComplNumber || "");
+    if (activeConsultationProcess) {
+      setSelectedWhyConsultation(activeConsultationProcess?.rdvWhyId || null);
+      setSelectedHealthRights(activeConsultationProcess?.healthRightIds || []);
+      setSocialSecurityNumber(activeConsultationProcess?.profile?.patientData?.socialSecurityNumber || "");
+      setAddMutuelleNumber(activeConsultationProcess?.profile?.patientData?.healthComplNumber || "");
       setAddMutuelleStartDate(
-        fetchPatientData?.patientData?.healthComplStartDate
-          ? new Date(fetchPatientData?.patientData?.healthComplStartDate.split("/").reverse().join("/"))
+        activeConsultationProcess?.profile?.patientData?.healthComplStartDate
+          ? new Date(activeConsultationProcess?.profile.patientData?.healthComplStartDate.split("/").reverse().join("/"))
           : null
       );
       setAddMutuelleEndDate(
-        fetchPatientData?.patientData?.healthComplEndDate
-          ? new Date(fetchPatientData?.patientData?.healthComplEndDate.split("/").reverse().join("/"))
+        activeConsultationProcess?.profile?.patientData?.healthComplEndDate
+          ? new Date(activeConsultationProcess?.profile?.patientData?.healthComplEndDate.split("/").reverse().join("/"))
           : null
       );
-      setAddMutuelleImage(fetchPatientData?.patientData?.healthCompl?.url ? `${API_URL}${fetchPatientData?.patientData?.healthCompl?.url}` : null);
+      setAddMutuelleImage(
+        activeConsultationProcess?.profile?.patientData?.healthCompl?.url
+          ? `${API_URL}${activeConsultationProcess?.profile?.patientData?.healthCompl?.url}`
+          : null
+      );
     }
-  }, [
-    fetchPatientData?.patientData?.rdvWhyId,
-    fetchPatientData?.patientData?.healthRightIds,
-    fetchPatientData?.patientData?.socialSecurityNumber,
-    fetchPatientData?.patientData?.healthComplNumber,
-    fetchPatientData?.patientData?.healthComplStartDate,
-    fetchPatientData?.patientData?.healthComplEndDate,
-    fetchPatientData?.patientData?.healthCompl?.url,
-  ]);
+  }, [activeConsultationProcess]);
 
   const openEditMutelleModal = () => {
     dispatch(openModal("editMutelleConsultationProcess"));
@@ -328,15 +329,15 @@ const Situation = () => {
 
     const formData = new FormData();
 
-    formData.append("practitionerId", consultationBooking.practitionerId?.toString() || "");
-    formData.append("patientId", consultationBooking.patientId?.toString() || "");
-    formData.append("rdvId", consultationBooking.rdvId?.toString() || "");
+    formData.append("practitionerId", activeConsultationProcess?.practitioner?.id?.toString() || "");
+    formData.append("patientId", activeConsultationProcess?.patientId?.toString() || "");
+    formData.append("rdvId", activeConsultationProcess?.rdvId?.toString() || "");
     formData.append("socialSecurityNumber", socialSecurityNumber);
     formData.append("healthComplNumber", addMutuelleNumber || localHealthComplNumber);
     formData.append("healthComplStartDate", formatDate(addMutuelleStartDate || localStartDate));
     formData.append("healthComplEndDate", formatDate(addMutuelleEndDate || localEndDate));
     formData.append("healthRightIds", selectedHealthRights.join(","));
-    formData.append("rdvWhyId", selectedWhyConsultation || "");
+    formData.append("rdvWhyId", selectedWhyConsultation?.toString() || "");
     formData.append("pregnancyDate", isMaternityChecked ? formatDate(startDate) : "");
 
     if (healthFile) {
@@ -392,6 +393,60 @@ const Situation = () => {
     }
   };
 
+  const handleSaveMutelle = async () => {
+    setIsLoading(true);
+
+    const formData = new FormData();
+
+    formData.append("practitionerId", activeConsultationProcess?.practitioner?.id?.toString() || "");
+    formData.append("patientId", activeConsultationProcess?.profile?.id?.toString() || "");
+    formData.append("rdvId", activeConsultationProcess?.rdvId?.toString() || "");
+    formData.append("healthComplNumber", addMutuelleNumber || localHealthComplNumber);
+    formData.append("healthComplStartDate", formatDate(addMutuelleStartDate || localStartDate));
+    formData.append("healthComplEndDate", formatDate(addMutuelleEndDate || localEndDate));
+
+    if (healthFile) {
+      formData.append("healthFile", healthFile);
+    }
+
+    let fileToUpload = healthFile;
+
+    if (!fileToUpload && localHealthPreviewImage) {
+      // Fetch the image as a File
+      fileToUpload = await fetchImageAsFile(localHealthPreviewImage);
+    }
+
+    if (fileToUpload) {
+      formData.append("healthFile", fileToUpload);
+    }
+
+    try {
+      const reponse = await addSituationHelthCompl(formData);
+      console.log(reponse);
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+      toast.error(errorHandlingResult.message);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  console.log("activeProcess", activeConsultationProcess);
+
+  if (isLoading) {
+    return <CustomFullScreenLoader />;
+  }
+
   return (
     <DynamicHtmlTag type="div" className="situation-screen-main situation-section lg:px-5 flex justify-between flex-col h-full mb-12 lg:mb-0">
       <DynamicHtmlTag
@@ -442,7 +497,7 @@ const Situation = () => {
                   <CustomInput
                     type="number"
                     name="healthComplNumber"
-                    value={patientProfile?.patientData?.healthComplNumber || addMutuelleNumber}
+                    value={addMutuelleNumber}
                     onChange={handleAddMutuelleNumberChange}
                     className="grow input outline-none focus:outline-none border-none p-1 h-auto font-medium text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug"
                     placeholder="Numéro"
@@ -510,12 +565,24 @@ const Situation = () => {
                   className="w-20 h-20 lg:w-14 lg:h-14 xl:w-20 xl:h-20"
                 />
               </DynamicHtmlTag>
-              <CustomButton
-                className="text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug cstm-btn mx-auto flex px-8 py-1 lg:px-2 lg:py-2 justify-center lg:w-full view-more-btn rounded-full text-white"
-                onClick={() => fileInputRef.current?.click()}>
-                Importer
-              </CustomButton>
-              <CustomInput type="file" ref={fileInputRef} className="hidden" onChange={handleAddMutuelleImageChange} />{" "}
+              <DynamicHtmlTag type="div" className="lg:w-full flex items-center gap-2">
+                <DynamicHtmlTag type="div" className="w-full">
+                  <CustomButton
+                    className="text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug cstm-btn mx-auto flex px-8 py-1 lg:px-2 lg:py-2 justify-center lg:w-full view-more-btn rounded-full text-white"
+                    onClick={() => fileInputRef.current?.click()}>
+                    Importer
+                  </CustomButton>
+                  <CustomInput type="file" ref={fileInputRef} className="hidden" onChange={handleAddMutuelleImageChange} />
+                </DynamicHtmlTag>
+
+                <DynamicHtmlTag type="div" className="w-full">
+                  <CustomButton
+                    className="text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug cstm-btn mx-auto flex px-8 py-1 lg:px-2 lg:py-2 justify-center lg:w-full view-more-btn rounded-full text-white"
+                    onClick={handleSaveMutelle}>
+                    Enregistrer
+                  </CustomButton>
+                </DynamicHtmlTag>
+              </DynamicHtmlTag>{" "}
             </DynamicHtmlTag>
           </DynamicHtmlTag>
         ) : (
@@ -598,11 +665,11 @@ const Situation = () => {
                     id={`checkbox-${index}`}
                     value={situation.id.toString()}
                     name="healthRights"
-                    checked={selectedHealthRights.includes(situation.id.toString())}
+                    checked={selectedHealthRights.includes(situation.id)}
                     onChange={e =>
                       situation.description === "Maternité"
                         ? handleCheckboxChange(e, situation.description)
-                        : handleHealthRightChange(situation.id.toString(), e.target.checked)
+                        : handleHealthRightChange(situation.id, e.target.checked)
                     }
                   />
                   <CustomLabel className="[&&]:min-w-[15px] [&&]:min-h-[15px] [&&]:w-[15px] [&&]:h-[15px]" htmlFor={`checkbox-${index}`}>
@@ -653,8 +720,8 @@ const Situation = () => {
                     type="radio"
                     name="situation"
                     value={situation.id}
-                    checked={selectedWhyConsultation === situation.id.toString()}
-                    onChange={() => setSelectedWhyConsultation(situation.id.toString())}
+                    checked={selectedWhyConsultation === situation.id}
+                    onChange={() => setSelectedWhyConsultation(situation.id)}
                     className="radio situation-radio"
                   />
                   <CustomLabel htmlFor={`situation-${situation.id}`} className="ps-3 text-2xs lg:txt-xs 2xl:text-sm cstm-lable">
@@ -664,6 +731,7 @@ const Situation = () => {
               ))}
             </DynamicHtmlTag>
             <CustomButton
+              disabled={!selectedWhyConsultation}
               className="card-btn cstm-btn text-xs 2xl:text-sm text-white py-2 px-10 lg:px-9 2xl:px-10 font-semibold rounded-full disabled:opacity-50 md:mt-4 absolute bottom-3 right-7 lg:static lg:right-0 lg:bottom-0"
               onClick={handleAddSituationSubmit}>
               Valider
@@ -849,9 +917,11 @@ const Situation = () => {
         <RdvAlreadyStartedModal
           isOpen={modalType === "rdvAlreadyStarted"}
           onClose={() => dispatch(closeModal())}
-          consultationBooking={consultationBooking}
-          existingRdv={fetchPatientData?.patientData?.rdvWhyId}
-          handleCancelRdv={() => handleCancelRdv(fetchPatientData?.patientData?.rdvWhyId, router, () => dispatch(closeModal()))}
+          consultationBooking={activeConsultationProcess}
+          existingRdv={Number(activeConsultationProcess?.profile?.patientData?.rdvWhyId) || null}
+          handleCancelRdv={() =>
+            handleCancelRdv(Number(activeConsultationProcess?.profile?.patientData?.rdvWhyId) || null, router, () => dispatch(closeModal()))
+          }
         />
       )}
     </DynamicHtmlTag>
