@@ -1,4 +1,4 @@
-import { MutelleType, PatientsType, PractitionerType } from "@/utility";
+import { HealthCompl, MutelleType, PatientsType, PractitionerType } from "@/utility";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { profile } from "console";
@@ -49,6 +49,7 @@ interface SituationType {
   healthRightIds: number[];
   rdvWhyId: number;
   socialSecurityNumber: string;
+  healthCompl: HealthCompl;
 }
 
 const initialState: ConsultationProcessState[] = [];
@@ -168,7 +169,6 @@ export const consultationProcessReducer = createSlice({
 
     setProfileMutuelle: (state, action: PayloadAction<{ mutelle: MutelleType; patientId: number | null }>) => {
       const currentPatient = state.find(patient => patient.patientId === action.payload.patientId);
-      console.log(currentPatient, "Current patient in store");
       if (currentPatient && currentPatient.profile) {
         currentPatient.profile = {
           ...currentPatient.profile,
@@ -177,7 +177,7 @@ export const consultationProcessReducer = createSlice({
             healthComplNumber: action.payload.mutelle.healthComplNumber || "",
             healthComplEndDate: action.payload.mutelle.healthComplEndDate || "",
             healthComplStartDate: action.payload.mutelle.healthComplStartDate || "",
-            healthCompl: action.payload.mutelle.healthCompl || false,
+            healthCompl: action.payload.mutelle.healthCompl || null,
             weight: currentPatient.profile.patientData.weight || "", // Ajout de valeur par défaut
             height: currentPatient.profile.patientData.height || "",
           },
@@ -197,6 +197,7 @@ export const consultationProcessReducer = createSlice({
           consultationProcess.profile.patientData.healthComplStartDate = action.payload.situation.healthComplStartDate;
           consultationProcess.profile.patientData.healthComplEndDate = action.payload.situation.healthComplEndDate;
           consultationProcess.profile.patientData.socialSecurityNumber = action.payload.situation.socialSecurityNumber;
+          consultationProcess.profile.patientData.healthCompl = action.payload.situation.healthCompl;
         }
       }
     },

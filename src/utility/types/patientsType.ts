@@ -11,7 +11,7 @@ interface Avatar {
   updatedAt: [number, number, number, number, number, number, number] | null;
 }
 
-interface HealthCompl {
+export interface HealthCompl {
   id: number;
   name: string;
   extension: string;

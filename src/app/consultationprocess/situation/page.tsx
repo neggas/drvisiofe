@@ -384,6 +384,7 @@ const Situation = () => {
         healthRightIds: selectedHealthRights,
         rdvWhyId: response.data.rdvWhy.id,
         socialSecurityNumber: response.data.socialSecurityNumber,
+        healthCompl: response.data.healthCompl,
       };
 
       dispatch(setSituation({ situation, patientId: activeConsultationProcess?.patientId || null }));
@@ -659,7 +660,7 @@ const Situation = () => {
           </>
         )}
       </DynamicHtmlTag>
-      <DynamicHtmlTag type="div" className="pb-2 lg:pb-0">
+      <DynamicHtmlTag type="div" className="pb-2 lg:pb-0 md:min-h-[300px]">
         <DynamicHtmlTag type="div" className="mt-2">
           <HeadingTag
             type="h4"
