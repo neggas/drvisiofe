@@ -11,6 +11,7 @@ import {
   CustomModal,
   CustomDatePicker,
   CustomFullScreenLoader,
+  CustomLoader,
 } from "@/components";
 import { MdClose } from "react-icons/md";
 import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
@@ -37,7 +38,7 @@ import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/co
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
-import { getActiveProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import { getActiveProcess, setProcessCompletedSteps, setProfileMutuelle, setSituation } from "@/store/reducers/consultationProcessReducerSlice";
 
 const Situation = () => {
   const dispatch = useDispatch();
@@ -184,12 +185,12 @@ const Situation = () => {
       // Remove non-digit characters and limit to 15 digits
       const cleanedSSN = ssn.replace(/\D/g, "").slice(0, 15);
       setSocialSecurityNumber(cleanedSSN);
-      // const { healthComplStartDate, healthComplEndDate } = patientData || {};
+      const { healthComplStartDate, healthComplEndDate } = patientData || {};
 
-      // setHealthComplNumber(patientData?.healthComplNumber || "");
-      // setHealthComplStartDate(healthComplStartDate ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
-      // setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
-      // setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
+      setHealthComplNumber(patientData?.healthComplNumber || "");
+      setHealthComplStartDate(healthComplStartDate ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
+      setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
 
       // // Update local states as well
       // setLocalHealthComplNumber(patientData?.healthComplNumber || "");
@@ -317,6 +318,7 @@ const Situation = () => {
 
   const handleNextStep = (stepNumber: number, nextPath: string) => {
     dispatch(setCompletedStep(stepNumber));
+    dispatch(setProcessCompletedSteps({ completedSteps: stepNumber, patientId: activeConsultationProcess?.patientId || null }));
     router.push(nextPath);
   };
 
@@ -375,6 +377,16 @@ const Situation = () => {
         },
       };
 
+      const situation = {
+        healthComplNumber: response.data.healthComplNumber,
+        healthComplStartDate: response.data.healthComplStartDate,
+        healthComplEndDate: response.data.healthComplEndDate,
+        healthRightIds: selectedHealthRights,
+        rdvWhyId: response.data.rdvWhy.id,
+        socialSecurityNumber: response.data.socialSecurityNumber,
+      };
+
+      dispatch(setSituation({ situation, patientId: activeConsultationProcess?.patientId || null }));
       dispatch(setPatientDetailsData(updatedPatientData));
       handleNextStep(3, "/consultationprocess/dosier-medical");
     } catch (error) {
@@ -421,8 +433,12 @@ const Situation = () => {
     }
 
     try {
-      const reponse = await addSituationHelthCompl(formData);
-      console.log(reponse);
+      const response = await addSituationHelthCompl(formData);
+      console.log(response, "Response from addSituationHelthCompl");
+
+      if (response.data) {
+        dispatch(setProfileMutuelle({ mutelle: response.data, patientId: activeConsultationProcess?.patientId || null }));
+      }
     } catch (error) {
       const errorHandlingResult = handleProcessError(error);
       toast.error(errorHandlingResult.message);
@@ -441,10 +457,8 @@ const Situation = () => {
     }
   };
 
-  console.log("activeProcess", activeConsultationProcess);
-
   if (isLoading) {
-    return <CustomFullScreenLoader />;
+    return <CustomLoader showImage />;
   }
 
   return (

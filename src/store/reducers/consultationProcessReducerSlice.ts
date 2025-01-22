@@ -1,6 +1,7 @@
-import { PatientsType, PractitionerType } from "@/utility";
+import { MutelleType, PatientsType, PractitionerType } from "@/utility";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import { profile } from "console";
 
 interface Avatar {
   id: number;
@@ -39,6 +40,15 @@ export interface ConsultationProcessState {
   isActive: boolean;
   rdvWhyId?: number;
   healthRightIds?: number[];
+}
+
+interface SituationType {
+  healthComplNumber: string;
+  healthComplStartDate: string;
+  healthComplEndDate: string;
+  healthRightIds: number[];
+  rdvWhyId: number;
+  socialSecurityNumber: string;
 }
 
 const initialState: ConsultationProcessState[] = [];
@@ -155,6 +165,41 @@ export const consultationProcessReducer = createSlice({
         }
       }
     },
+
+    setProfileMutuelle: (state, action: PayloadAction<{ mutelle: MutelleType; patientId: number | null }>) => {
+      const currentPatient = state.find(patient => patient.patientId === action.payload.patientId);
+      console.log(currentPatient, "Current patient in store");
+      if (currentPatient && currentPatient.profile) {
+        currentPatient.profile = {
+          ...currentPatient.profile,
+          patientData: {
+            ...currentPatient.profile.patientData,
+            healthComplNumber: action.payload.mutelle.healthComplNumber || "",
+            healthComplEndDate: action.payload.mutelle.healthComplEndDate || "",
+            healthComplStartDate: action.payload.mutelle.healthComplStartDate || "",
+            healthCompl: action.payload.mutelle.healthCompl || false,
+            weight: currentPatient.profile.patientData.weight || "", // Ajout de valeur par défaut
+            height: currentPatient.profile.patientData.height || "",
+          },
+        };
+      }
+    },
+
+    setSituation: (state, action: PayloadAction<{ situation: SituationType; patientId: number | null }>) => {
+      const consultationProcess = state.find(consultation => consultation.patientId === action.payload.patientId);
+
+      if (consultationProcess) {
+        consultationProcess.rdvWhyId = action.payload.situation.rdvWhyId;
+
+        consultationProcess.healthRightIds = action.payload.situation.healthRightIds;
+        if (consultationProcess.profile && consultationProcess.profile.patientData) {
+          consultationProcess.profile.patientData.healthComplNumber = action.payload.situation.healthComplNumber;
+          consultationProcess.profile.patientData.healthComplStartDate = action.payload.situation.healthComplStartDate;
+          consultationProcess.profile.patientData.healthComplEndDate = action.payload.situation.healthComplEndDate;
+          consultationProcess.profile.patientData.socialSecurityNumber = action.payload.situation.socialSecurityNumber;
+        }
+      }
+    },
   },
 });
 
@@ -167,6 +212,8 @@ export const {
   setProcessCompletedSteps,
   setConsultationMotifs,
   setConsultationOtherMotifText,
+  setProfileMutuelle,
+  setSituation,
 } = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {

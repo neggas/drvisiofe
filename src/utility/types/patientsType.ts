@@ -19,6 +19,13 @@ interface HealthCompl {
   url: string;
 }
 
+export interface MutelleType {
+  healthCompl: HealthCompl;
+  healthComplNumber: string;
+  healthComplStartDate: string;
+  healthComplEndDate: string;
+}
+
 export type PatientData = {
   weight: string;
   height: string;
