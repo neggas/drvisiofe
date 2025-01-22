@@ -4,7 +4,16 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { DynamicHtmlTag, CustomButton, CustomImage, HeadingTag, CustomInput, Card, CustomLabel } from "@/components";
-import { PatientData, PatientsType, PractitionerType, createBeneficiary, getFormateDate, getFormateTime, handleProcessError } from "@/utility";
+import {
+  PatientData,
+  PatientsType,
+  PractitionerType,
+  createBeneficiary,
+  getFormateDate,
+  getFormateTime,
+  handleCancelRdv,
+  handleProcessError,
+} from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import {
   setConsultationPractitionerId,
@@ -15,11 +24,18 @@ import {
   setTimeSlot,
 } from "@/store/reducers/consultationBookingSlice";
 import { toast } from "react-toastify";
-import { ConsultationProcessState, setProcessRdvId, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import {
+  ConsultationProcessState,
+  getActiveProcess,
+  setProcessRdvId,
+  startConsultationProcess,
+} from "@/store/reducers/consultationProcessReducerSlice";
 import ProcessNoticeModal from "../process-notice-modal/processNoticeModal";
 import { RootState } from "@/store/store";
 import { closeModal, openModal } from "@/store/reducers/modalSlice";
 import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
+import RdvAlreadyStartedModal from "../rvdModal/RdvAlreadyStartedModal";
+import { get } from "http";
 interface PractitionerProps {
   practitioner: PractitionerType;
   localDate: string;
@@ -39,7 +55,8 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
   const modalType = useSelector((state: RootState) => state.modal.modalType);
   const [processNoticeMessage, setProcessNoticeMessage] = useState("");
   const patientData = useSelector(selectPatientDetailsData);
-
+  const activeProcess = useSelector(getActiveProcess);
+  const [existingRdv, setExistingRdv] = useState<number | null>(null);
   const handleLink = () => {
     dispatch(setConsultationPractitionerId(practitioner?.id));
     router.push(`/practitioner-profile/${practitioner?.id}`);
@@ -52,6 +69,10 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
   const closeProcessNoticeModal = () => {
     dispatch(closeModal());
     setProcessNoticeMessage("");
+  };
+
+  const openRdvAlreadyStartedModal = () => {
+    dispatch(openModal("rdvAlreadyStarted"));
   };
 
   const createAppointment = async (payload: AppointmentPayload) => {
@@ -71,6 +92,12 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
       return response.data;
     } catch (error: any) {
       const errorHandlingResult = handleProcessError(error);
+      if (errorHandlingResult.action === "openModal") {
+        openRdvAlreadyStartedModal();
+        setExistingRdv(errorHandlingResult?.rdvId || null);
+        return;
+      }
+
       if (errorHandlingResult.action === "redirect") {
         setProcessNoticeMessage(errorHandlingResult.message || "");
         openProcessNoticeModal();
@@ -206,6 +233,16 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
 
       {modalType === "processNoticeModal" && (
         <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
+      )}
+
+      {modalType === "rdvAlreadyStarted" && (
+        <RdvAlreadyStartedModal
+          isOpen={modalType === "rdvAlreadyStarted"}
+          onClose={() => dispatch(closeModal())}
+          consultationBooking={activeProcess}
+          existingRdv={existingRdv}
+          handleCancelRdv={() => handleCancelRdv(existingRdv, router, () => dispatch(closeModal()))}
+        />
       )}
     </Card>
   );
