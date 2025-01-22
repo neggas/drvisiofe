@@ -137,8 +137,6 @@ const Motifs = () => {
       handleNextStep(2, "/consultationprocess/situation");
     } catch (error) {
       const errorHandlingResult = handleProcessError(error);
-      toast.error(errorHandlingResult.message);
-
       if (errorHandlingResult.action === "openModal") {
         dispatch(openModal("rdvAlreadyStarted"));
         setExistingRdv(errorHandlingResult?.rdvId || null);

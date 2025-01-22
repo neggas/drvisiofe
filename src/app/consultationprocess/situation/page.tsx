@@ -46,6 +46,7 @@ import {
   setSituation,
   updateProfileMutuelle,
 } from "@/store/reducers/consultationProcessReducerSlice";
+import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
 
 const Situation = () => {
   const dispatch = useDispatch();
@@ -101,6 +102,7 @@ const Situation = () => {
   const [healthFile, setHealthFile] = useState<File | null>(null);
 
   const [socialSecurityNumber, setSocialSecurityNumber] = useState<string>("");
+  const [processNoticeMessage, setProcessNoticeMessage] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -189,20 +191,21 @@ const Situation = () => {
     if (activeConsultationProcess && activeConsultationProcess.profile?.patientData) {
       const { patientData } = activeConsultationProcess.profile;
       const ssn = patientData?.socialSecurityNumber || "";
-      // Remove non-digit characters and limit to 15 digits
       const cleanedSSN = ssn.replace(/\D/g, "").slice(0, 15);
       setSocialSecurityNumber(cleanedSSN);
       const { healthComplStartDate, healthComplEndDate } = patientData || {};
 
       setHealthComplNumber(patientData?.healthComplNumber || "");
-      setHealthComplStartDate(healthComplStartDate ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
-      setHealthComplEndDate(healthComplEndDate ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      setHealthComplStartDate(
+        healthComplStartDate && healthComplStartDate !== "" ? new Date(healthComplStartDate.split("/").reverse().join("/")) : null
+      );
+      setHealthComplEndDate(healthComplEndDate && healthComplEndDate !== "" ? new Date(healthComplEndDate.split("/").reverse().join("/")) : null);
       setHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
 
       // Update local states as well
       setLocalHealthComplNumber(patientData?.healthComplNumber || "");
-      setLocalStartDate(patientData ? new Date(healthComplStartDate?.split("/").reverse().join("/")) : null);
-      setLocalEndDate(patientData ? new Date(healthComplEndDate?.split("/").reverse().join("/")) : null);
+      setLocalStartDate(healthComplStartDate && healthComplStartDate !== "" ? new Date(healthComplStartDate.split("/").reverse().join("/")) : null);
+      setLocalEndDate(healthComplEndDate && healthComplEndDate !== "" ? new Date(healthComplEndDate.split("/").reverse().join("/")) : null);
       setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
     }
   }, [activeConsultationProcess]);
@@ -247,8 +250,11 @@ const Situation = () => {
     dispatch(closeModal());
   };
 
+  const closeProcessNoticeModal = () => {
+    dispatch(closeModal());
+  };
+
   const handleDeleteDocument = async () => {
-    console.log(activeConsultationProcess?.rdvId, activeConsultationProcess?.patientId, activeConsultationProcess?.practitioner?.id);
     try {
       const formData = new FormData();
       formData.append("rdvId", activeConsultationProcess?.rdvId?.toString() || "");
@@ -256,7 +262,8 @@ const Situation = () => {
       formData.append("practitionerId", activeConsultationProcess?.practitioner?.id?.toString() || "");
 
       const response = await removeMutuelleCard(formData);
-      if (response.data) {
+
+      if (response) {
         toast.success(response.message);
         setDeleteDocument(true);
         setHealthComplNumber("");
@@ -282,9 +289,21 @@ const Situation = () => {
           })
         );
       }
-      console.log(response, "Response from removeMutelleCard");
     } catch (error) {
-      console.log(error, "Error from removeMutelleCard");
+      dispatch(closeModal());
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        dispatch(openModal("processNoticeModal"));
+        router.push(errorHandlingResult.redirectPath || "/search");
+        return;
+      }
     }
   };
 
@@ -403,6 +422,8 @@ const Situation = () => {
         return;
       }
 
+      toast.success(response.message);
+
       const updatedPatientData = {
         ...fetchPatientData,
         patientData: {
@@ -429,8 +450,8 @@ const Situation = () => {
       dispatch(setPatientDetailsData(updatedPatientData));
       handleNextStep(3, "/consultationprocess/dosier-medical");
     } catch (error) {
+      dispatch(closeModal());
       const errorHandlingResult = handleProcessError(error);
-      toast.error(errorHandlingResult.message);
 
       if (errorHandlingResult.action === "openModal") {
         dispatch(openModal("rdvAlreadyStarted"));
@@ -438,6 +459,8 @@ const Situation = () => {
       }
 
       if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        dispatch(openModal("processNoticeModal"));
         router.push(errorHandlingResult.redirectPath || "/search");
         return;
       }
@@ -475,11 +498,11 @@ const Situation = () => {
       const response = await addSituationHelthCompl(formData);
 
       if (response.data) {
+        toast.success(response.message);
         dispatch(setProfileMutuelle({ mutelle: response.data, patientId: activeConsultationProcess?.patientId || null }));
       }
     } catch (error) {
       const errorHandlingResult = handleProcessError(error);
-      toast.error(errorHandlingResult.message);
 
       if (errorHandlingResult.action === "openModal") {
         dispatch(openModal("rdvAlreadyStarted"));
@@ -487,6 +510,8 @@ const Situation = () => {
       }
 
       if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        dispatch(openModal("processNoticeModal"));
         router.push(errorHandlingResult.redirectPath || "/search");
         return;
       }
@@ -948,7 +973,7 @@ const Situation = () => {
           <DynamicHtmlTag type="div" className="bg-base-100 p-4">
             <DynamicHtmlTag type="div" className="p-8">
               <DynamicHtmlTag type="p" className="text-center sm:text-sm lg:text-base text-[#0F2133] font-semibold lg:leading-8">
-                Vous n’avez pas renseigné de numéro de sécurité sociale, vous devrez régler la téléconsultation en totalité.{" "}
+                Vous n'avez pas renseigné de numéro de sécurité sociale, vous devrez régler la téléconsultation en totalité.{" "}
               </DynamicHtmlTag>
             </DynamicHtmlTag>
             <DynamicHtmlTag type="div" className="flex gap-8  justify-center mt-5">
@@ -975,6 +1000,10 @@ const Situation = () => {
             handleCancelRdv(Number(activeConsultationProcess?.profile?.patientData?.rdvWhyId) || null, router, () => dispatch(closeModal()))
           }
         />
+      )}
+
+      {modalType === "processNoticeModal" && (
+        <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
       )}
     </DynamicHtmlTag>
   );

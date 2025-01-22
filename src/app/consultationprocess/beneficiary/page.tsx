@@ -51,6 +51,7 @@ import { toast } from "react-toastify";
 import {
   addChildrenConsultationProcess,
   getActiveProcess,
+  renitInactiveProcess,
   setProcessCompletedSteps,
   setProcessIsActive,
 } from "@/store/reducers/consultationProcessReducerSlice";
@@ -262,6 +263,7 @@ export default function Beneficiary() {
       }
 
       const response = await createBeneficiary(payload);
+      dispatch(renitInactiveProcess());
 
       if (response?.data?.codeMessage === "RDV_NOT_AVAILABLE") {
         router.push("/search");
@@ -457,7 +459,9 @@ export default function Beneficiary() {
                 <DynamicHtmlTag
                   type="span"
                   className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn"
-                  title={consultationBooking.completedSteps >= 2 ? "La prise de rendez-vous pour la téléconsultation a déjà commencé" : ""}>
+                  title={
+                    activeProcess && activeProcess?.completedSteps >= 2 ? "La prise de rendez-vous pour la téléconsultation a déjà commencé" : ""
+                  }>
                   Vous
                 </DynamicHtmlTag>
               </CustomLabel>

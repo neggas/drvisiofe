@@ -326,7 +326,7 @@ export const extractMinMaxValues = (tarif: string): { min: string; max: string }
 };
 
 export type ErrorHandlingResult = {
-  action: "none" | "openModal" | "redirect";
+  action: "none" | "openModal" | "redirect" | "alert" | "notification" | "errorPage";
   message?: string;
   rdvId?: number;
   redirectPath?: string;
@@ -334,19 +334,45 @@ export type ErrorHandlingResult = {
 
 export const handleProcessError = (error: any): ErrorHandlingResult => {
   const errorCode = error?.response?.data?.codeMessage;
-  const errorMessage = error?.response?.data?.message;
+  const errorMessage = error?.response?.data?.message || "Une erreur inconnue est survenue.";
   const rdvId = error?.response?.data?.errorMapValue?.rdvId;
-  const { RDV_ALREADY_PRESENT, RDV_NOT_AVAILABLE, RDV_NOT_FOUND, RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED } =
-    CONSULTATION_PROCESS_ERROR_MESSAGES_CODE;
 
-  if (CONSULTAION_PROCESS_ERRORS.includes(errorCode)) {
-    if ([RDV_ALREADY_PRESENT].includes(errorCode)) {
-      return { action: "openModal", message: errorMessage, rdvId };
-    } else if ([RDV_NOT_AVAILABLE, RDV_NOT_FOUND, RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED].includes(errorCode)) {
-      return { action: "redirect", message: errorMessage, redirectPath: "/search" };
-    }
+  const {
+    RDV_ALREADY_PRESENT,
+    RDV_NOT_AVAILABLE,
+    RDV_NOT_FOUND,
+    RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED,
+    RDV_MUST_BE_VALIDATED_BEFORE_TO_PAY,
+    RDV_ALREADY_PAYED,
+    RDV_MUST_BE_PAYED,
+    RDV_REQUEST_IS_CANCELLED,
+    RDV_STATUS_WRONG,
+  } = CONSULTATION_PROCESS_ERROR_MESSAGES_CODE;
+
+  // Mapping des erreurs avec les actions appropriées
+  const errorActions: Record<string, ErrorHandlingResult> = {
+    [RDV_ALREADY_PRESENT]: { action: "openModal", message: errorMessage, rdvId },
+    [RDV_NOT_AVAILABLE]: { action: "redirect", message: errorMessage, redirectPath: "/search" },
+    [RDV_NOT_FOUND]: { action: "redirect", message: errorMessage, redirectPath: "/search" },
+    [RDV_CANNOT_BE_TAKE_BECAUSE_BOOKING_DATE_IS_PASSED]: { action: "redirect", message: errorMessage, redirectPath: "/search" },
+    [RDV_MUST_BE_VALIDATED_BEFORE_TO_PAY]: { action: "alert", message: errorMessage },
+    [RDV_ALREADY_PAYED]: { action: "notification", message: errorMessage },
+    [RDV_MUST_BE_PAYED]: { action: "redirect", message: errorMessage, redirectPath: "/payment" },
+    [RDV_REQUEST_IS_CANCELLED]: { action: "alert", message: errorMessage },
+    [RDV_STATUS_WRONG]: { action: "errorPage", message: errorMessage },
+  };
+
+  // Vérifie si l'erreur est connue et retourne l'action correspondante
+  if (errorCode in errorActions) {
+    return errorActions[errorCode];
   }
 
+  // Gestion générique des autres erreurs connues
+  if (Object.values(CONSULTATION_PROCESS_ERROR_MESSAGES_CODE).includes(errorCode)) {
+    return { action: "errorPage", message: errorMessage };
+  }
+
+  // Fallback pour les erreurs inconnues
   return { action: "none", message: errorMessage };
 };
 

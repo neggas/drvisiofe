@@ -258,6 +258,25 @@ export const consultationProcessReducer = createSlice({
         consultationProcess.confirmed = action.payload.confirmed;
       }
     },
+
+    renitInactiveProcess: state => {
+      const inactivePatientProcess = state.filter(patient => !patient.isActive);
+      inactivePatientProcess.forEach(patient => {
+        patient.confirmed = false;
+        patient.information = false;
+        patient.completedSteps = 1;
+        patient.isActive = false;
+        patient.selectedMotifs = [];
+        patient.otherMotifText = "";
+        patient.tarifInformation = undefined;
+        patient.rdvWhyId = undefined;
+        patient.healthRightIds = [];
+        patient.medicalHistory = "";
+        patient.longTermTreatment = "";
+        patient.medicationTakenPreviously = "";
+        patient.allergies = "";
+      });
+    },
   },
 });
 
@@ -277,6 +296,7 @@ export const {
   setProcessInformation,
   setProcessTarifInformation,
   setProcessConfirmed,
+  renitInactiveProcess,
 } = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {

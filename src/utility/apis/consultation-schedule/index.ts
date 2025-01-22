@@ -208,7 +208,7 @@ export const removeMutuelleCard = async (data: any) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data.data;
+    return response.data;
   } catch (error) {
     throw error;
   }
