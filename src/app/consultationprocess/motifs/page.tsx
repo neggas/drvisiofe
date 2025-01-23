@@ -30,6 +30,10 @@ const Motifs = () => {
   const activeConsultationProcess = useSelector(getActiveProcess);
   const [remainingCharacters, setRemainingCharacters] = useState<number>(300 - (activeConsultationProcess?.otherMotifText?.length || 0));
   const [processNoticeMessage, setProcessNoticeMessage] = useState<string>("");
+
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
   const loadMotifs = async () => {
     try {
       dispatch(showLoader("motifs-loader"));
@@ -150,15 +154,34 @@ const Motifs = () => {
     }
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <DynamicHtmlTag type="div" className="beneficiary-section motif-section lg:px-5 flex justify-between flex-col doctor-list-main mb-12 md:mb-20">
+    <DynamicHtmlTag
+      type="div"
+      className="beneficiary-section motif-section lg:px-5 flex justify-between flex-col doctor-list-main mb-12 md:mb-20"
+      style={{ "overflow-y": "hidden" }}>
       <DynamicHtmlTag type="div" className="relative">
         <HeadingTag type="h2" className="text-sm lg:text-base font-bold">
           Selectionnez 1 à 3 motifs de téléconsultation
         </HeadingTag>
 
         {/* Symptômes Card section start */}
-        <DynamicHtmlTag type="div" className="flex flex-wrap items-start doctor-card-detail consult-radio gap-2 my-2">
+        <DynamicHtmlTag
+          type="div"
+          className={`flex flex-wrap items-start doctor-card-detail consult-radio gap-2 my-2 ${viewportHeight < 832 ? "h-[340px]" : "h-auto"} overflow-y-scroll`}>
           {motifs.map(motif => {
             const isSelected = activeConsultationProcess?.selectedMotifs.includes(motif.name) || selected.includes(motif.id);
             const isDisabled = (activeConsultationProcess?.selectedMotifs?.length || 0) >= 3 && !selected.includes(motif.id);

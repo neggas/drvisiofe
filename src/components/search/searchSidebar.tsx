@@ -187,14 +187,14 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   };
 
   useEffect(() => {
-    if (!consultationBooking.selectedDate) {
+    if (!activeProcess?.selectedDate) {
       const currentDate = new Date();
       dispatch(setSelectedDate(currentDate));
     }
-  }, [dispatch, consultationBooking.selectedDate]);
+  }, [dispatch, activeProcess?.selectedDate]);
 
   return (
-    <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row rounded-2xl min-h-full lg:border lg:overflow-auto lg:h-full">
+    <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row rounded-2xl min-h-full lg:border overflow-y-hidden lg:h-full">
       <DynamicHtmlTag type="div" className="bg-base-100 w-full px-4 sm:pb-0 sm:pt-2 lg:py-4 rounded-full">
         <DynamicHtmlTag type="div" className="lg:space-y-6">
           <DynamicHtmlTag type="div" className="flex items-center justify-between mb-4 lg:mb-0">
@@ -349,7 +349,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
               DEMANDE DE RENDEZ-VOUS LE
             </HeadingTag>
             {pathname && pathname.startsWith("/consultationprocess") && activeProcess ? (
-              <DynamicHtmlTag type="div">
+              <DynamicHtmlTag type="div" className={`${viewportHeight < 850 ? "h-[100px]" : "h-auto"} overflow-y-scroll`}>
                 <DynamicHtmlTag type="div" className="flex items-start my-2 gap-1">
                   <CustomImage src={PinkCheck} alt="check" className="mt-0.5 2xl:mt-1" width={13} height={13} />
                   <DynamicHtmlTag type="div">

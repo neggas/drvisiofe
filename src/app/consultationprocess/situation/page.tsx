@@ -525,6 +525,53 @@ const Situation = () => {
     }
   };
 
+  const handleUpdateMutelle = async () => {
+    setIsLoading(true);
+    dispatch(closeModal());
+
+    const formData = new FormData();
+
+    formData.append("practitionerId", activeConsultationProcess?.practitioner?.id?.toString() || "");
+    formData.append("patientId", activeConsultationProcess?.profile?.id?.toString() || "");
+    formData.append("rdvId", activeConsultationProcess?.rdvId?.toString() || "");
+    formData.append("healthComplNumber", localHealthComplNumber);
+    formData.append("healthComplStartDate", formatDate(localStartDate));
+    formData.append("healthComplEndDate", formatDate(localEndDate));
+
+    if (healthFile) {
+      formData.append("healthFile", healthFile);
+    }
+
+    let fileToUpload = healthFile;
+    if (localHealthPreviewImage) {
+      fileToUpload = await fetchImageAsFile(localHealthPreviewImage);
+    }
+
+    try {
+      const response = await addSituationHelthCompl(formData);
+
+      if (response.data) {
+        toast.success("La mutuelle a été enregistrée avec succès");
+        dispatch(setProfileMutuelle({ mutelle: response.data, patientId: activeConsultationProcess?.patientId || null }));
+      }
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "openModal") {
+        dispatch(openModal("rdvAlreadyStarted"));
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        dispatch(openModal("processNoticeModal"));
+        return;
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return <CustomLoader showImage />;
   }
@@ -834,7 +881,7 @@ const Situation = () => {
         <DynamicHtmlTag type="div" className="modal-box bg-gradient-to-l from-sky-500 to-indigo-500 p-0 pt-4">
           <DynamicHtmlTag type="div" className="bg-base-100 p-4">
             <HeadingTag type="h3" className="text-blue font-semibold text-sm md:text-base 2xl:text-lg flex items-center gap-2">
-              {fetchPatientData?.patientData?.healthComplNumber ? "Modifier votre carte mutuelle" : "Ajouter votre carte mutuelle"}
+              {activeConsultationProcess?.profile?.patientData?.healthComplNumber ? "Modifier votre carte mutuelle" : "Ajouter votre carte mutuelle"}
               <MdClose
                 onClick={closeEditMutelleModal}
                 className="ms-auto cursor-pointer text-blue border border-blue rounded-full h-6 p-1 hover:bg-primary hover:border-primary hover:text-white w-6"
@@ -950,7 +997,7 @@ const Situation = () => {
                 <CustomButton
                   type="submit"
                   className="btn btn-primary text-xs 2xl:text-sm rounded-full card-btn disabled:opacity-50"
-                  onClick={handleSaveMutelle}
+                  onClick={handleUpdateMutelle}
                   disabled={!localHealthComplNumber || !localStartDate || !localEndDate || !localHealthPreviewImage}>
                   Valider
                 </CustomButton>
