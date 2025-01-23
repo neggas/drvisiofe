@@ -240,7 +240,7 @@ const Motifs = () => {
         <RdvAlreadyStartedModal
           isOpen={modalType === "rdvAlreadyStarted"}
           onClose={() => dispatch(closeModal())}
-          consultationBooking={consultationBooking}
+          consultationBooking={activeConsultationProcess}
           existingRdv={existingRdv}
           handleCancelRdv={() => handleCancelRdv(existingRdv, router, () => dispatch(closeModal()))}
         />

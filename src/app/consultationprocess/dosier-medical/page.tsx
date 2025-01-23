@@ -29,6 +29,7 @@ import {
   dosierMedicalDocumentListingApi,
   DosierMedicalDocumentsType,
   fetchMedicalCategoryDocumentsApi,
+  handleCancelRdv,
   handleProcessError,
   medicalRecordsAdd,
 } from "@/utility";
@@ -37,6 +38,7 @@ import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducer
 import { toast } from "react-toastify";
 import { getActiveProcess, setMedicalStateData, setProcessCompletedSteps } from "@/store/reducers/consultationProcessReducerSlice";
 import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
+import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
 
 const DosierMedical = () => {
   const dispatch = useDispatch();
@@ -50,18 +52,18 @@ const DosierMedical = () => {
   const [medicalData, setMedicalData] = useState({
     weight: "",
     height: "",
-    medicalHistory: patient.patientData?.medicalHistory ?? "",
-    longTermTreatment: patient.patientData?.longTermTreatment ?? "",
-    medicationTakenPreviously: patient.patientData?.medicationTakenPreviously ?? "",
-    allergies: patient.patientData?.allergies ?? "",
+    medicalHistory: activePatient?.medicalHistory ?? "",
+    longTermTreatment: activePatient?.longTermTreatment ?? "",
+    medicationTakenPreviously: activePatient?.medicationTakenPreviously ?? "",
+    allergies: activePatient?.allergies ?? "",
   });
   const [documents, setDocuments] = useState<DosierMedicalDocumentsType[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<DosierMedicalDocumentsType | null>(null);
   const [documentToDelete, setDocumentToDelete] = useState<number | null>(null);
   const [documentFormData, setDocumentFormData] = useState({
-    practitionerId: consultationBooking.practitionerId,
-    patientId: consultationBooking.patientId,
-    rdvId: consultationBooking.rdvId ?? null,
+    practitionerId: activePatient?.practitioner?.id,
+    patientId: activePatient?.patientId,
+    rdvId: activePatient?.rdvId ?? null,
     categoryId: "",
     date: "",
     name: "",
@@ -70,6 +72,8 @@ const DosierMedical = () => {
   const [categories, setCategories] = useState([]);
   const [buttonText, setButtonText] = useState("Passer cette étape");
   const [processNoticeMessage, setProcessNoticeMessage] = useState("");
+  const [existingRdv, setExistingRdv] = useState<number | null>(null);
+  const [triggerActionInDocView, setTriggerActionInDocView] = useState(false);
 
   useEffect(() => {
     setMedicalData({
@@ -165,7 +169,14 @@ const DosierMedical = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openDocumentModal = () => {
+    setTriggerActionInDocView(false);
     setPreviewImage(null);
+    dispatch(resetModal());
+    setTimeout(() => dispatch(openModal("addDosierMedicalDocument")));
+  };
+
+  const openDocumentViewInDocModal = () => {
+    setTriggerActionInDocView(true);
     dispatch(resetModal());
     setTimeout(() => dispatch(openModal("addDosierMedicalDocument")));
   };
@@ -173,9 +184,9 @@ const DosierMedical = () => {
   const closeDocumentModal = () => {
     setPreviewImage(null);
     setDocumentFormData({
-      practitionerId: consultationBooking.practitionerId,
-      patientId: consultationBooking.patientId,
-      rdvId: consultationBooking.rdvId ?? null,
+      practitionerId: activePatient?.practitioner?.id,
+      patientId: activePatient?.patientId,
+      rdvId: activePatient?.rdvId ?? null,
       categoryId: "",
       date: "",
       name: "",
@@ -237,7 +248,7 @@ const DosierMedical = () => {
   const fetchDocuments = async () => {
     try {
       const payload = {
-        practitionerId: activePatient?.practitionerId,
+        practitionerId: activePatient?.practitioner?.id,
         patientId: activePatient?.patientId,
         rdvId: activePatient?.rdvId ?? null,
       };
@@ -248,9 +259,13 @@ const DosierMedical = () => {
     }
   };
 
+  const openRdvAlreadyStartedModal = () => {
+    dispatch(openModal("rdvAlreadyStarted"));
+  };
+
   const handleDeleteDocument = async (docId: number) => {
     const payload = {
-      practitionerId: activePatient?.practitionerId,
+      practitionerId: activePatient?.practitioner?.id,
       patientId: activePatient?.patientId,
       rdvId: activePatient?.rdvId ?? null,
       docId,
@@ -260,7 +275,21 @@ const DosierMedical = () => {
       await deletedosierMedicalDocumentApi(payload);
       fetchDocuments();
       openDocumentShowModal();
-    } catch (error) {}
+      toast.success("Document supprimé avec succès");
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "openModal") {
+        openRdvAlreadyStartedModal();
+        setExistingRdv(errorHandlingResult?.rdvId || null);
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        openProcessNoticeModal();
+      }
+    }
   };
 
   const handleAddDocument = async () => {
@@ -285,7 +314,32 @@ const DosierMedical = () => {
       });
       setPreviewImage(null);
       closeDocumentModal();
-    } catch (error) {}
+
+      if (triggerActionInDocView) {
+        openDocumentShowModal();
+        setTriggerActionInDocView(false);
+      }
+
+      toast.success("Document ajouté avec succès");
+    } catch (error) {
+      const errorHandlingResult = handleProcessError(error);
+
+      if (errorHandlingResult.action === "openModal") {
+        openRdvAlreadyStartedModal();
+        setExistingRdv(errorHandlingResult?.rdvId || null);
+        return;
+      }
+
+      if (errorHandlingResult.action === "redirect") {
+        setProcessNoticeMessage(errorHandlingResult.message || "");
+        openProcessNoticeModal();
+      }
+    }
+  };
+
+  const closeDocumentViewInDocModal = () => {
+    setTriggerActionInDocView(false);
+    closeDocumentShowModal();
   };
 
   const fetchCategories = async () => {
@@ -646,8 +700,9 @@ const DosierMedical = () => {
                     Vos documents seront visibles par le médecin
                   </HeadingTag>
                   <CustomButton
+                    disabled={!documentFormData.name || !documentFormData.date || !documentFormData.categoryId}
                     type="button"
-                    className="card-btn btn btn-primary text-xs 2xl:text-sm rounded-full px-3 py-2"
+                    className="card-btn btn btn-primary disabled:opacity-50 text-xs 2xl:text-sm rounded-full px-3 py-2"
                     onClick={handleAddDocument}>
                     Ajouter
                   </CustomButton>
@@ -664,22 +719,33 @@ const DosierMedical = () => {
         <CustomModal
           id="my_document_show_modal"
           isOpen={isModalOpen && modalType === "documentShowModal"}
-          onClose={closeDocumentShowModal}
+          onClose={triggerActionInDocView ? closeDocumentViewInDocModal : closeDocumentShowModal}
           modalClassName="w-full sm:max-w-1/2 md:max-w-xl rounded-xl outline-none">
           <DynamicHtmlTag type="div" className="modal-box bg-gradient-to-l from-sky-500 to-indigo-500 p-0 pt-4">
             <DynamicHtmlTag type="div" className="bg-base-100 p-4">
-              <HeadingTag type="h3" className="text-blue font-semibold text-sm md:text-lg flex items-center gap-2">
+              <HeadingTag type="h3" className="w-full flex justify-between items-center text-blue font-semibold text-sm md:text-lg  gap-2">
                 Mes documents
-                <MdClose
-                  onClick={closeDocumentShowModal}
-                  className="ms-auto cursor-pointer text-blue border border-blue rounded-full h-6 p-1 hover:bg-primary hover:border-primary hover:text-white w-6"
-                />
+                <DynamicHtmlTag type="div" className="mt-4 lg:mt-0 w-1/2 flex items-center justify-end">
+                  <CustomButton
+                    type="button"
+                    className="card-btn text-xs 2xl:text-sm py-2 px-3 text-base-100 rounded-full font-semibold w-full lg:max-w-max"
+                    onClick={openDocumentViewInDocModal}>
+                    Ajouter un document
+                  </CustomButton>
+
+                  <MdClose
+                    onClick={triggerActionInDocView ? closeDocumentViewInDocModal : closeDocumentShowModal}
+                    className="ms-auto cursor-pointer text-blue border border-blue rounded-full h-6 p-1 hover:bg-primary hover:border-primary hover:text-white w-6"
+                  />
+                </DynamicHtmlTag>
               </HeadingTag>
               <HeadingTag type="h3" className="my-2 md:my-5 text-sm font-bold">
                 <DynamicHtmlTag type="span">Total : </DynamicHtmlTag>
                 <DynamicHtmlTag type="span">{documents.length > 0 ? documents.length : 0}</DynamicHtmlTag>
               </HeadingTag>
-              <DynamicHtmlTag type="div" className="flex flex-wrap justify-start items-center md:items-start gap-2 md:gap-3">
+              <DynamicHtmlTag
+                type="div"
+                className="flex max-h-96 overflow-y-scroll flex-wrap justify-start items-center md:items-start gap-2 md:gap-3">
                 {Array.isArray(documents) && documents.length > 0 ? (
                   documents.map(doc => (
                     <DynamicHtmlTag key={doc.id} type="div" className="w-[48%] md:w-[30%] min-h-56 shadow-md border rounded-lg px-4">
@@ -825,6 +891,15 @@ const DosierMedical = () => {
 
       {modalType === "processNoticeModal" && (
         <ProcessNoticeModal isOpen={modalType === "processNoticeModal"} onClose={closeProcessNoticeModal} message={processNoticeMessage} />
+      )}
+
+      {modalType === "rdvAlreadyStarted" && (
+        <RdvAlreadyStartedModal
+          isOpen={modalType === "rdvAlreadyStarted"}
+          onClose={() => dispatch(closeModal())}
+          consultationBooking={activePatient}
+          handleCancelRdv={() => handleCancelRdv(existingRdv, router, () => dispatch(closeModal()))}
+        />
       )}
     </>
   );

@@ -260,6 +260,7 @@ const Situation = () => {
 
   const closeProcessNoticeModal = () => {
     dispatch(closeModal());
+    router.push("/search");
   };
 
   const handleDeleteDocument = async () => {
