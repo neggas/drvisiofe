@@ -21,7 +21,6 @@ import { IoCloseSharp } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import { MdClose } from "react-icons/md";
 import { selectConsultationBooking, setSelectedDate } from "@/store/reducers/consultationBookingSlice";
-import { selectPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 import { getActiveProcess } from "@/store/reducers/consultationProcessReducerSlice";
 
 interface SpecialitiesProps {
@@ -60,7 +59,6 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   const specialities = useSelector(selectSpecialityData);
   const consultationBooking = useSelector(selectConsultationBooking);
   const activeProcess = useSelector(getActiveProcess);
-  console.log("activeProcess", activeProcess);
 
   const selectedMotifs = activeProcess?.selectedMotifs || [];
   const otherMotifText = activeProcess?.otherMotifText || "";
@@ -93,6 +91,23 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   }
 
   const [searchPractitionerList, setSearchPractitionerList] = useState<any>(defaultSelectedPractitioner);
+
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Hook to trigger get Speciality List function
   useEffect(() => {
@@ -179,7 +194,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   }, [dispatch, consultationBooking.selectedDate]);
 
   return (
-    <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row h-auto rounded-2xl min-h-full lg:border">
+    <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row rounded-2xl min-h-full lg:border lg:overflow-auto lg:h-full">
       <DynamicHtmlTag type="div" className="bg-base-100 w-full px-4 sm:pb-0 sm:pt-2 lg:py-4 rounded-full">
         <DynamicHtmlTag type="div" className="lg:space-y-6">
           <DynamicHtmlTag type="div" className="flex items-center justify-between mb-4 lg:mb-0">
@@ -427,7 +442,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
           {allowedMotifSidebarPaths.includes(pathname) && (selectedMotifs?.length > 0 || otherMotifText) && (
             <DynamicHtmlTag
               type="div"
-              className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg h-[238px] md:max-h-[230px]  lg:max-h-[200px] overflow-y-scroll">
+              className={`${viewportHeight < 850 ? "h-[100px]" : "h-[150px"} hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg max-h-[200px] overflow-y-scroll`}>
               <HeadingTag type="h3" className="text-xs font-semibold text-center mb-2">
                 MOTIFS
               </HeadingTag>
@@ -442,7 +457,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                 {otherMotifText && (
                   <CustomTextarea
                     name="motif"
-                    className="w-full h- px-2 py-2 border text-xs  focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-black"
+                    className="w-full h- px-2 py-2 border text-xs resize-none focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-black"
                     value={otherMotifText}
                     disabled={true}
                     readOnly

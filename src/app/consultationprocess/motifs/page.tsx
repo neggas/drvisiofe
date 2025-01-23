@@ -152,7 +152,7 @@ const Motifs = () => {
 
   return (
     <DynamicHtmlTag type="div" className="beneficiary-section motif-section lg:px-5 flex justify-between flex-col doctor-list-main mb-12 md:mb-20">
-      <DynamicHtmlTag type="div">
+      <DynamicHtmlTag type="div" className="relative">
         <HeadingTag type="h2" className="text-sm lg:text-base font-bold">
           Selectionnez 1 à 3 motifs de téléconsultation
         </HeadingTag>
@@ -204,7 +204,7 @@ const Motifs = () => {
         <DynamicHtmlTag type="div" className="md:absolute md:w-[93%] md:bottom-2">
           <CustomForm onSubmit={handleAddMotifSubmit} className="flex flex-col md:flex-row gap-y-4 md:gap-y-0 gap-x-6 mt-1 items-center">
             <DynamicHtmlTag type="div" className="w-full">
-              <CustomLabel className={"flex justify-between items-center mb-1"}>
+              <CustomLabel className={"flex justify-between items-center mb-1 relative"}>
                 <HeadingTag type="h4" className="text-xs xl:text-sm font-bold text-left w-full md:w-auto">
                   Si votre motif n’est pas dans la liste, merci de le saisir
                 </HeadingTag>
@@ -212,10 +212,10 @@ const Motifs = () => {
                   {remainingCharacters} caractères maximum
                 </DynamicHtmlTag>
               </CustomLabel>
-              <CustomLabel className="input border border-gray-400 p-2 flex lg:items-center gap-2 rounded-lg h-20 md:h-auto mb-1">
+              <CustomLabel className="input border border-gray-400 p-2 flex lg:items-center gap-2 rounded-lg h-20 md:h-auto mb-1 relative">
                 <CustomTextarea
                   name="otherMotif"
-                  className="grow input outline-none focus:outline-none border-none border-[0px] h-auto pl-1 pr-0 text-xs md:text-xs 2xl:text-sm resize-none"
+                  className="grow input outline-none focus:outline-none border-none border-[0px] h-7 pl-1 pr-0 text-xs md:text-xs 2xl:text-sm resize-none"
                   value={otherMotif}
                   onChange={handleOtherMotifChange}
                   maxLength={300}

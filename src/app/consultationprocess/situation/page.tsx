@@ -244,6 +244,14 @@ const Situation = () => {
 
   const closeEditMutelleModal = () => {
     dispatch(closeModal());
+    if (activeConsultationProcess) {
+      const patientData = activeConsultationProcess.profile?.patientData;
+
+      setLocalHealthComplNumber(patientData?.healthComplNumber || "");
+      setLocalStartDate(healthComplStartDate);
+      setLocalEndDate(healthComplEndDate);
+      setLocalHealthPreviewImage(patientData?.healthCompl?.url ? `${API_URL}${patientData.healthCompl.url}` : null);
+    }
   };
 
   const closeDeleteMutelleModal = () => {
@@ -264,7 +272,7 @@ const Situation = () => {
       const response = await removeMutuelleCard(formData);
 
       if (response) {
-        toast.success(response.message);
+        toast.success("Mutuelle supprimée avec succès");
         setDeleteDocument(true);
         setHealthComplNumber("");
         setHealthComplStartDate(null);
@@ -301,7 +309,6 @@ const Situation = () => {
       if (errorHandlingResult.action === "redirect") {
         setProcessNoticeMessage(errorHandlingResult.message || "");
         dispatch(openModal("processNoticeModal"));
-        router.push(errorHandlingResult.redirectPath || "/search");
         return;
       }
     }
@@ -309,7 +316,7 @@ const Situation = () => {
 
   const handleEditMutuelleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    handleSaveMutelle();
     setHealthComplNumber(localHealthComplNumber);
     setHealthComplStartDate(localStartDate);
     setHealthComplEndDate(localEndDate);
@@ -422,8 +429,6 @@ const Situation = () => {
         return;
       }
 
-      toast.success(response.message);
-
       const updatedPatientData = {
         ...fetchPatientData,
         patientData: {
@@ -461,7 +466,6 @@ const Situation = () => {
       if (errorHandlingResult.action === "redirect") {
         setProcessNoticeMessage(errorHandlingResult.message || "");
         dispatch(openModal("processNoticeModal"));
-        router.push(errorHandlingResult.redirectPath || "/search");
         return;
       }
     }
@@ -469,6 +473,7 @@ const Situation = () => {
 
   const handleSaveMutelle = async () => {
     setIsLoading(true);
+    dispatch(closeModal());
 
     const formData = new FormData();
 
@@ -498,7 +503,7 @@ const Situation = () => {
       const response = await addSituationHelthCompl(formData);
 
       if (response.data) {
-        toast.success(response.message);
+        toast.success("La mutuelle a été enregistrée avec succès");
         dispatch(setProfileMutuelle({ mutelle: response.data, patientId: activeConsultationProcess?.patientId || null }));
       }
     } catch (error) {
@@ -512,7 +517,6 @@ const Situation = () => {
       if (errorHandlingResult.action === "redirect") {
         setProcessNoticeMessage(errorHandlingResult.message || "");
         dispatch(openModal("processNoticeModal"));
-        router.push(errorHandlingResult.redirectPath || "/search");
         return;
       }
     } finally {
@@ -594,6 +598,7 @@ const Situation = () => {
                       type="div"
                       className="date-picker relative flex items-center space-x-2 text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug grow input border register-field border-gray-400 py-1 px-2 gap-2 rounded-md">
                       <CustomDatePicker
+                        maxDate={addMutuelleEndDate || undefined}
                         selected={addMutuelleStartDate}
                         onChange={handleAddMutuelleStartDateChange}
                         dateFormat={"dd/MM/yyyy"}
@@ -617,6 +622,7 @@ const Situation = () => {
                       type="div"
                       className="date-picker relative flex items-center space-x-2 text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug grow w-full input border register-field border-gray-400 py-1 px-2 gap-2 rounded-md">
                       <CustomDatePicker
+                        minDate={addMutuelleStartDate ? new Date(addMutuelleStartDate.getTime() + 24 * 60 * 60 * 1000) : undefined}
                         selected={addMutuelleEndDate}
                         onChange={handleAddMutuelleEndDateChange}
                         dateFormat={"dd/MM/yyyy"}
@@ -654,8 +660,9 @@ const Situation = () => {
 
                 <DynamicHtmlTag type="div" className="w-full">
                   <CustomButton
-                    className="text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug cstm-btn mx-auto flex px-8 py-1 lg:px-2 lg:py-2 justify-center lg:w-full view-more-btn rounded-full text-white"
-                    onClick={handleSaveMutelle}>
+                    className=" text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug cstm-btn mx-auto flex px-8 py-1 lg:px-2 lg:py-2 justify-center lg:w-full view-more-btn rounded-full text-white disabled:opacity-50"
+                    onClick={handleSaveMutelle}
+                    disabled={!addMutuelleNumber || !addMutuelleStartDate || !addMutuelleEndDate || !addMutuelleImage}>
                     Enregistrer
                   </CustomButton>
                 </DynamicHtmlTag>
@@ -722,8 +729,8 @@ const Situation = () => {
           </>
         )}
       </DynamicHtmlTag>
-      <DynamicHtmlTag type="div" className="pb-2 lg:pb-0 md:min-h-[300px]">
-        <DynamicHtmlTag type="div" className="mt-2">
+      <DynamicHtmlTag type="div" className="pb-2 lg:pb-0 md:min-h-[200px]">
+        <DynamicHtmlTag type="div" className="mt-2 flex flex-col gap-2">
           <HeadingTag
             type="h4"
             className="text-xs lg:text-sm xl:text-base 2xl:text-lg font-bold mb-2 flex flex-col md:flex-row md:items-center md:gap-2">
@@ -773,7 +780,7 @@ const Situation = () => {
               </DynamicHtmlTag>
             ))}
         </DynamicHtmlTag>
-        <DynamicHtmlTag type="div" className="mt-2">
+        <DynamicHtmlTag type="div" className="mt-2 flex flex-col gap-2">
           <HeadingTag
             type="h4"
             className="text-xs lg:text-sm xl:text-base 2xl:text-lg font-bold mb-2 flex flex-col md:flex-row md:items-center md:gap-2">
@@ -862,7 +869,13 @@ const Situation = () => {
                 </DynamicHtmlTag>
                 <DynamicHtmlTag className="border border-gray-400 p-2 flex items-center gap-2 rounded-lg mb-1" type="div">
                   <DynamicHtmlTag type="div" className="form-date-picker date-picker text-xs md:text-xs 2xl:text-sm">
-                    <CustomDatePicker inline={false} selected={localStartDate} onChange={handleStartDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
+                    <CustomDatePicker
+                      maxDate={localStartDate ? new Date(localStartDate.getTime() + 24 * 60 * 60 * 1000) : undefined}
+                      inline={false}
+                      selected={localStartDate}
+                      onChange={handleStartDatePickerChange}
+                      dateFormat="dd/MM/yyyy"
+                    />{" "}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
               </DynamicHtmlTag>
@@ -875,7 +888,13 @@ const Situation = () => {
                 </DynamicHtmlTag>
                 <DynamicHtmlTag className="border border-gray-400 p-2 flex items-center gap-2 rounded-lg mb-1" type="div">
                   <DynamicHtmlTag type="div" className="form-date-picker date-picker text-xs md:text-xs 2xl:text-sm">
-                    <CustomDatePicker inline={false} selected={localEndDate} onChange={handleEndDatePickerChange} dateFormat="dd/MM/yyyy" />{" "}
+                    <CustomDatePicker
+                      minDate={localStartDate ? new Date(localStartDate.getTime() + 24 * 60 * 60 * 1000) : undefined}
+                      inline={false}
+                      selected={localEndDate}
+                      onChange={handleEndDatePickerChange}
+                      dateFormat="dd/MM/yyyy"
+                    />{" "}
                   </DynamicHtmlTag>
                 </DynamicHtmlTag>
               </DynamicHtmlTag>
@@ -927,7 +946,11 @@ const Situation = () => {
                 <CustomButton type="button" className="btn btn-danger text-xs 2xl:text-sm rounded-full" onClick={closeEditMutelleModal}>
                   Annuler
                 </CustomButton>
-                <CustomButton type="submit" className="btn btn-primary text-xs 2xl:text-sm rounded-full card-btn">
+                <CustomButton
+                  type="submit"
+                  className="btn btn-primary text-xs 2xl:text-sm rounded-full card-btn disabled:opacity-50"
+                  onClick={handleSaveMutelle}
+                  disabled={!localHealthComplNumber || !localStartDate || !localEndDate || !localHealthPreviewImage}>
                   Valider
                 </CustomButton>
               </DynamicHtmlTag>
