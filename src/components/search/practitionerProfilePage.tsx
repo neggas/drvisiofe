@@ -40,8 +40,15 @@ import {
   setRdvId,
   setTimeSlot,
 } from "@/store/reducers/consultationBookingSlice";
-import { ConsultationProcessState, resetConsultationProcess, setProcessRdvId, startConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import {
+  ConsultationProcessState,
+  resetConsultationProcess,
+  setProcessRdvId,
+  setProcessTimeSlot,
+  startConsultationProcess,
+} from "@/store/reducers/consultationProcessReducerSlice";
 import { toast } from "react-toastify";
+import { AppointmentPayload } from "./doctorCard";
 
 interface PractitionerProps {
   practitioner: PractitionerType;
@@ -111,7 +118,7 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
   }, [filter, specialty, localDate, firstName]);
 
   useEffect(() => {
-    resetConsultationProcess()
+    resetConsultationProcess();
   }, []);
 
   // Fetch Practitioner Profile
@@ -147,6 +154,7 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
               id: slot.id || `${dayIndex}-${slotIndex}`,
               value: slot.start,
               label: getFormateTime(slot.start, "HH|mm"),
+              dayValue: key,
             };
           }),
         };
@@ -187,18 +195,17 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
     }
   };
 
-  const handleTimeSlotSelection = async (selectedTimeSlot: string, selectedDay: string) => {
+  const handleTimeSlotSelection = async (selectedTimeSlot: string, selectedDay: string, value: string, dayValue: string) => {
     dispatch(
       setTimeSlot({
-        daySlot: getFormateDate(selectedDay, "YYYY-MM-DD"),
-        timeSlot: selectedTimeSlot,
+        daySlot: getFormateDate(dayValue, "YYYY-MM-DD"),
+        timeSlot: value,
       })
     );
-
+    dispatch(setProcessTimeSlot({ daySlot: getFormateDate(dayValue, "YYYY-MM-DD"), timeSlot: value, patientId: loggedInUser?.data?.id }));
     dispatch(setConsultationPractitionerId(practitioner?.id));
     dispatch(setPractitionerAvatar(practitioner?.avatar?.url || ""));
     dispatch(setPractitionerName(`Dr. ${practitioner?.firstName} ${practitioner?.lastName}`));
-
     dispatch(
       setPractitionerTarif(
         `${practitioner?.practitionerData?.tarifMin ? practitioner.practitionerData.tarifMin + "€" : ""} ${
@@ -206,11 +213,9 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
         }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`
       )
     );
-
     const tarif = `${practitioner?.practitionerData?.tarifMin ? practitioner.practitionerData.tarifMin + "€" : ""} ${
       practitioner?.practitionerData?.tarifMax ? "à " + practitioner.practitionerData.tarifMax + "€" : ""
     }${practitioner?.practitionerData?.sector?.name ? " - " + practitioner?.practitionerData?.sector.name : ""}`;
-
     const startConsultationProcessPayload: ConsultationProcessState = {
       profile: loggedInUser?.data as unknown as PatientsType,
       practitioner: practitioner,
@@ -223,8 +228,8 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
       patientId: loggedInUser?.data?.id || null,
       childrenId: null,
       tarif: tarif,
-      timeSlot: selectedTimeSlot,
-      daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
+      timeSlot: value,
+      daySlot: getFormateDate(dayValue, "YYYY-MM-DD"),
       isActive: true,
     };
 
@@ -232,11 +237,10 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
 
     await createAppointment({
       practitionerId: practitioner?.id,
-      daySlot: getFormateDate(localDate, "YYYY-MM-DD"),
-      timeSlot: selectedTimeSlot,
+      daySlot: getFormateDate(dayValue, "YYYY-MM-DD"),
+      timeSlot: value,
       patientId: loggedInUser?.data?.id,
     });
-
     // Navigate to the beneficiary URL
     router.push(`/consultationprocess/beneficiary`);
   };
@@ -321,6 +325,8 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
                   timeSlots: day.timeSlots.map((slot: any) => ({
                     id: slot.id,
                     label: slot.label,
+                    value: slot.value,
+                    dayValue: slot.dayValue,
                   })),
                 }))}
                 onTimeSlotSelect={handleTimeSlotSelection}
@@ -381,13 +387,14 @@ export default function PractitionerProfilePage({ slug }: { readonly slug: numbe
                       day.timeSlots.map((slot: any, slotIndex: number) => ({
                         key: `${dayIndex}-${slotIndex}`,
                         value: slot.value,
+                        dayValue: slot.dayValue,
                         label: `${day.title} - ${slot.label}`,
                       }))
                     )}
                     className="text-sm all-select-box w-full font-semibold md:w-3/6 border border-gray-600 rounded-3xl px-3 timing-select"
                     onChange={(selectedOption: any) => {
                       const [selectedDay, selectedSlot] = selectedOption.label.split(" - ");
-                      handleTimeSlotSelection(selectedSlot, selectedDay);
+                      handleTimeSlotSelection(selectedSlot, selectedDay, selectedOption.value, selectedOption.dayValue);
                     }}
                   />
 

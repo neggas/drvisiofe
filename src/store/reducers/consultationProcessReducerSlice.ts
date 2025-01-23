@@ -84,6 +84,14 @@ export const consultationProcessReducer = createSlice({
         isActive: true,
       });
     },
+
+    setProcessTimeSlot: (state, action: PayloadAction<{ daySlot: string; timeSlot: string; patientId: number | undefined }>) => {
+      const consultationProcess = state.find(consultation => consultation.parentId === action.payload.patientId);
+      if (consultationProcess) {
+        consultationProcess.daySlot = action.payload.daySlot;
+        consultationProcess.timeSlot = action.payload.timeSlot;
+      }
+    },
     addChildrenConsultationProcess: (state, action: PayloadAction<ConsultationProcessState[]>) => {
       const parentId = action.payload[0]?.parentId;
 
@@ -297,6 +305,7 @@ export const {
   setProcessTarifInformation,
   setProcessConfirmed,
   renitInactiveProcess,
+  setProcessTimeSlot,
 } = consultationProcessReducer.actions;
 export const selectConsultationProcess = (state: RootState) => state.consultationProcess;
 export const getActiveProcess = (state: RootState) => {

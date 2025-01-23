@@ -41,7 +41,7 @@ interface PractitionerProps {
   localDate: string;
 }
 
-interface AppointmentPayload {
+export interface AppointmentPayload {
   practitionerId: number;
   patientId?: number;
   daySlot: string;

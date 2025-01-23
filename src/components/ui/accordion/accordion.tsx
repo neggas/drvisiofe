@@ -4,24 +4,24 @@ import { CustomButton, CustomInput, CustomLabel, DynamicHtmlTag, HeadingTag, Cus
 
 interface AccordionItemProps {
   title: string;
-  timeSlots: { id: string; label: string }[];
+  timeSlots: { id: string; label: string; value: string; dayValue: string }[];
   isOpen: boolean;
   onClick: () => void;
-  onTimeSlotSelect: (slotId: string, dayTitle: string) => void;
+  onTimeSlotSelect: (slotId: string, dayTitle: string, value: string, dayValue: string) => void;
   className?: string;
 }
 
 interface AccordionProps {
-  items: { title: string; timeSlots: { id: string; label: string }[] }[];
-  onTimeSlotSelect: (slotId: string, dayTitle: string) => void;
+  items: { title: string; timeSlots: { id: string; label: string; value: string; dayValue: string }[] }[];
+  onTimeSlotSelect: (slotId: string, dayTitle: string, value: string, dayValue: string) => void;
 }
 
 const AccordionItem: React.FC<AccordionItemProps> = ({ title, timeSlots, isOpen, onClick, onTimeSlotSelect, className }) => {
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
-  const handleSlotSelect = (slotId: string, dayTitle: string) => {
+  const handleSlotSelect = (slotId: string, dayTitle: string, value: string, dayValue: string) => {
     setSelectedSlotId(slotId);
-    onTimeSlotSelect(slotId, dayTitle);
+    onTimeSlotSelect(slotId, dayTitle, value, dayValue);
   };
 
   return (
@@ -38,7 +38,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, timeSlots, isOpen,
             <DynamicHtmlTag key={slot.id} type="div" className="radio-card w-[18%] lg:w-[14%] xl:w[10%]">
               <CustomButton
                 className={`custom-select-btn ${selectedSlotId === slot.id ? "active" : ""} [&&]:text-3xs [&&]:lg:text-[0.625rem] [&&]:p-1`}
-                onClick={() => handleSlotSelect(slot.id, title)}>
+                onClick={() => handleSlotSelect(slot.id, title, slot.value, slot.dayValue)}>
                 {slot.label}
               </CustomButton>
             </DynamicHtmlTag>

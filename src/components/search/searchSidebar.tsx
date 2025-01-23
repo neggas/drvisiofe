@@ -187,11 +187,11 @@ const SideBar: React.FC<SpecialitiesProps> = ({
   };
 
   useEffect(() => {
-    if (!activeProcess?.selectedDate) {
+    if (!activeProcess?.daySlot) {
       const currentDate = new Date();
       dispatch(setSelectedDate(currentDate));
     }
-  }, [dispatch, activeProcess?.selectedDate]);
+  }, [dispatch, activeProcess?.daySlot]);
 
   return (
     <DynamicHtmlTag type="div" className="bg-base-100 flex-col lg:flex-row rounded-2xl min-h-full lg:border overflow-y-hidden lg:h-full">
