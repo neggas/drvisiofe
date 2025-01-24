@@ -398,3 +398,7 @@ export const getCurrentStep = (pathname: string) => {
   const currentStep = CONSULTATION_STEP.indexOf(pathname.split("/")[2]);
   return currentStep;
 };
+
+export const truncateText = (text: string, maxLength: number) => {
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};

@@ -214,7 +214,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
                 <CustomLabel
                   htmlFor={practitioner?.id + "_" + slot.start}
                   className="radio-label d-block flex items-center justify-center cursor-pointer">
-                  <DynamicHtmlTag type="span" className="custom-select-btn [&&]:text-3xs [&&]:lg:text-[0.625rem] [&&]:p-1">
+                  <DynamicHtmlTag type="span" className="custom-select-btn [&&]:text-[.7rem] [&&]:lg:text-[0.625rem] [&&]:p-1">
                     {getFormateTime(slot.start, "HH|mm")}
                   </DynamicHtmlTag>
                 </CustomLabel>

@@ -18,7 +18,7 @@ import { API_URL, SpecialityType, getFormateDate, getSpecialitiesApi, searchPrac
 import { selectSpecialityData, setSpecialityData } from "@/store/reducers/specialitySlice";
 import { useDispatch, useSelector } from "react-redux";
 import { IoCloseSharp } from "react-icons/io5";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MdClose } from "react-icons/md";
 import { selectConsultationBooking, setSelectedDate } from "@/store/reducers/consultationBookingSlice";
 import { getActiveProcess } from "@/store/reducers/consultationProcessReducerSlice";
@@ -94,6 +94,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
 
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const router = useRouter();
 
   useEffect(() => {
     const handleResize = () => {
@@ -142,6 +143,10 @@ const SideBar: React.FC<SpecialitiesProps> = ({
     } finally {
       // dispatch(hideLoader());
     }
+  };
+
+  const goback = () => {
+    router.back();
   };
 
   // Function to Fetch Practitioner List by Pattern from API
@@ -198,7 +203,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
       <DynamicHtmlTag type="div" className="bg-base-100 w-full px-4 sm:pb-0 sm:pt-2 lg:py-4 rounded-full">
         <DynamicHtmlTag type="div" className="lg:space-y-6">
           <DynamicHtmlTag type="div" className="flex items-center justify-between mb-4 lg:mb-0">
-            <CustomLink className="w-fit lg:hidden previous-btn" href="/">
+            <CustomButton type="button" className="w-fit lg:hidden previous-btn" onClick={goback}>
               <CustomImage
                 src={"/images/back-btn.svg"}
                 alt="back-arrow"
@@ -206,7 +211,8 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                 height={30}
                 className="img-fluid text-start rounded-full w-6 h-6"
               />
-            </CustomLink>
+            </CustomButton>
+
             <DynamicHtmlTag type="div" className="font-semibold flex items-center gap-1 lg:gap-3">
               <CustomImage src="/images/side-icon.svg" alt="side-icon" width={15} height={15} />
               <HeadingTag type="h3" className="text-[9px] lg:text-xs 2xl:text-sm leading-normal">
@@ -263,7 +269,14 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                 <HeadingTag type="h3" className="text-2xs 2xl:text-xs font-semibold text-center mb-2 w-full hidden lg:block ">
                   SPÉCIALITÉ
                 </HeadingTag>
-                <CustomImage src="/images/speciality-icon.png" alt="speciality" className="lg:hidden" width={30} height={30} />
+                <CustomImage
+                  src="/images/speciality-icon.png"
+                  alt="speciality"
+                  className="lg:hidden"
+                  width={30}
+                  height={30}
+                  onClick={() => setOpen(!open)}
+                />
               </DynamicHtmlTag>
               <DynamicHtmlTag type="div" className="flex justify-between gap-4 w-full lg:w-auto">
                 <CustomSelect
@@ -280,6 +293,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                   isDisabled={pathname.startsWith("/consultationprocess/beneficiary")}
                   onChange={!pathname.startsWith("/consultationprocess/beneficiary") ? handleSpecialityChange : undefined}
                 />
+
                 <CustomImage
                   src="/images/select-icon.svg"
                   alt="select"
@@ -289,6 +303,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
                   onClick={() => setOpen(!open)}></CustomImage>
               </DynamicHtmlTag>
             </DynamicHtmlTag>
+
             {/* REQUEST AN APPOINTMENT  CARD WITH CALENDER FOR SM:SCREEN */}
             {open && (
               <DynamicHtmlTag type="div" className="block relative lg:hidden">
@@ -343,6 +358,7 @@ const SideBar: React.FC<SpecialitiesProps> = ({
               </DynamicHtmlTag>
             )}
           </DynamicHtmlTag>
+
           {/* REQUEST AN APPOINTMENT  CARD WITH CALENDER FOR LG:SCREEN */}
           <DynamicHtmlTag type="div" className="hidden lg:block bg-white rounded-lg p-3 lg:p-4 shadow-lg open-date-picker">
             <HeadingTag type="h3" className="text-2xs 2xl:text-xs font-semibold">

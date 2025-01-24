@@ -31,6 +31,7 @@ import {
   patientNearbyList,
   PatientTeleconsultationsNearbyResponse,
   registerPatientNearby,
+  truncateText,
   updatePatientNearby,
 } from "@/utility";
 import { useDispatch, useSelector } from "react-redux";
@@ -94,6 +95,9 @@ export default function Beneficiary() {
   const [editChild, setEditChild] = useState(false);
   const [child, setChild] = useState({});
   const [processNoticeMessage, setProcessNoticeMessage] = useState("");
+
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   const handleDateOptionChange = (date: Date | null) => {
     setErrors(prevErrors => ({ ...prevErrors, birthdayDate: undefined }));
@@ -428,6 +432,20 @@ export default function Beneficiary() {
     setProcessNoticeMessage("");
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   if (isLoading) {
     return <CustomFullScreenLoader />;
   }
@@ -442,7 +460,7 @@ export default function Beneficiary() {
           {/* --- Choose fields Start --- */}
           <DynamicHtmlTag
             type="div"
-            className="doctor-card-detail consult-radio grid sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 2xl:grid-cols-6 gap-2 lg:gap-2 2xl:gap-6 my-2 lg:my-5">
+            className="doctor-card-detail consult-radio grid sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 2xl:grid-cols-6 gap-2 lg:gap-2 2xl:gap-6 my-2 lg:my-5">
             {/* "Vous" Option */}
             <DynamicHtmlTag type="div" className="radio-card">
               <CustomInput
@@ -471,7 +489,7 @@ export default function Beneficiary() {
             {nearbyPatients &&
               nearbyPatients.length > 0 &&
               nearbyPatients.map((patient, index) => (
-                <DynamicHtmlTag key={patient.id || index} type="div" className="radio-card">
+                <DynamicHtmlTag key={patient.id || index} type="div" className="radio-card relative">
                   <CustomInput
                     className="hidden custom-select"
                     type="radio"
@@ -489,28 +507,37 @@ export default function Beneficiary() {
                       type="span"
                       className="[&&]:py-1 lg:[&&]:py-2 [&&]:rounded-full [&&&]:font-semibold custom-select-btn text-ellipsis overflow-hidden whitespace-nowrap select-none"
                       title={patient.nearby.firstName}>
-                      {patient.nearby.firstName} {patient.nearby.lastName}
-                      <DynamicHtmlTag type="div" className="flex items-center justify-center">
-                        <MdEditNote
-                          className="absolute right-6 top-2 mt-[3px] cursor-pointer"
-                          onClick={() => openChildUpdateModal(patient.nearby, patient.id)}
-                        />
-                        <SlClose
-                          className="absolute right-2 top-2 mt-[3px] cursor-pointer"
-                          onClick={e => {
-                            e.stopPropagation();
-                            openDeletePatientModal(patient.id.toString());
-                          }}
-                        />
-                      </DynamicHtmlTag>
+                      {viewportWidth > 768
+                        ? `${patient.nearby.firstName} ${patient.nearby.lastName}`
+                        : truncateText(`${patient.nearby.firstName} ${patient.nearby.lastName}`, 10)}
                     </DynamicHtmlTag>
                   </CustomLabel>
+
+                  <DynamicHtmlTag type="div" className="absolute flex items-center justify-center top-1 right-1 md:top-2 text-white">
+                    <MdEditNote className="mt-[3px] cursor-pointer" onClick={() => openChildUpdateModal(patient.nearby, patient.id)} />
+                    <SlClose
+                      className="mt-[3px] cursor-pointer"
+                      onClick={e => {
+                        e.stopPropagation();
+                        openDeletePatientModal(patient.id.toString());
+                      }}
+                    />
+                  </DynamicHtmlTag>
                 </DynamicHtmlTag>
               ))}
             <CustomButton
               as="button"
               onClick={openAddChildModal}
-              className="card-btn text-xs text-white font-semibold py-1 lg:py-2 md:mt-0 sm:col-span-2 md:col-span-1 sm:w-4/5 md:w-full rounded-full sm:me-0 md:mx-auto block">
+              className="hidden md:block card-btn text-xs text-white font-semibold py-1 lg:py-2 md:mt-0 sm:col-span-2 md:col-span-1 sm:w-4/5 md:w-full rounded-full sm:me-0 md:mx-auto ">
+              Ajouter un enfant
+            </CustomButton>
+          </DynamicHtmlTag>
+
+          <DynamicHtmlTag type="div" className="flex w-full items-center justify-end md:hidden">
+            <CustomButton
+              as="button"
+              onClick={openAddChildModal}
+              className="card-btn text-xs text-white font-semibold py-1 lg:py-2 md:mt-0 sm:col-span-2 md:col-span-1 w-4/5 max-w-[165px] h-[35px] md:w-full rounded-full sm:me-0 md:mx-auto block">
               Ajouter un enfant
             </CustomButton>
           </DynamicHtmlTag>
