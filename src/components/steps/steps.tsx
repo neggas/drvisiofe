@@ -93,8 +93,8 @@ const Steps = () => {
         </CustomButton>
       </DynamicHtmlTag>
 
-      {/* --- Tab section start --- */}
-      <DynamicHtmlTag type="div" className="tab-section sm:col-span-12 lg:col-span-10 lg:w-full lg:px-0 rounded-full">
+      {/* --- Tab section LG start --- */}
+      <DynamicHtmlTag type="div" className="tab-section hidden md:block sm:col-span-12 lg:col-span-10 lg:w-full lg:px-0 rounded-full">
         <CustomNav defaultActiveKey="/consultationprocess/beneficiary" className="flex-column steps-menu light-gradient flex rounded-md">
           {["beneficiary", "motifs", "situation", "dosier-medical", "informations", "payment"].map((step, index) => {
             const stepNumber = index + 1;
@@ -148,8 +148,42 @@ const Steps = () => {
           </CustomLink>
         </CustomNav>
       </DynamicHtmlTag>
-      {/* --- Tab section end ---- */}
+      {/* --- Tab section LG end ---- */}
 
+      {/* --- Tab section Mobile start --- */}
+
+      <DynamicHtmlTag type="div" className="tab-section md:hidden sm:col-span-12 lg:col-span-10 lg:w-full lg:px-0 rounded-full">
+        <CustomNav defaultActiveKey="/consultationprocess/beneficiary" className="flex-column steps-menu light-gradient flex rounded-md">
+          {["beneficiary", "motifs", "situation", "dosier-medical", "informations", "payment"].map((step, index) => {
+            const stepNumber = index + 1;
+            const isActive = pathName.includes(step);
+
+            if (isActive) {
+              // Render only the active step on mobile
+              return (
+                <CustomLink
+                  key={step}
+                  href={`/consultationprocess/${step}`}
+                  className={`steps-links sm:w-full lg:w-1/6 ${getActiveRoute(pathName, `/consultationprocess/${step}`, "active")}`}>
+                  <DynamicHtmlTag
+                    type="span"
+                    className="nav-span revert-light-gradient p-0.5 w-4 h-4 rounded-full inline-flex items-center justify-center text-center">
+                    {stepNumber}
+                  </DynamicHtmlTag>
+                  <DynamicHtmlTag type="span" className="sm:inline lg:hidden">
+                    {["Bénéficiaire", "Motif(s)", "Situation", "Dossier médical", "Informations", "Paiement"][index]}
+                  </DynamicHtmlTag>
+                </CustomLink>
+              );
+            }
+            return null; // Do not render other steps
+          })}
+          <CustomLink href="#!" className={`steps-links sm:w-full lg:w-1/6 [&&]:shadow-none lg:hidden`}>
+            Etape {consultationBooking.completedSteps}/6
+          </CustomLink>
+        </CustomNav>
+      </DynamicHtmlTag>
+      {/* --- Tab section Mobile end --- */}
       {/* --- Close Button Start ---  */}
       <DynamicHtmlTag type="div" className="text-end sm:hidden lg:inline-block">
         <CustomButton className="w-fit inline-block p-1 revert-light-gradient rounded-full" as="button" onClick={handleCloseButtonClick}>

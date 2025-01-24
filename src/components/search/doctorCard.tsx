@@ -226,7 +226,7 @@ const DoctorCard: React.FC<PractitionerProps> = ({ practitioner, localDate }) =>
       </DynamicHtmlTag>
       <CustomButton
         as="button"
-        className="card-btn text-white py-2 sm:w-8/12 2xl:w-8/12 rounded-full block text-2xs lg:text-xs absolute left-0 right-0 mx-auto bottom-2"
+        className="card-btn text-white py-2  sm:w-8/12 2xl:w-8/12 rounded-full block text-sm lg:text-xs absolute left-0 right-0 mx-auto bottom-2"
         onClick={handleLink}>
         Voir {"l'"}agenda complet
       </CustomButton>
