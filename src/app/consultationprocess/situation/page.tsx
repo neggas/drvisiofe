@@ -778,7 +778,7 @@ const Situation = () => {
         )}
       </DynamicHtmlTag>
       <DynamicHtmlTag type="div" className="pb-2 lg:pb-0 md:min-h-[200px]">
-        <DynamicHtmlTag type="div" className="mt-2 flex flex-col gap-2">
+        <DynamicHtmlTag type="div" className="mt-2 mb-8 flex flex-col gap-2">
           <HeadingTag
             type="h4"
             className="text-xs lg:text-sm xl:text-base 2xl:text-lg font-bold mb-2 flex flex-col md:flex-row md:items-center md:gap-2">

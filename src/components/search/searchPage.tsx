@@ -5,10 +5,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { DynamicHtmlTag, CustomLink, CustomImage, SideBar, DoctorCard, CustomLoader, VisioLogo } from "@/components";
-import { PractitionerType, searchPractitionerApi, getCurrentDateTime, NUMBER_OF_PRACTITIONERS_TO_FETCH, getLocalStorageData } from "@/utility";
+import {
+  PractitionerType,
+  searchPractitionerApi,
+  getCurrentDateTime,
+  NUMBER_OF_PRACTITIONERS_TO_FETCH,
+  getLocalStorageData,
+  getPatientDeatils,
+} from "@/utility";
 import { selectLoginResponse } from "@/store/reducers/loginSlice";
 import { resetConsultationBooking } from "@/store/reducers/consultationBookingSlice";
 import { resetConsultationProcess } from "@/store/reducers/consultationProcessReducerSlice";
+import { selectPatientDetailsData, setPatientDetailsData } from "@/store/reducers/patientDetailsSlice";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -42,6 +50,8 @@ export default function SearchPage() {
   const [filter, setFilter] = useState<boolean>(false);
   const loggedInUser = useSelector(selectLoginResponse);
   const isTeleconsultationBooked = getLocalStorageData("isTeleconsultationBooked", false);
+  const [profile, setProfile] = useState<any>(null);
+  const patientDetails = useSelector(selectPatientDetailsData);
 
   useEffect(() => {
     setIsClient(true);
@@ -94,6 +104,22 @@ export default function SearchPage() {
       setPageLoader(false);
     }
   };
+
+  useEffect(() => {
+    const getPatientProfile = async () => {
+      try {
+        const data = await getPatientDeatils();
+        if (data && data.data) {
+          setProfile(data.data);
+          dispatch(setPatientDetailsData(data.data));
+        }
+      } catch (error) {}
+    };
+
+    if (!patientDetails.data) {
+      getPatientProfile();
+    }
+  }, [patientDetails.data]);
 
   return (
     <DynamicHtmlTag
