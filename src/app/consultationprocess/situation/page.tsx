@@ -26,9 +26,7 @@ import {
   HealthRightsResponse,
   listOfDynamicSituations,
   listOfWhySituations,
-  PatientData,
   PatientsType,
-  removeMutelleCard,
   removeMutuelleCard,
   WhySituation,
   WhySituationsResponse,
@@ -39,13 +37,7 @@ import { selectConsultationBooking, setCompletedStep } from "@/store/reducers/co
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import RdvAlreadyStartedModal from "@/components/rvdModal/RdvAlreadyStartedModal";
-import {
-  getActiveProcess,
-  setProcessCompletedSteps,
-  setProfileMutuelle,
-  setSituation,
-  updateProfileMutuelle,
-} from "@/store/reducers/consultationProcessReducerSlice";
+import { getActiveProcess, setProcessCompletedSteps, setProfileMutuelle, setSituation } from "@/store/reducers/consultationProcessReducerSlice";
 import ProcessNoticeModal from "@/components/process-notice-modal/processNoticeModal";
 
 const Situation = () => {
@@ -581,21 +573,24 @@ const Situation = () => {
       <DynamicHtmlTag
         type="div"
         className="sm:flex-col md:flex-row lg:flex-row md:flex lg:flex md:gap-2 lg:gap-1 xl:gap-16 2xl:gap-24 sm:items-start md:items-start">
-        <DynamicHtmlTag type="div" className="md:w-1/3 lg:w-[33%]">
-          <HeadingTag type="h2" className="text-xs lg:text-sm xl:text-lg font-bold pb-1 lg:pb-3">
-            Numéro de sécurité sociale
-          </HeadingTag>
-          <CustomInput
-            value={formatSocialSecurityNumber(socialSecurityNumber)}
-            onChange={handleSocialSecurityNumberChange}
-            type="text"
-            placeholder="0 00 00 00 000 000 00"
-            name="card-number"
-            className="p-2 w-full border border-gray-300 h-auto font-medium text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug text-black rounded-lg"
-          />
-          <DynamicHtmlTag type="span" className="block pt-1 pe-1 text-right text-xs">
-            {15 - socialSecurityNumber.length} caractères
+        <DynamicHtmlTag type="div" className="w-full md:w-1/3 lg:w-[33%] flex justify-between items-center md:block gap-4 md:gap-0">
+          <DynamicHtmlTag type="div" className="w-full">
+            <HeadingTag type="h2" className="text-xs lg:text-sm xl:text-lg font-bold pb-1 lg:pb-3">
+              Numéro de sécurité sociale
+            </HeadingTag>
+            <CustomInput
+              value={formatSocialSecurityNumber(socialSecurityNumber)}
+              onChange={handleSocialSecurityNumberChange}
+              type="text"
+              placeholder="0 00 00 00 000 000 00"
+              name="card-number"
+              className="p-2 border border-gray-300 h-auto font-medium text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug text-black rounded-lg w-full"
+            />
+            <DynamicHtmlTag type="span" className="block pt-1 pe-1 text-right text-xs">
+              {15 - socialSecurityNumber.length} caractères
+            </DynamicHtmlTag>
           </DynamicHtmlTag>
+
           <CustomImage
             src={"/images/dummy-card.svg"}
             alt="banner"
@@ -632,8 +627,8 @@ const Situation = () => {
                     placeholder="Numéro"
                   />
                 </CustomLabel>
-                <DynamicHtmlTag type="div" className="flex flex-row justify-between mt-0 2xl:mt-4">
-                  <DynamicHtmlTag type="div" className="form-group w-[49%]">
+                <DynamicHtmlTag type="div" className="flex flex-col md:flex-row justify-between mt-0 2xl:mt-4">
+                  <DynamicHtmlTag type="div" className="form-group w-full md:w-[49%]">
                     <DynamicHtmlTag type="div" className="flex justify-between">
                       <DynamicHtmlTag type="span" className="px-2 text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug">
                         Date de début
@@ -657,7 +652,7 @@ const Situation = () => {
                       />
                     </DynamicHtmlTag>
                   </DynamicHtmlTag>
-                  <DynamicHtmlTag type="div" className="form-group w-[49%]">
+                  <DynamicHtmlTag type="div" className="form-group w-full md:w-[49%]">
                     <DynamicHtmlTag type="div" className="flex justify-between">
                       <DynamicHtmlTag type="span" className="px-2 text-2xs lg:text-3xs xl:text-2xs 2xl:text-xs xl:leading-snug">
                         Date de fin
@@ -686,8 +681,10 @@ const Situation = () => {
             </DynamicHtmlTag>
             <DynamicHtmlTag
               type="div"
-              className="w-full lg:w-4/12 xl:w-5/12 flex items-center justify-around xl:justify-end pb-7 lg:pb-0 pt-5 lg:pt-0 gap-0 flex-row lg:flex-col relative">
-              <DynamicHtmlTag type="div" className="flex flex-col justify-between h-full items-center w-full">
+              className="w-full lg:w-4/12 xl:w-5/12 flex flex-col md:flex-row items-center justify-around xl:justify-end pb-7 lg:pb-0 pt-5 lg:pt-0 gap-0 flex-row lg:flex-col relative">
+              <DynamicHtmlTag
+                type="div"
+                className="mb-2 relative group rounded-xl border-4 border-gray-100 h-[8.125rem] w-36 lg:w-14 lg:h-14 xl:w-20 xl:h-20 flex items-center justify-center overflow-hidden">
                 <CustomImage
                   src={addMutuelleImage || "/images/mutual-img.svg"}
                   alt="mutual-doc"
@@ -778,7 +775,7 @@ const Situation = () => {
         )}
       </DynamicHtmlTag>
       <DynamicHtmlTag type="div" className="pb-2 lg:pb-0 md:min-h-[200px]">
-        <DynamicHtmlTag type="div" className="mt-2 mb-8 flex flex-col gap-2">
+        <DynamicHtmlTag type="div" className="mt-2 mb-2 flex flex-col gap-2">
           <HeadingTag
             type="h4"
             className="text-xs lg:text-sm xl:text-base 2xl:text-lg font-bold mb-2 flex flex-col md:flex-row md:items-center md:gap-2">

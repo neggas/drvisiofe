@@ -181,7 +181,7 @@ const Motifs = () => {
         {/* Symptômes Card section start */}
         <DynamicHtmlTag
           type="div"
-          className={`flex flex-wrap items-start doctor-card-detail consult-radio gap-2 my-2 ${viewportHeight < 832 ? "h-[340px]" : "h-auto"} overflow-y-scroll`}>
+          className={`flex flex-wrap items-start doctor-card-detail consult-radio gap-2 my-2 ${viewportHeight < 832 || viewportWidth <= 768 ? "h-[340px]" : "h-auto"} overflow-y-scroll`}>
           {motifs.map(motif => {
             const isSelected = activeConsultationProcess?.selectedMotifs.includes(motif.name) || selected.includes(motif.id);
             const isDisabled = (activeConsultationProcess?.selectedMotifs?.length || 0) >= 3 && !selected.includes(motif.id);
